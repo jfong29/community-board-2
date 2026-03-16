@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Space Grotesk", "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        display: ["Labrada", "serif"],
+        body: ["Labrada", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -53,7 +53,7 @@ export default {
         },
         offer: "hsl(var(--offer))",
         request: "hsl(var(--request))",
-        signal: "hsl(var(--signal))",
+        observation: "hsl(var(--observation))",
         event: "hsl(var(--event))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
