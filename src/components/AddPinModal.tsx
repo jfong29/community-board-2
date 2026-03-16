@@ -10,13 +10,7 @@ interface AddPinModalProps {
   onSubmit: (pin: Omit<Pin, 'id' | 'x' | 'y'>) => void;
 }
 
-const categories: PinCategory[] = ['offer', 'request', 'signal', 'event'];
-const categoryLabels: Record<PinCategory, string> = {
-  offer: 'Offer',
-  request: 'Request',
-  signal: 'Signal',
-  event: 'Event',
-};
+const categories: PinCategory[] = ['offer', 'request', 'observation', 'event'];
 
 export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProps) {
   const [category, setCategory] = useState<PinCategory>('offer');
@@ -45,15 +39,13 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-50 bg-background/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-background/60"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
-          {/* Modal */}
           <motion.div
             className="fixed inset-x-4 top-1/2 z-50 md:max-w-md md:mx-auto"
             initial={{ y: '-40%', opacity: 0, scale: 0.9 }}
@@ -61,10 +53,10 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
             exit={{ y: '-40%', opacity: 0, scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
-            <div className="glass rounded-2xl p-6">
+            <div className="earth-panel rounded-2xl p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-display text-lg font-bold text-foreground">
-                  Add to the Board
+                  +
                 </h2>
                 <button onClick={onClose} className="p-1 rounded-full hover:bg-muted/30 text-foreground">
                   <X size={18} />
@@ -72,7 +64,6 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Category selector */}
                 <div className="flex gap-2">
                   {categories.map((cat) => (
                     <button
@@ -84,7 +75,6 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
                       }`}
                     >
                       <PinIcon category={cat} size={14} animate={false} />
-                      <span className="text-foreground">{categoryLabels[cat]}</span>
                     </button>
                   ))}
                 </div>
@@ -99,14 +89,14 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
 
                 <input
                   type="text"
-                  placeholder="Category (e.g. Food, Air Quality)"
+                  placeholder="e.g. Food, Air Quality"
                   value={subcategory}
                   onChange={(e) => setSubcategory(e.target.value)}
                   className="w-full bg-muted/30 border border-border/40 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary font-body"
                 />
 
                 <textarea
-                  placeholder="Description"
+                  placeholder="..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
@@ -117,7 +107,7 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
                   type="submit"
                   className="w-full py-3 rounded-xl font-display font-semibold text-sm bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98] transition-transform"
                 >
-                  Place on Map
+                  ↓
                 </button>
               </form>
             </div>

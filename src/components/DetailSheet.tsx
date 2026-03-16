@@ -9,6 +9,13 @@ interface DetailSheetProps {
   onChat: (pin: Pin) => void;
 }
 
+const categoryColorMap: Record<string, string> = {
+  offer: '#00838A',
+  request: '#D54E00',
+  observation: '#1D8636',
+  event: '#9D7AD2',
+};
+
 export default function DetailSheet({ pin, onClose, onChat }: DetailSheetProps) {
   return (
     <AnimatePresence>
@@ -20,20 +27,11 @@ export default function DetailSheet({ pin, onClose, onChat }: DetailSheetProps) 
           exit={{ y: '100%' }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
-          <div className="glass rounded-2xl p-6 space-y-4">
-            {/* Header */}
+          <div className="earth-panel rounded-2xl p-6 space-y-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <PinIcon category={pin.category} size={28} animate={false} />
-                <div>
-                  <p
-                    className="text-xs font-display font-semibold uppercase tracking-widest"
-                    style={{ color: getCategoryColor(pin.category) }}
-                  >
-                    {categoryConfig[pin.category].label}
-                  </p>
-                  <span className="text-xs text-muted-foreground">{pin.subcategory}</span>
-                </div>
+                <span className="text-xs text-muted-foreground">{pin.subcategory}</span>
               </div>
               <button
                 onClick={onClose}
@@ -43,45 +41,35 @@ export default function DetailSheet({ pin, onClose, onChat }: DetailSheetProps) 
               </button>
             </div>
 
-            {/* Title */}
             <h2 className="font-display text-xl font-bold text-foreground leading-tight">
               {pin.title}
             </h2>
 
-            {/* Description */}
             <p className="text-sm text-muted-foreground leading-relaxed">
               {pin.description}
             </p>
 
-            {/* Meta */}
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <MapPin size={12} />
                 {pin.distance}
               </span>
-              <span>by {pin.postedBy}</span>
+              <span>{pin.postedBy}</span>
             </div>
 
-            {/* Actions */}
             <button
               onClick={() => onChat(pin)}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
               style={{
-                backgroundColor: getCategoryColor(pin.category),
-                color: '#F9F9F9',
+                backgroundColor: categoryColorMap[pin.category],
+                color: 'hsl(40, 20%, 85%)',
               }}
             >
               <MessageCircle size={16} />
-              Start Chat
             </button>
           </div>
         </motion.div>
       )}
     </AnimatePresence>
   );
-}
-
-function getCategoryColor(cat: Pin['category']): string {
-  const map = { offer: '#00838A', request: '#D54E00', signal: '#1D8636', event: '#9D7AD2' };
-  return map[cat];
 }

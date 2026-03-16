@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Labrada:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,32 +6,32 @@
 
 @layer base {
   :root {
-    --background: 150 10% 8%;
-    --foreground: 0 0% 97.6%;
+    --background: 30 12% 7%;
+    --foreground: 40 20% 85%;
 
-    --card: 150 10% 12%;
-    --card-foreground: 0 0% 97.6%;
+    --card: 30 10% 11%;
+    --card-foreground: 40 20% 85%;
 
-    --popover: 150 10% 10%;
-    --popover-foreground: 0 0% 97.6%;
+    --popover: 30 10% 9%;
+    --popover-foreground: 40 20% 85%;
 
     --primary: 184 100% 27%;
-    --primary-foreground: 0 0% 97.6%;
+    --primary-foreground: 40 20% 85%;
 
     --secondary: 22 100% 42%;
-    --secondary-foreground: 0 0% 97.6%;
+    --secondary-foreground: 40 20% 85%;
 
-    --muted: 150 8% 18%;
-    --muted-foreground: 150 10% 60%;
+    --muted: 30 8% 16%;
+    --muted-foreground: 30 15% 50%;
 
     --accent: 268 42% 65%;
-    --accent-foreground: 0 0% 97.6%;
+    --accent-foreground: 40 20% 85%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 97.6%;
+    --destructive-foreground: 40 20% 85%;
 
-    --border: 150 10% 20%;
-    --input: 150 10% 20%;
+    --border: 30 10% 18%;
+    --input: 30 10% 18%;
     --ring: 184 100% 27%;
 
     --radius: 1rem;
@@ -39,30 +39,29 @@
     /* Category colors */
     --offer: 184 100% 27%;
     --request: 22 100% 42%;
-    --signal: 141 65% 32%;
+    --observation: 141 65% 32%;
     --event: 268 42% 65%;
 
-    /* Glassmorphism */
-    --glass-bg: hsla(150, 10%, 8%, 0.65);
-    --glass-border: hsla(150, 10%, 40%, 0.2);
-    --glass-blur: 20px;
+    /* Earthy panel backgrounds */
+    --panel-bg: hsla(30, 12%, 7%, 0.85);
+    --panel-border: hsla(30, 15%, 25%, 0.4);
 
     /* Glow effects */
-    --glow-offer: 0 0 12px hsla(184, 100%, 27%, 0.6);
-    --glow-request: 0 0 12px hsla(22, 100%, 42%, 0.6);
-    --glow-signal: 0 0 12px hsla(141, 65%, 32%, 0.6);
-    --glow-event: 0 0 12px hsla(268, 42%, 65%, 0.6);
+    --glow-offer: 0 0 12px hsla(184, 100%, 27%, 0.5);
+    --glow-request: 0 0 12px hsla(22, 100%, 42%, 0.5);
+    --glow-observation: 0 0 12px hsla(141, 65%, 32%, 0.5);
+    --glow-event: 0 0 12px hsla(268, 42%, 65%, 0.5);
 
-    --font-display: 'Space Grotesk', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-display: 'Labrada', serif;
+    --font-body: 'Labrada', serif;
 
-    --sidebar-background: 150 10% 8%;
-    --sidebar-foreground: 0 0% 97.6%;
+    --sidebar-background: 30 12% 7%;
+    --sidebar-foreground: 40 20% 85%;
     --sidebar-primary: 184 100% 27%;
-    --sidebar-primary-foreground: 0 0% 97.6%;
-    --sidebar-accent: 150 8% 18%;
-    --sidebar-accent-foreground: 0 0% 97.6%;
-    --sidebar-border: 150 10% 20%;
+    --sidebar-primary-foreground: 40 20% 85%;
+    --sidebar-accent: 30 8% 16%;
+    --sidebar-accent-foreground: 40 20% 85%;
+    --sidebar-border: 30 10% 18%;
     --sidebar-ring: 184 100% 27%;
   }
 }
@@ -81,16 +80,14 @@
 }
 
 @layer components {
-  .glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
+  .earth-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
   }
 
   .glow-offer { box-shadow: var(--glow-offer); }
   .glow-request { box-shadow: var(--glow-request); }
-  .glow-signal { box-shadow: var(--glow-signal); }
+  .glow-observation { box-shadow: var(--glow-observation); }
   .glow-event { box-shadow: var(--glow-event); }
 
   .pin-pulse {
@@ -110,4 +107,18 @@
   .ripple-ring {
     animation: ripple 2s ease-out infinite;
   }
+
+  /* Ragged / cut-paper edge effect via SVG filter */
+  .ragged-edge {
+    filter: url(#ragged);
+  }
+
+  /* Status colors */
+  .status-healthy { color: hsl(var(--observation)); }
+  .status-declining { color: hsl(var(--request)); }
+  .status-critical { color: hsl(var(--destructive)); }
+
+  .status-bg-healthy { background-color: hsl(var(--observation) / 0.15); }
+  .status-bg-declining { background-color: hsl(var(--request) / 0.15); }
+  .status-bg-critical { background-color: hsl(var(--destructive) / 0.15); }
 }

@@ -11,70 +11,77 @@ interface PinIconProps {
 const colorMap: Record<PinCategory, string> = {
   offer: '#00838A',
   request: '#D54E00',
-  signal: '#1D8636',
+  observation: '#1D8636',
   event: '#9D7AD2',
 };
 
 const glowMap: Record<PinCategory, string> = {
   offer: '0 0 14px rgba(0,131,138,0.7)',
   request: '0 0 14px rgba(213,78,0,0.7)',
-  signal: '0 0 14px rgba(29,134,54,0.7)',
+  observation: '0 0 14px rgba(29,134,54,0.7)',
   event: '0 0 14px rgba(157,122,210,0.7)',
 };
 
-// Offer = up arrow, Request = down arrow, Signal = wide diamond, Event = horizontal arrows
+// Ragged/cut-paper edge shapes — organic hand-cut feel
 function renderShape(category: PinCategory, size: number, color: string) {
   const s = size;
   const half = s / 2;
   switch (category) {
     case 'offer':
+      // Up arrow with ragged edges
       return (
         <polygon
-          points={`${half},2 ${s - 4},${s - 4} 4,${s - 4}`}
+          points={`${half},1 ${half+3},${s*0.35} ${s-3},${s-3} ${half+1},${s*0.7} ${half-1},${s*0.7} 3,${s-3} ${half-3},${s*0.35}`}
           fill={color}
-          fillOpacity={0.85}
+          fillOpacity={0.9}
           stroke={color}
-          strokeWidth={1.5}
+          strokeWidth={1}
+          strokeLinejoin="round"
         />
       );
     case 'request':
+      // Down arrow with ragged edges
       return (
         <polygon
-          points={`4,4 ${s - 4},4 ${half},${s - 2}`}
+          points={`3,3 ${half-3},${s*0.3} ${half-1},${s*0.3} ${half},${s-1} ${half+1},${s*0.3} ${half+3},${s*0.3} ${s-3},3`}
           fill={color}
-          fillOpacity={0.85}
+          fillOpacity={0.9}
           stroke={color}
-          strokeWidth={1.5}
+          strokeWidth={1}
+          strokeLinejoin="round"
         />
       );
-    case 'signal':
+    case 'observation':
+      // Wide diamond with organic edges
       return (
         <polygon
-          points={`${half},4 ${s - 2},${half} ${half},${s - 4} 2,${half}`}
+          points={`${half},2 ${s-1},${half-1} ${s-2},${half+1} ${half},${s-2} 2,${half+1} 1,${half-1}`}
           fill={color}
-          fillOpacity={0.85}
+          fillOpacity={0.9}
           stroke={color}
-          strokeWidth={1.5}
+          strokeWidth={1}
+          strokeLinejoin="round"
         />
       );
     case 'event':
+      // Converging arrows with rough edges
       return (
         <>
-          {/* Left arrow pointing right */}
           <polygon
-            points={`2,${half} ${half - 2},6 ${half - 2},${s - 6}`}
+            points={`1,${half} ${half-3},4 ${half-2},${half-2} ${half-2},${half+2} ${half-3},${s-4}`}
             fill={color}
-            fillOpacity={0.85}
+            fillOpacity={0.9}
             stroke={color}
-            strokeWidth={1}
+            strokeWidth={0.8}
+            strokeLinejoin="round"
           />
-          {/* Right arrow pointing left */}
           <polygon
-            points={`${s - 2},${half} ${half + 2},6 ${half + 2},${s - 6}`}
+            points={`${s-1},${half} ${half+3},4 ${half+2},${half-2} ${half+2},${half+2} ${half+3},${s-4}`}
             fill={color}
-            fillOpacity={0.85}
+            fillOpacity={0.9}
             stroke={color}
-            strokeWidth={1}
+            strokeWidth={0.8}
+            strokeLinejoin="round"
           />
         </>
       );
@@ -96,7 +103,6 @@ export default function PinIcon({ category, size = 32, onClick, animate = true }
       transition={{ type: 'spring', stiffness: 400, damping: 15 }}
       style={{ filter: `drop-shadow(${glow})` }}
     >
-      {/* Pulse ring */}
       {animate && (
         <div
           className="absolute inset-0 rounded-full ripple-ring"

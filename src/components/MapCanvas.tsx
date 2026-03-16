@@ -58,20 +58,6 @@ export default function MapCanvas() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
-      {/* Title overlay */}
-      <motion.div
-        className="absolute top-6 left-1/2 -translate-x-1/2 z-30"
-        initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-      >
-        <div className="glass rounded-full px-6 py-2.5">
-          <h1 className="font-display text-sm md:text-base font-semibold text-foreground tracking-wide">
-            The Community Board
-          </h1>
-        </div>
-      </motion.div>
-
       {/* Map */}
       <div
         ref={mapRef}
@@ -92,9 +78,10 @@ export default function MapCanvas() {
         >
           <img
             src={welikiaMap}
-            alt="Welikia precolonial landscape"
+            alt="Precolonial landscape"
             className="w-full h-full object-cover"
             draggable={false}
+            style={{ imageRendering: 'auto' }}
           />
 
           {/* Pins */}

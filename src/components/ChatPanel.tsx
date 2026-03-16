@@ -17,8 +17,8 @@ interface Message {
 
 export default function ChatPanel({ pin, onClose }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: `Interested in "${pin?.title}". Is this still available?`, sender: 'you' },
-    { id: 2, text: 'Yes! Come by anytime. The trail is marked with blue stones.', sender: 'them' },
+    { id: 1, text: `Interested in "${pin?.title}"`, sender: 'you' },
+    { id: 2, text: 'Yes! The trail is marked with blue stones.', sender: 'them' },
   ]);
   const [input, setInput] = useState('');
 
@@ -38,22 +38,15 @@ export default function ChatPanel({ pin, onClose }: ChatPanelProps) {
           exit={{ x: '100%' }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
-          <div className="glass flex-1 flex flex-col">
-            {/* Header */}
+          <div className="earth-panel flex-1 flex flex-col bg-background">
             <div className="flex items-center gap-3 p-4 border-b border-border/30">
               <button onClick={onClose} className="p-1 text-foreground hover:bg-muted/30 rounded-full">
                 <ArrowLeft size={20} />
               </button>
               <PinIcon category={pin.category} size={20} animate={false} />
-              <div>
-                <p className="font-display font-semibold text-sm text-foreground">{pin.postedBy}</p>
-                <p className="text-xs text-muted-foreground">
-                  {categoryConfig[pin.category].label} · {pin.subcategory}
-                </p>
-              </div>
+              <p className="font-display font-semibold text-sm text-foreground">{pin.postedBy}</p>
             </div>
 
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.map((m) => (
                 <div key={m.id} className={`flex ${m.sender === 'you' ? 'justify-end' : 'justify-start'}`}>
@@ -70,14 +63,13 @@ export default function ChatPanel({ pin, onClose }: ChatPanelProps) {
               ))}
             </div>
 
-            {/* Input */}
             <div className="p-4 border-t border-border/30">
               <div className="flex gap-2">
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && send()}
-                  placeholder="Type a message..."
+                  placeholder="..."
                   className="flex-1 bg-muted/30 border border-border/40 rounded-full px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary font-body"
                 />
                 <button
