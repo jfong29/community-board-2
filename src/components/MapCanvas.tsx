@@ -8,17 +8,19 @@ import LandmarkPin from './LandmarkPin';
 import FloatingDock from './FloatingDock';
 import DetailSheet from './DetailSheet';
 import LandmarkSheet from './LandmarkSheet';
+import SubcategorySheet from './SubcategorySheet';
 import AddPinModal from './AddPinModal';
 import ChatPanel from './ChatPanel';
 import EcoStatusBar from './EcoStatusBar';
 import StreetMapView from './StreetMapView';
-import { Map, Layers } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 export default function MapCanvas() {
   const [pins, setPins] = useState<Pin[]>(samplePins);
   const [activeFilter, setActiveFilter] = useState<PinCategory | null>(null);
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
+  const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
   const [chatPin, setChatPin] = useState<Pin | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [mapTransform, setMapTransform] = useState({ scale: 1, x: 0, y: 0 });
@@ -64,12 +66,25 @@ export default function MapCanvas() {
     dragRef.current.isDragging = false;
   };
 
+  const handleTagClick = (subcategory: string) => {
+    setSelectedPin(null);
+    setActiveSubcategory(subcategory);
+  };
+
+  const handleLandmarkPinSelect = (pin: Pin) => {
+    setSelectedLandmark(null);
+    setSelectedPin(pin);
+  };
+
+  const handleSubcategoryPinSelect = (pin: Pin) => {
+    setActiveSubcategory(null);
+    setSelectedPin(pin);
+  };
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
-      {/* Ecological status bar */}
       <EcoStatusBar />
 
-      {/* Map toggle button */}
       <motion.button
         className="fixed top-12 right-4 z-40 earth-panel rounded-xl p-2.5 flex items-center gap-2 text-xs font-display font-semibold text-foreground hover:bg-muted/30 transition-colors"
         onClick={() => setShowStreetMap(!showStreetMap)}
@@ -90,7 +105,6 @@ export default function MapCanvas() {
           onLandmarkClick={setSelectedLandmark}
         />
       ) : (
-        /* Welikia Map */
         <div
           ref={mapRef}
           className="w-full h-full cursor-grab active:cursor-grabbing select-none pt-9"
@@ -113,19 +127,13 @@ export default function MapCanvas() {
               alt="Precolonial landscape"
               className="w-full h-full object-cover"
               draggable={false}
-              style={{ imageRendering: 'auto' }}
             />
 
-            {/* Pins */}
             {filteredPins.map((pin, i) => (
               <div
                 key={pin.id}
                 className="absolute"
-                style={{
-                  left: `${pin.x}%`,
-                  top: `${pin.y}%`,
-                  transform: 'translate(-50%, -50%)',
-                }}
+                style={{ left: `${pin.x}%`, top: `${pin.y}%`, transform: 'translate(-50%, -50%)' }}
               >
                 <motion.div
                   initial={{ scale: 0, opacity: 0 }}
@@ -135,27 +143,22 @@ export default function MapCanvas() {
                   <PinIcon
                     category={pin.category}
                     size={pin.category === 'offer' || pin.category === 'request' ? 44 : pin.category === 'event' ? 40 : 32}
-                    onClick={() => { setSelectedPin(pin); setSelectedLandmark(null); }}
+                    onClick={() => { setSelectedPin(pin); setSelectedLandmark(null); setActiveSubcategory(null); }}
                     advertisement={pin.category === 'offer' || pin.category === 'request'}
                   />
                 </motion.div>
               </div>
             ))}
 
-            {/* Landmarks */}
             {landmarks.map((lm, i) => (
               <div
                 key={lm.id}
                 className="absolute"
-                style={{
-                  left: `${lm.x}%`,
-                  top: `${lm.y}%`,
-                  transform: 'translate(-50%, -50%)',
-                }}
+                style={{ left: `${lm.x}%`, top: `${lm.y}%`, transform: 'translate(-50%, -50%)' }}
               >
                 <LandmarkPin
                   landmark={lm}
-                  onClick={() => { setSelectedLandmark(lm); setSelectedPin(null); }}
+                  onClick={() => { setSelectedLandmark(lm); setSelectedPin(null); setActiveSubcategory(null); }}
                   index={i}
                 />
               </div>
@@ -164,37 +167,28 @@ export default function MapCanvas() {
         </div>
       )}
 
-      {/* Floating dock */}
-      <FloatingDock
-        activeFilter={activeFilter}
-        onFilter={setActiveFilter}
-        onAdd={() => setShowAdd(true)}
-      />
+      <FloatingDock activeFilter={activeFilter} onFilter={setActiveFilter} onAdd={() => setShowAdd(true)} />
 
-      {/* Detail sheet */}
       <DetailSheet
         pin={selectedPin}
         onClose={() => setSelectedPin(null)}
-        onChat={(pin) => {
-          setSelectedPin(null);
-          setChatPin(pin);
-        }}
+        onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }}
+        onTagClick={handleTagClick}
       />
 
-      {/* Landmark sheet */}
       <LandmarkSheet
         landmark={selectedLandmark}
         onClose={() => setSelectedLandmark(null)}
+        onPinSelect={handleLandmarkPinSelect}
       />
 
-      {/* Add modal */}
-      <AddPinModal
-        open={showAdd}
-        onClose={() => setShowAdd(false)}
-        onSubmit={handleAddPin}
+      <SubcategorySheet
+        subcategory={activeSubcategory}
+        onClose={() => setActiveSubcategory(null)}
+        onPinSelect={handleSubcategoryPinSelect}
       />
 
-      {/* Chat */}
+      <AddPinModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddPin} />
       <ChatPanel pin={chatPin} onClose={() => setChatPin(null)} />
     </div>
   );
