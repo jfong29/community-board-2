@@ -44,8 +44,8 @@ export const landmarks: Landmark[] = [
     lat: 40.7145,
     lng: -74.0015,
     pins: [
-      { category: 'observation', title: 'Oyster Colony Expanding', description: 'New spat observed on restored reef structures.' },
-      { category: 'event', title: 'Water Ceremony', description: 'Seasonal water blessing at the next full moon.' },
+      { category: 'observation', title: 'Oyster Colony Expanding', description: 'New spat observed on restored reef structures.', subcategory: 'Water Quality', distance: 'On site', postedBy: 'Reef Monitor' },
+      { category: 'event', title: 'Water Ceremony', description: 'Seasonal water blessing at the next full moon.', subcategory: 'Gathering', distance: 'On site', postedBy: 'Council' },
     ],
   },
   {
