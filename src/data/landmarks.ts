@@ -30,9 +30,9 @@ export const landmarks: Landmark[] = [
     lat: 40.7359,
     lng: -73.9911,
     pins: [
-      { category: 'offer', title: 'Plant Water Available', description: 'Rain barrel reserves open for community garden irrigation.' },
-      { category: 'request', title: 'Volunteers Needed', description: 'Help maintain native plantings along the eastern beds.' },
-      { category: 'observation', title: 'Low Water Levels', description: 'Rainfall 40% below seasonal average. Soil moisture critically low.' },
+      { category: 'offer', title: 'Plant Water Available', description: 'Rain barrel reserves open for community garden irrigation.', subcategory: 'Water', distance: 'On site', postedBy: 'Garden Keeper' },
+      { category: 'request', title: 'Volunteers Needed', description: 'Help maintain native plantings along the eastern beds.', subcategory: 'Labor', distance: 'On site', postedBy: 'Park Council' },
+      { category: 'observation', title: 'Low Water Levels', description: 'Rainfall 40% below seasonal average. Soil moisture critically low.', subcategory: 'Water Quality', distance: 'On site', postedBy: 'Water Watcher' },
     ],
   },
   {
