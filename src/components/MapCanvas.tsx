@@ -1,20 +1,28 @@
 import { useState, useRef } from 'react';
 import { Pin, PinCategory, samplePins } from '@/data/pins';
+import { landmarks, Landmark } from '@/data/landmarks';
 import { motion } from 'framer-motion';
 import welikiaMap from '@/assets/welikia-map.jpg';
 import PinIcon from './PinIcon';
+import LandmarkPin from './LandmarkPin';
 import FloatingDock from './FloatingDock';
 import DetailSheet from './DetailSheet';
+import LandmarkSheet from './LandmarkSheet';
 import AddPinModal from './AddPinModal';
 import ChatPanel from './ChatPanel';
+import EcoStatusBar from './EcoStatusBar';
+import StreetMapView from './StreetMapView';
+import { Map, Layers } from 'lucide-react';
 
 export default function MapCanvas() {
   const [pins, setPins] = useState<Pin[]>(samplePins);
   const [activeFilter, setActiveFilter] = useState<PinCategory | null>(null);
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
+  const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
   const [chatPin, setChatPin] = useState<Pin | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [mapTransform, setMapTransform] = useState({ scale: 1, x: 0, y: 0 });
+  const [showStreetMap, setShowStreetMap] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({ startX: 0, startY: 0, isDragging: false });
 
@@ -58,58 +66,103 @@ export default function MapCanvas() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
-      {/* Map */}
-      <div
-        ref={mapRef}
-        className="w-full h-full cursor-grab active:cursor-grabbing select-none"
-        onWheel={handleWheel}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-        <div
-          className="relative w-full h-full"
-          style={{
-            transform: `translate(${mapTransform.x}px, ${mapTransform.y}px) scale(${mapTransform.scale})`,
-            transformOrigin: 'center center',
-            transition: dragRef.current.isDragging ? 'none' : 'transform 0.15s ease-out',
-          }}
-        >
-          <img
-            src={welikiaMap}
-            alt="Precolonial landscape"
-            className="w-full h-full object-cover"
-            draggable={false}
-            style={{ imageRendering: 'auto' }}
-          />
+      {/* Ecological status bar */}
+      <EcoStatusBar />
 
-          {/* Pins */}
-          {filteredPins.map((pin, i) => (
-            <div
-              key={pin.id}
-              className="absolute"
-              style={{
-                left: `${pin.x}%`,
-                top: `${pin.y}%`,
-                transform: 'translate(-50%, -50%)',
-              }}
-            >
-              <motion.div
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.5 + i * 0.08, type: 'spring', stiffness: 400, damping: 15 }}
+      {/* Map toggle button */}
+      <motion.button
+        className="fixed top-12 right-4 z-40 earth-panel rounded-xl p-2.5 flex items-center gap-2 text-xs font-display font-semibold text-foreground hover:bg-muted/30 transition-colors"
+        onClick={() => setShowStreetMap(!showStreetMap)}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5 }}
+        title={showStreetMap ? 'Welikia view' : 'Street view'}
+      >
+        <Layers size={16} />
+        <span className="hidden md:inline">{showStreetMap ? 'Welikia' : 'Streets'}</span>
+      </motion.button>
+
+      {showStreetMap ? (
+        <StreetMapView
+          pins={filteredPins}
+          landmarks={landmarks}
+          onPinClick={setSelectedPin}
+          onLandmarkClick={setSelectedLandmark}
+        />
+      ) : (
+        /* Welikia Map */
+        <div
+          ref={mapRef}
+          className="w-full h-full cursor-grab active:cursor-grabbing select-none pt-9"
+          onWheel={handleWheel}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          <div
+            className="relative w-full h-full"
+            style={{
+              transform: `translate(${mapTransform.x}px, ${mapTransform.y}px) scale(${mapTransform.scale})`,
+              transformOrigin: 'center center',
+              transition: dragRef.current.isDragging ? 'none' : 'transform 0.15s ease-out',
+            }}
+          >
+            <img
+              src={welikiaMap}
+              alt="Precolonial landscape"
+              className="w-full h-full object-cover"
+              draggable={false}
+              style={{ imageRendering: 'auto' }}
+            />
+
+            {/* Pins */}
+            {filteredPins.map((pin, i) => (
+              <div
+                key={pin.id}
+                className="absolute"
+                style={{
+                  left: `${pin.x}%`,
+                  top: `${pin.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
               >
-                <PinIcon
-                  category={pin.category}
-                  size={36}
-                  onClick={() => setSelectedPin(pin)}
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.5 + i * 0.08, type: 'spring', stiffness: 400, damping: 15 }}
+                >
+                  <PinIcon
+                    category={pin.category}
+                    size={pin.category === 'offer' || pin.category === 'request' ? 44 : pin.category === 'event' ? 40 : 32}
+                    onClick={() => { setSelectedPin(pin); setSelectedLandmark(null); }}
+                    advertisement={pin.category === 'offer' || pin.category === 'request'}
+                  />
+                </motion.div>
+              </div>
+            ))}
+
+            {/* Landmarks */}
+            {landmarks.map((lm, i) => (
+              <div
+                key={lm.id}
+                className="absolute"
+                style={{
+                  left: `${lm.x}%`,
+                  top: `${lm.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
+              >
+                <LandmarkPin
+                  landmark={lm}
+                  onClick={() => { setSelectedLandmark(lm); setSelectedPin(null); }}
+                  index={i}
                 />
-              </motion.div>
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Floating dock */}
       <FloatingDock
@@ -126,6 +179,12 @@ export default function MapCanvas() {
           setSelectedPin(null);
           setChatPin(pin);
         }}
+      />
+
+      {/* Landmark sheet */}
+      <LandmarkSheet
+        landmark={selectedLandmark}
+        onClose={() => setSelectedLandmark(null)}
       />
 
       {/* Add modal */}
