@@ -84,8 +84,8 @@ export const landmarks: Landmark[] = [
     lat: 40.7308,
     lng: -73.9973,
     pins: [
-      { category: 'observation', title: 'Spring Fed Active', description: 'Underground spring flow detected — seasonal indicator of healthy aquifer.' },
-      { category: 'offer', title: 'Medicinal Herbs', description: 'Elderberry and yarrow surplus from the brook garden.' },
+      { category: 'observation', title: 'Spring Fed Active', description: 'Underground spring flow detected — seasonal indicator of healthy aquifer.', subcategory: 'Water Quality', distance: 'On site', postedBy: 'Aquifer Monitor' },
+      { category: 'offer', title: 'Medicinal Herbs', description: 'Elderberry and yarrow surplus from the brook garden.', subcategory: 'Medicine', distance: 'On site', postedBy: 'Herbalist' },
     ],
   },
 ];
