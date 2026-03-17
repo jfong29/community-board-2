@@ -15,6 +15,9 @@ export interface LandmarkPin {
   category: PinCategory;
   title: string;
   description: string;
+  subcategory: string;
+  distance: string;
+  postedBy: string;
 }
 
 export const landmarks: Landmark[] = [
