@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { observationData, communityActions, ObservationData, CommunityAction } from '@/data/pins';
 import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Vote, Calendar } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Vote, Calendar, Check, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function StatusRing({ data }: { data: ObservationData }) {
@@ -19,22 +20,12 @@ function StatusRing({ data }: { data: ObservationData }) {
     >
       <div className="relative">
         <svg width="90" height="90" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r={radius} fill="none" stroke="hsl(30, 10%, 18%)" strokeWidth="6" />
           <circle
-            cx="45" cy="45" r={radius}
-            fill="none"
-            stroke="hsl(30, 10%, 18%)"
-            strokeWidth="6"
-          />
-          <circle
-            cx="45" cy="45" r={radius}
-            fill="none"
-            stroke={statusColor}
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference - progress}
-            transform="rotate(-90 45 45)"
-            className="transition-all duration-1000"
+            cx="45" cy="45" r={radius} fill="none"
+            stroke={statusColor} strokeWidth="6" strokeLinecap="round"
+            strokeDasharray={circumference} strokeDashoffset={circumference - progress}
+            transform="rotate(-90 45 45)" className="transition-all duration-1000"
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -45,9 +36,7 @@ function StatusRing({ data }: { data: ObservationData }) {
       <div className="text-center space-y-1">
         <p className="font-display text-sm font-semibold text-foreground">{data.indicator}</p>
         <div className="flex items-center justify-center gap-1.5">
-          <span className="text-lg font-display font-bold" style={{ color: statusColor }}>
-            {data.value}
-          </span>
+          <span className="text-lg font-display font-bold" style={{ color: statusColor }}>{data.value}</span>
           {data.trend === 'up' && <TrendingUp size={14} className="status-healthy" />}
           {data.trend === 'down' && <TrendingDown size={14} className="status-declining" />}
           {data.trend === 'stable' && <Minus size={14} className="text-muted-foreground" />}
@@ -64,7 +53,7 @@ function StatusRing({ data }: { data: ObservationData }) {
   );
 }
 
-function ActionCard({ action }: { action: CommunityAction }) {
+function ActionCard({ action, onVote }: { action: CommunityAction & { userVote?: 'yes' | 'no' }; onVote?: (id: string, vote: 'yes' | 'no') => void }) {
   const isVote = action.type === 'vote';
   const totalVotes = isVote && action.votes ? action.votes.yes + action.votes.no : 0;
   const yesPercent = isVote && action.votes ? Math.round((action.votes.yes / totalVotes) * 100) : 0;
@@ -89,19 +78,47 @@ function ActionCard({ action }: { action: CommunityAction }) {
       </div>
 
       {isVote && action.votes && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{yesPercent}%</span>
-            <span>{totalVotes}</span>
+            <span>{yesPercent}% support</span>
+            <span>{totalVotes} votes</span>
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{
-                width: `${yesPercent}%`,
-                backgroundColor: 'hsl(var(--observation))',
-              }}
+          <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${yesPercent}%` }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              style={{ backgroundColor: 'hsl(var(--observation))' }}
             />
+          </div>
+
+          {/* Vote buttons */}
+          <div className="flex items-center gap-2 pt-1">
+            <motion.button
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition-all ${
+                action.userVote === 'yes'
+                  ? 'bg-observation text-foreground'
+                  : 'bg-muted/30 text-muted-foreground hover:bg-observation/20'
+              }`}
+              onClick={() => onVote?.(action.id, 'yes')}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Check size={14} />
+              <span>{action.votes.yes}</span>
+            </motion.button>
+            <motion.button
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition-all ${
+                action.userVote === 'no'
+                  ? 'bg-request text-foreground'
+                  : 'bg-muted/30 text-muted-foreground hover:bg-request/20'
+              }`}
+              onClick={() => onVote?.(action.id, 'no')}
+              whileTap={{ scale: 0.95 }}
+            >
+              <X size={14} />
+              <span>{action.votes.no}</span>
+            </motion.button>
           </div>
         </div>
       )}
@@ -119,15 +136,40 @@ function ActionCard({ action }: { action: CommunityAction }) {
         </div>
       )}
 
-      <p className="text-[10px] text-muted-foreground/60 italic">
-        ← {action.relatedObservation}
-      </p>
+      <p className="text-[10px] text-muted-foreground/60 italic">← {action.relatedObservation}</p>
     </motion.div>
   );
 }
 
 export default function ObservationsDashboard() {
   const navigate = useNavigate();
+  const [actions, setActions] = useState<(CommunityAction & { userVote?: 'yes' | 'no' })[]>(
+    communityActions.map(a => ({ ...a }))
+  );
+
+  const handleVote = (actionId: string, vote: 'yes' | 'no') => {
+    setActions(prev => prev.map(a => {
+      if (a.id !== actionId || a.type !== 'vote' || !a.votes) return a;
+
+      const prevVote = a.userVote;
+      const votes = { ...a.votes };
+
+      // Remove previous vote
+      if (prevVote === 'yes') votes.yes--;
+      if (prevVote === 'no') votes.no--;
+
+      // Toggle or switch
+      if (prevVote === vote) {
+        return { ...a, votes, userVote: undefined };
+      }
+
+      // Add new vote
+      if (vote === 'yes') votes.yes++;
+      if (vote === 'no') votes.no++;
+
+      return { ...a, votes, userVote: vote };
+    }));
+  };
 
   const healthyCount = observationData.filter(d => d.status === 'healthy').length;
   const decliningCount = observationData.filter(d => d.status === 'declining').length;
@@ -145,57 +187,36 @@ export default function ObservationsDashboard() {
             <ArrowLeft size={20} />
           </button>
           <h1 className="font-display text-lg font-bold text-foreground">🌿</h1>
-          
-          {/* Summary chips */}
+
           <div className="flex items-center gap-2 ml-auto">
-            <span className="status-bg-healthy px-2 py-1 rounded-full text-xs font-display status-healthy">
-              {healthyCount}
-            </span>
-            <span className="status-bg-declining px-2 py-1 rounded-full text-xs font-display status-declining">
-              {decliningCount}
-            </span>
+            <span className="status-bg-healthy px-2 py-1 rounded-full text-xs font-display status-healthy">{healthyCount}</span>
+            <span className="status-bg-declining px-2 py-1 rounded-full text-xs font-display status-declining">{decliningCount}</span>
             {criticalCount > 0 && (
-              <span className="status-bg-critical px-2 py-1 rounded-full text-xs font-display status-critical">
-                {criticalCount}
-              </span>
+              <span className="status-bg-critical px-2 py-1 rounded-full text-xs font-display status-critical">{criticalCount}</span>
             )}
           </div>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-8">
-        {/* Observation rings grid */}
         <section>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {observationData.map((obs, i) => (
-              <motion.div
-                key={obs.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-              >
+              <motion.div key={obs.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                 <StatusRing data={obs} />
               </motion.div>
             ))}
           </div>
         </section>
 
-        {/* Community responses */}
         <section className="space-y-3">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-lg">⟶</span>
-            <h2 className="font-display text-sm font-semibold text-foreground uppercase tracking-widest">
-              Responses
-            </h2>
+            <h2 className="font-display text-sm font-semibold text-foreground uppercase tracking-widest">Responses</h2>
           </div>
-          {communityActions.map((action, i) => (
-            <motion.div
-              key={action.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.1 }}
-            >
-              <ActionCard action={action} />
+          {actions.map((action, i) => (
+            <motion.div key={action.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.1 }}>
+              <ActionCard action={action} onVote={handleVote} />
             </motion.div>
           ))}
         </section>
