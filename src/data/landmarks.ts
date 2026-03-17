@@ -71,8 +71,8 @@ export const landmarks: Landmark[] = [
     lat: 40.7033,
     lng: -74.0170,
     pins: [
-      { category: 'observation', title: 'Osprey Nesting', description: 'Pair returned to the platform. Eggs expected within two weeks.' },
-      { category: 'event', title: 'Shoreline Assembly', description: 'Discuss tidal restoration and oyster reef expansion.' },
+      { category: 'observation', title: 'Osprey Nesting', description: 'Pair returned to the platform. Eggs expected within two weeks.', subcategory: 'Bird Migration', distance: 'On site', postedBy: 'Bird Watcher' },
+      { category: 'event', title: 'Shoreline Assembly', description: 'Discuss tidal restoration and oyster reef expansion.', subcategory: 'Assembly', distance: 'On site', postedBy: 'Shore Council' },
     ],
   },
   {
