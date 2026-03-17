@@ -57,9 +57,9 @@ export const landmarks: Landmark[] = [
     lat: 40.7265,
     lng: -73.9817,
     pins: [
-      { category: 'offer', title: 'Native Seed Packets', description: 'Milkweed and aster seeds free for pollinator gardens.' },
-      { category: 'observation', title: 'Monarch Sighting', description: 'First monarchs of the season spotted on milkweed.' },
-      { category: 'request', title: 'Bee Box Repair', description: 'Community hive needs structural repair before swarm season.' },
+      { category: 'offer', title: 'Native Seed Packets', description: 'Milkweed and aster seeds free for pollinator gardens.', subcategory: 'Seeds', distance: 'On site', postedBy: 'Pollinator Guild' },
+      { category: 'observation', title: 'Monarch Sighting', description: 'First monarchs of the season spotted on milkweed.', subcategory: 'Pollinators', distance: 'On site', postedBy: 'Butterfly Watch' },
+      { category: 'request', title: 'Bee Box Repair', description: 'Community hive needs structural repair before swarm season.', subcategory: 'Materials', distance: 'On site', postedBy: 'Bee Keeper' },
     ],
   },
   {
