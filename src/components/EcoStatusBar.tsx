@@ -99,6 +99,13 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect }: EcoSta
                 />
               </div>
             </div>
+            <button
+              onClick={() => navigate('/profile')}
+              className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/30 transition-colors"
+              title="Profile"
+            >
+              <User size={12} className="text-primary" />
+            </button>
           </div>
         </div>
       </motion.div>
