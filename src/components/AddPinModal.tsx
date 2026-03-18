@@ -116,7 +116,7 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
                 {/* Title */}
                 <input
                   type="text"
-                  placeholder={category === 'offer' ? 'What are you offering?' : category === 'request' ? 'What do you need?' : category === 'observation' ? 'What did you notice?' : 'What's the gathering?'}
+                  placeholder={category === 'offer' ? 'What are you offering?' : category === 'request' ? 'What do you need?' : category === 'observation' ? 'What did you notice?' : "What's the gathering?"}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className={inputClass}
