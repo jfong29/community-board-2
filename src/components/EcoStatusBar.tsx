@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sun, CloudSun, Cloud, Zap } from 'lucide-react';
+import { Sun, CloudSun, Cloud, Zap, User } from 'lucide-react';
 import SearchBar from './SearchBar';
 import SeasonalIndicators from './SeasonalIndicators';
 import { Pin } from '@/data/pins';
@@ -42,6 +43,7 @@ interface EcoStatusBarProps {
 }
 
 export default function EcoStatusBar({ initialSearch = '', onPinSelect }: EcoStatusBarProps) {
+  const navigate = useNavigate();
   const [showSeasonal, setShowSeasonal] = useState(false);
   const moon = getMoonPhase();
   const solar = getSolarLevel();
@@ -97,6 +99,13 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect }: EcoSta
                 />
               </div>
             </div>
+            <button
+              onClick={() => navigate('/profile')}
+              className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/30 transition-colors"
+              title="Profile"
+            >
+              <User size={12} className="text-primary" />
+            </button>
           </div>
         </div>
       </motion.div>
