@@ -43,6 +43,7 @@ interface EcoStatusBarProps {
 }
 
 export default function EcoStatusBar({ initialSearch = '', onPinSelect }: EcoStatusBarProps) {
+  const navigate = useNavigate();
   const [showSeasonal, setShowSeasonal] = useState(false);
   const moon = getMoonPhase();
   const solar = getSolarLevel();
