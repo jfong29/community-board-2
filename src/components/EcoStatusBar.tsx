@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sun, CloudSun, Cloud, Zap } from 'lucide-react';
+import { Sun, CloudSun, Cloud, Zap, User } from 'lucide-react';
 import SearchBar from './SearchBar';
 import SeasonalIndicators from './SeasonalIndicators';
 import { Pin } from '@/data/pins';
