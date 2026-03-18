@@ -24,7 +24,7 @@ export default function LandmarkPin({ landmark, onClick, index }: LandmarkPinPro
           {landmark.icon}
         </div>
         <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center bg-[#d9e16b]">
-          <span className="text-[9px] font-display font-bold text-primary-foreground">{landmark.pins.length}</span>
+          <span className="text-[9px] font-display font-bold text-muted">{landmark.pins.length}</span>
         </div>
       </div>
       <span className="text-[9px] font-display font-semibold text-foreground/80 text-center max-w-16 leading-tight">
