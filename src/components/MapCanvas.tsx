@@ -68,8 +68,7 @@ export default function MapCanvas() {
   );
 
   const handleAddPin = (data: Omit<Pin, 'id' | 'x' | 'y'>) => {
-    const newPin: Pin = { ...data, id: Date.now().toString(), x: 30 + Math.random() * 40, y: 30 + Math.random() * 40 };
-    setPins((p) => [...p, newPin]);
+    addPost.mutate(data);
   };
 
   const handleWheel = (e: React.WheelEvent) => {
