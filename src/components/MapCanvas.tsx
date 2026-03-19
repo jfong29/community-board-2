@@ -44,7 +44,8 @@ export default function MapCanvas() {
   const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
 
-  const [pins, setPins] = useState<Pin[]>(samplePins);
+  const { posts: dbPosts, addPost } = usePosts();
+  const allPins = [...samplePins, ...dbPosts];
   const [activeFilter, setActiveFilter] = useState<PinCategory | null>(null);
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
@@ -56,7 +57,7 @@ export default function MapCanvas() {
   const mapRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({ startX: 0, startY: 0, isDragging: false });
 
-  const filteredPins = activeFilter ? pins.filter((p) => p.category === activeFilter) : pins;
+  const filteredPins = activeFilter ? allPins.filter((p) => p.category === activeFilter) : allPins;
 
   // Compute visible neighborhood from map pan
   const viewCenterX = 50 - mapTransform.x / (window.innerWidth || 1) * 50;
