@@ -15,6 +15,7 @@ import ChatPanel from './ChatPanel';
 import EcoStatusBar from './EcoStatusBar';
 import StreetMapView from './StreetMapView';
 import { Layers } from 'lucide-react';
+import { usePosts } from '@/hooks/use-posts';
 
 // Indigenous neighborhood names mapped to map quadrants
 const neighborhoods: {name: string;x: [number, number];y: [number, number];}[] = [
