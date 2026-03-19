@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeft, User, MessageCircle, Vote, BarChart3, Settings, Check } from 'lucide-react';
+import { useProfile } from '@/hooks/use-profile';
 
 type Tab = 'settings' | 'chats' | 'votes' | 'stats';
 
@@ -32,19 +33,45 @@ const mockStats = {
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { profile, isLoading, updateProfile } = useProfile();
   const [tab, setTab] = useState<Tab>('settings');
-  const [name, setName] = useState('Earth Walker');
-  const [pronouns, setPronouns] = useState('they/them');
-  const [locationBase, setLocationBase] = useState('Werpoes');
-  const [timezone, setTimezone] = useState('EST (UTC-5)');
-  const [language, setLanguage] = useState('English');
+  const [name, setName] = useState('');
+  const [pronouns, setPronouns] = useState('');
+  const [locationBase, setLocationBase] = useState('');
+  const [timezone, setTimezone] = useState('');
+  const [language, setLanguage] = useState('');
   const [largeText, setLargeText] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Sync local state from DB profile
+  useEffect(() => {
+    if (profile) {
+      setName(profile.name);
+      setPronouns(profile.pronouns);
+      setLocationBase(profile.location_base);
+      setTimezone(profile.timezone);
+      setLanguage(profile.language);
+      setLargeText(profile.large_text);
+      setHighContrast(profile.high_contrast);
+    }
+  }, [profile]);
+
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    updateProfile.mutate({
+      name,
+      pronouns,
+      location_base: locationBase,
+      timezone,
+      language,
+      large_text: largeText,
+      high_contrast: highContrast,
+    }, {
+      onSuccess: () => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      }
+    });
   };
 
   const inputClass = "w-full bg-muted/30 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary font-body";
@@ -55,6 +82,14 @@ export default function Profile() {
     { key: 'votes', icon: <Vote size={16} />, label: 'Votes' },
     { key: 'stats', icon: <BarChart3 size={16} />, label: 'Stats' },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center">
+        <p className="text-muted-foreground font-display text-sm">Loading profile…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-background overflow-y-auto">
@@ -157,9 +192,10 @@ export default function Profile() {
 
             <button
               onClick={handleSave}
-              className="w-full py-3 rounded-xl font-display font-semibold text-sm bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+              disabled={updateProfile.isPending}
+              className="w-full py-3 rounded-xl font-display font-semibold text-sm bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {saved ? <><Check size={16} /> Saved</> : 'Save Changes'}
+              {saved ? <><Check size={16} /> Saved</> : updateProfile.isPending ? 'Saving…' : 'Save Changes'}
             </button>
           </motion.div>
         )}

@@ -14,7 +14,209 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          recipient_profile_id: string | null
+          sender_profile_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          recipient_profile_id?: string | null
+          sender_profile_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          recipient_profile_id?: string | null
+          sender_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_recipient_profile_id_fkey"
+            columns: ["recipient_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_profile_id_fkey"
+            columns: ["sender_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          category: string
+          contact: string | null
+          created_at: string
+          description: string | null
+          fulfillment: string | null
+          id: string
+          location: string | null
+          profile_id: string | null
+          quantity: string | null
+          subcategory: string | null
+          timeframe: string | null
+          title: string
+          updated_at: string
+          urgency: string | null
+          x: number
+          y: number
+        }
+        Insert: {
+          category: string
+          contact?: string | null
+          created_at?: string
+          description?: string | null
+          fulfillment?: string | null
+          id?: string
+          location?: string | null
+          profile_id?: string | null
+          quantity?: string | null
+          subcategory?: string | null
+          timeframe?: string | null
+          title: string
+          updated_at?: string
+          urgency?: string | null
+          x?: number
+          y?: number
+        }
+        Update: {
+          category?: string
+          contact?: string | null
+          created_at?: string
+          description?: string | null
+          fulfillment?: string | null
+          id?: string
+          location?: string | null
+          profile_id?: string | null
+          quantity?: string | null
+          subcategory?: string | null
+          timeframe?: string | null
+          title?: string
+          updated_at?: string
+          urgency?: string | null
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          high_contrast: boolean | null
+          id: string
+          language: string | null
+          large_text: boolean | null
+          location_base: string | null
+          name: string
+          pronouns: string | null
+          timezone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          high_contrast?: boolean | null
+          id?: string
+          language?: string | null
+          large_text?: boolean | null
+          location_base?: string | null
+          name?: string
+          pronouns?: string | null
+          timezone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          high_contrast?: boolean | null
+          id?: string
+          language?: string | null
+          large_text?: boolean | null
+          location_base?: string | null
+          name?: string
+          pronouns?: string | null
+          timezone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proposals: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      votes: {
+        Row: {
+          created_at: string
+          id: string
+          profile_id: string | null
+          proposal_id: string
+          vote: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          profile_id?: string | null
+          proposal_id: string
+          vote: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          profile_id?: string | null
+          proposal_id?: string
+          vote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "votes_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -15,6 +15,7 @@ import ChatPanel from './ChatPanel';
 import EcoStatusBar from './EcoStatusBar';
 import StreetMapView from './StreetMapView';
 import { Layers } from 'lucide-react';
+import { usePosts } from '@/hooks/use-posts';
 
 // Indigenous neighborhood names mapped to map quadrants
 const neighborhoods: {name: string;x: [number, number];y: [number, number];}[] = [
@@ -43,7 +44,8 @@ export default function MapCanvas() {
   const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
 
-  const [pins, setPins] = useState<Pin[]>(samplePins);
+  const { posts: dbPosts, addPost } = usePosts();
+  const allPins = [...samplePins, ...dbPosts];
   const [activeFilter, setActiveFilter] = useState<PinCategory | null>(null);
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
@@ -55,7 +57,7 @@ export default function MapCanvas() {
   const mapRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({ startX: 0, startY: 0, isDragging: false });
 
-  const filteredPins = activeFilter ? pins.filter((p) => p.category === activeFilter) : pins;
+  const filteredPins = activeFilter ? allPins.filter((p) => p.category === activeFilter) : allPins;
 
   // Compute visible neighborhood from map pan
   const viewCenterX = 50 - mapTransform.x / (window.innerWidth || 1) * 50;
@@ -66,8 +68,7 @@ export default function MapCanvas() {
   );
 
   const handleAddPin = (data: Omit<Pin, 'id' | 'x' | 'y'>) => {
-    const newPin: Pin = { ...data, id: Date.now().toString(), x: 30 + Math.random() * 40, y: 30 + Math.random() * 40 };
-    setPins((p) => [...p, newPin]);
+    addPost.mutate(data);
   };
 
   const handleWheel = (e: React.WheelEvent) => {
