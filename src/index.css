@@ -135,6 +135,9 @@
 .leaflet-pane {
   z-index: 0 !important;
 }
+.leaflet-tile-pane .leaflet-layer {
+  transition: opacity 0.6s ease-in-out !important;
+}
 .leaflet-top,
 .leaflet-bottom {
   z-index: 10 !important;
