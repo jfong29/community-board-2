@@ -306,7 +306,11 @@ export default function StreetMapView({
   pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange,
 }: StreetMapViewProps) {
   const navigate = useNavigate();
-  const [zoom, setZoom] = useState(14);
+  const [zoom, setZoomLocal] = useState(14);
+  const setZoom = useCallback((z: number) => {
+    setZoomLocal(z);
+    onZoomChange?.(z);
+  }, [onZoomChange]);
   const [atMinZoom, setAtMinZoom] = useState(false);
   const [showRequestCity, setShowRequestCity] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
