@@ -303,7 +303,7 @@ function FlyToHandler({ target }: { target: [number, number] | null }) {
 }
 
 export default function StreetMapView({
-  pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove,
+  pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange,
 }: StreetMapViewProps) {
   const navigate = useNavigate();
   const [zoom, setZoom] = useState(14);
