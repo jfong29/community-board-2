@@ -28,8 +28,8 @@ const MAX_BOUNDS = L.latLngBounds(
   [40.5700, -74.0800],
   [40.9000, -73.7500],
 );
-const MIN_ZOOM = 11;
-const MAX_ZOOM = 16;
+const MIN_ZOOM = 12;
+const MAX_ZOOM = 15;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
@@ -101,13 +101,19 @@ function createYouIcon() {
   });
 }
 
-/* ── Zoom tiers (shifted up 2 notches) ── */
-// Tier 1: 11–12 (zoomed out), Tier 2: 13–14, Tier 3: 15–16
-type ZoomTier = 1 | 2 | 3;
+/*
+ * ── Zoom tiers (4 zoom levels: 12–15) ──
+ * Zoom 15 (most zoomed in): Tier 1 — all pins, no landmarks
+ * Zoom 14: Tier 1b — landmarks + urgent pulsing pins
+ * Zoom 13: landmarks + gradients, no pins
+ * Zoom 12 (most zoomed out): just gradients, no landmarks
+ */
+type ZoomTier = 'all-pins' | 'landmarks-urgent' | 'landmarks-gradient' | 'gradient-only';
 function getZoomTier(zoom: number): ZoomTier {
-  if (zoom <= 12) return 1;
-  if (zoom <= 14) return 2;
-  return 3;
+  if (zoom >= 15) return 'all-pins';
+  if (zoom >= 14) return 'landmarks-urgent';
+  if (zoom >= 13) return 'landmarks-gradient';
+  return 'gradient-only';
 }
 
 /* ── Urgency scoring ── */
@@ -188,11 +194,12 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
 
 /* ── Map events ── */
 function MapEvents({
-  onMove, onZoom, onAtMinZoom,
+  onMove, onZoom, onAtMinZoom, onAtMaxZoom,
 }: {
   onMove: (lat: number, lng: number) => void;
   onZoom: (zoom: number) => void;
   onAtMinZoom: (atMin: boolean) => void;
+  onAtMaxZoom: (atMax: boolean) => void;
 }) {
   const map = useMap();
 
@@ -218,11 +225,13 @@ function MapEvents({
       const z = e.target.getZoom();
       onZoom(z);
       onAtMinZoom(z <= MIN_ZOOM);
+      onAtMaxZoom(z >= MAX_ZOOM);
     },
     zoomend(e) {
       const z = e.target.getZoom();
       onZoom(z);
       onAtMinZoom(z <= MIN_ZOOM);
+      onAtMaxZoom(z >= MAX_ZOOM);
     },
   });
   return null;
@@ -241,13 +250,15 @@ interface StreetMapViewProps {
   onZoomChange?: (zoom: number) => void;
 }
 
-function MapControls({ atMinZoom, onRequestCity }: {
+function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
   atMinZoom: boolean;
+  atMaxZoom: boolean;
   onRequestCity: () => void;
 }) {
   const map = useMap();
 
   const handleZoomIn = () => {
+    if (atMaxZoom) return;
     if (map.getZoom() < MAX_ZOOM) map.zoomIn();
   };
   const handleZoomOut = () => {
@@ -263,7 +274,10 @@ function MapControls({ atMinZoom, onRequestCity }: {
     background: 'hsla(15,16%,17%,0.92)',
     border: '1px solid hsla(15,12%,30%,0.5)',
   };
-  const dimStyle: React.CSSProperties = atMinZoom
+  const dimOutStyle: React.CSSProperties = atMinZoom
+    ? { ...btnBase, opacity: 0.4, cursor: 'default' }
+    : btnBase;
+  const dimInStyle: React.CSSProperties = atMaxZoom
     ? { ...btnBase, opacity: 0.4, cursor: 'default' }
     : btnBase;
 
@@ -271,12 +285,12 @@ function MapControls({ atMinZoom, onRequestCity }: {
     <div className="leaflet-control" style={{ position: 'absolute', right: 'var(--grid-gap, 16px)', top: 'calc(var(--grid-gap, 16px) * 2 + 64px + 48px)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
       <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={btnBase} title="Zoom in">
-        <Plus size={16} color="#F4EDE8" />
+        style={dimInStyle} title={atMaxZoom ? 'Maximum zoom reached' : 'Zoom in'}>
+        <Plus size={16} color={atMaxZoom ? 'rgba(244,237,232,0.3)' : '#F4EDE8'} />
       </button>
       <button onClick={handleZoomOut}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={dimStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
+        style={dimOutStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
         <Minus size={16} color={atMinZoom ? 'rgba(244,237,232,0.3)' : '#F4EDE8'} />
       </button>
       <button onClick={handleLocate}
@@ -308,6 +322,7 @@ export default function StreetMapView({
     onZoomChange?.(z);
   }, [onZoomChange]);
   const [atMinZoom, setAtMinZoom] = useState(false);
+  const [atMaxZoom, setAtMaxZoom] = useState(false);
   const [showRequestCity, setShowRequestCity] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
   const tier = getZoomTier(zoom);
@@ -322,15 +337,15 @@ export default function StreetMapView({
   const welikiaOpacity = layer === 'trees' ? 0.9 : layer === 'both' ? 0.55 : 0;
 
   const visiblePins = useMemo(() => {
-    if (tier === 1) return [];
-    if (tier === 2) {
+    if (tier === 'gradient-only' || tier === 'landmarks-gradient') return [];
+    if (tier === 'landmarks-urgent') {
       return pins.filter(p => pinUrgency(p) >= 2);
     }
-    return pins;
+    return pins; // all-pins
   }, [pins, tier]);
 
-  const showLandmarks = tier <= 2;
-  const showHeatmap = tier === 1;
+  const showLandmarks = tier === 'landmarks-gradient' || tier === 'landmarks-urgent';
+  const showHeatmap = tier === 'gradient-only' || tier === 'landmarks-gradient';
 
   const handleLandmarkClick = useCallback((lm: Landmark) => {
     setFlyTarget([lm.lat, lm.lng]);
@@ -355,12 +370,14 @@ export default function StreetMapView({
         zoomSnap={1}
         zoomDelta={1}
         maxBoundsViscosity={0.8}
+        wheelDebounceTime={80}
       >
         {onMapMove && (
           <MapEvents
             onMove={onMapMove}
             onZoom={setZoom}
             onAtMinZoom={setAtMinZoom}
+            onAtMaxZoom={setAtMaxZoom}
           />
         )}
 
@@ -385,7 +402,7 @@ export default function StreetMapView({
         <Marker position={YOU_LOCATION} icon={createYouIcon()} />
 
         {visiblePins.map((pin) => {
-          const isDim = tier === 3 && pinUrgency(pin) <= 1;
+          const isDim = tier === 'all-pins' && pinUrgency(pin) <= 1;
           return (
             <Marker key={pin.id} position={pinLatLng(pin)} icon={createPinIcon(pin.category, isDim)}
               eventHandlers={{ click: () => onPinClick(pin) }} />
@@ -400,6 +417,7 @@ export default function StreetMapView({
 
         <MapControls
           atMinZoom={atMinZoom}
+          atMaxZoom={atMaxZoom}
           onRequestCity={() => setShowRequestCity(true)}
         />
       </MapContainer>
