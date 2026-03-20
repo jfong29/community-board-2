@@ -55,6 +55,7 @@ export default {
         request: "hsl(var(--request))",
         observation: "hsl(var(--observation))",
         event: "hsl(var(--event))",
+        lime: "hsl(var(--lime))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
