@@ -147,29 +147,21 @@ export default function MapCanvas() {
         )}
       </AnimatePresence>
 
-      {/* Layer toggle — fan-out menu from single icon */}
+      {/* Layer toggle — fan-out menu horizontally to the left */}
       <motion.div
-        className="fixed z-40"
+        className="fixed z-40 flex items-center"
         style={{ top: 'calc(var(--grid-gap) * 2 + 64px)', right: 'var(--grid-gap)' }}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <button
-          onClick={() => setLayerMenuOpen(!layerMenuOpen)}
-          className="w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
-          title="Map layers"
-        >
-          <img src={layersIcon} alt="Layers" className="w-5 h-4" />
-        </button>
-
         <AnimatePresence>
           {layerMenuOpen && (
             <motion.div
-              className="flex flex-col gap-1.5 mt-1.5"
-              initial={{ opacity: 0, y: -8, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.9 }}
+              className="flex items-center gap-1.5 mr-1.5"
+              initial={{ opacity: 0, x: 20, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 20, scale: 0.9 }}
               transition={{ duration: 0.15 }}
             >
               {layerOptions.map((opt) => (
@@ -192,6 +184,14 @@ export default function MapCanvas() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <button
+          onClick={() => setLayerMenuOpen(!layerMenuOpen)}
+          className="w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
+          title="Map layers"
+        >
+          <img src={layersIcon} alt="Layers" className="w-5 h-4" />
+        </button>
       </motion.div>
 
       <StreetMapView

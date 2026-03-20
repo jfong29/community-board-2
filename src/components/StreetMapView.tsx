@@ -11,10 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import { Locate, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RequestCityModal from './RequestCityModal';
-import layersIcon from '@/assets/layers.svg';
-import humanIcon from '@/assets/human.svg';
-import bothIcon from '@/assets/both.svg';
-import welikiaLayerIcon from '@/assets/welikia-icon.svg';
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
