@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import {
   MapContainer, TileLayer, Marker, Polyline, Polygon,
   useMap, useMapEvents, ZoomControl,
@@ -7,9 +7,10 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Pin, xyToLatLng } from '@/data/pins';
 import { Landmark } from '@/data/landmarks';
-import { ecoFeatures, EcoFeature } from '@/data/welikia-ecology';
+import { ecoFeatures } from '@/data/welikia-ecology';
 import { useNavigate } from 'react-router-dom';
 import { User, Locate, Plus, Minus } from 'lucide-react';
+import RequestCityModal from './RequestCityModal';
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -18,6 +19,18 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
+
+/* ── Constants ── */
+const CENTER: [number, number] = [40.7359, -73.9911];
+const YOU_LOCATION: [number, number] = [40.7359, -73.9911];
+
+// Bounds: roughly Prospect Park south to northern Manhattan
+const MAX_BOUNDS = L.latLngBounds(
+  [40.6500, -74.0500], // SW — south of Prospect Park
+  [40.8200, -73.9000], // NE — northern Manhattan / Harlem
+);
+const MIN_ZOOM = 11;
+const MAX_ZOOM = 19;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
@@ -100,122 +113,74 @@ function getZoomTier(zoom: number): ZoomTier {
   return 3;
 }
 
-/* ── Urgency scoring for tier 2 filtering ── */
+/* ── Urgency scoring ── */
 const urgencyScore: Record<string, number> = { critical: 3, high: 2, medium: 1, low: 0 };
 function pinUrgency(pin: Pin): number {
   return urgencyScore[(pin as any).urgency ?? 'low'] ?? 0;
 }
 
-/* ── Heatmap layer via canvas ── */
+/* ── Heatmap layer ── */
 function HeatmapLayer({ pins }: { pins: Pin[] }) {
   const map = useMap();
-
   useEffect(() => {
     if (!pins.length) return;
-
     const canvas = L.DomUtil.create('canvas');
     const size = map.getSize();
-    canvas.width = size.x;
-    canvas.height = size.y;
-    canvas.style.position = 'absolute';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.zIndex = '200';
-    canvas.style.opacity = '0.6';
-
+    canvas.width = size.x; canvas.height = size.y;
+    canvas.style.position = 'absolute'; canvas.style.top = '0'; canvas.style.left = '0';
+    canvas.style.pointerEvents = 'none'; canvas.style.zIndex = '200'; canvas.style.opacity = '0.6';
     const pane = map.getPane('overlayPane');
     if (pane) pane.appendChild(canvas);
-
     function draw() {
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      const s = map.getSize();
-      canvas.width = s.x;
-      canvas.height = s.y;
+      const ctx = canvas.getContext('2d'); if (!ctx) return;
+      const s = map.getSize(); canvas.width = s.x; canvas.height = s.y;
       ctx.clearRect(0, 0, s.x, s.y);
-
       pins.forEach(pin => {
         const ll = pin.lat != null && pin.lng != null
           ? L.latLng(pin.lat, pin.lng)
           : L.latLng(xyToLatLng(pin.x, pin.y).lat, xyToLatLng(pin.x, pin.y).lng);
         const pt = map.latLngToContainerPoint(ll);
-        const radius = 60;
-        const gradient = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, radius);
+        const r = 60;
+        const gradient = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
         const c = categoryColor[pin.category] || '#888';
-        gradient.addColorStop(0, c + 'AA');
-        gradient.addColorStop(0.4, c + '44');
-        gradient.addColorStop(1, c + '00');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(pt.x - radius, pt.y - radius, radius * 2, radius * 2);
+        gradient.addColorStop(0, c + 'AA'); gradient.addColorStop(0.4, c + '44'); gradient.addColorStop(1, c + '00');
+        ctx.fillStyle = gradient; ctx.fillRect(pt.x - r, pt.y - r, r * 2, r * 2);
       });
     }
-
-    draw();
-    map.on('moveend zoomend', draw);
-
-    // Pulse animation
-    let frame: number;
-    let opacity = 0.5;
-    let dir = 1;
+    draw(); map.on('moveend zoomend', draw);
+    let frame: number, opacity = 0.5, dir = 1;
     function pulse() {
       opacity += dir * 0.004;
-      if (opacity > 0.7) dir = -1;
-      if (opacity < 0.4) dir = 1;
-      canvas.style.opacity = String(opacity);
-      frame = requestAnimationFrame(pulse);
+      if (opacity > 0.7) dir = -1; if (opacity < 0.4) dir = 1;
+      canvas.style.opacity = String(opacity); frame = requestAnimationFrame(pulse);
     }
     pulse();
-
-    return () => {
-      map.off('moveend zoomend', draw);
-      cancelAnimationFrame(frame);
-      if (pane && canvas.parentNode === pane) pane.removeChild(canvas);
-    };
+    return () => { map.off('moveend zoomend', draw); cancelAnimationFrame(frame); if (pane && canvas.parentNode === pane) pane.removeChild(canvas); };
   }, [map, pins]);
-
   return null;
 }
 
-/* ── Eco features renderer ── */
+/* ── Eco overlay ── */
 function EcoLayer({ layer }: { layer: MapLayer }) {
   if (layer === 'streets') return null;
   const opacity = layer === 'trees' ? 1 : 0.6;
-
   return (
     <>
       {ecoFeatures.map(f => {
         if (f.type === 'stream' || f.type === 'shoreline') {
           return (
-            <Polyline
-              key={f.id}
+            <Polyline key={f.id}
               positions={(f.coords as [number, number][]).map(([lng, lat]) => [lat, lng] as [number, number])}
-              pathOptions={{
-                color: f.color,
-                weight: f.type === 'shoreline' ? 2 : 3,
-                opacity: opacity * f.fillOpacity,
-                dashArray: f.type === 'shoreline' ? '6 4' : undefined,
-              }}
+              pathOptions={{ color: f.color, weight: f.type === 'shoreline' ? 2 : 3, opacity: opacity * f.fillOpacity, dashArray: f.type === 'shoreline' ? '6 4' : undefined }}
             />
           );
         }
-        // polygon features
         const rings = f.type === 'pond'
           ? [(f.coords as [number, number][]).map(([lng, lat]) => [lat, lng] as [number, number])]
-          : (f.coords as [number, number][][]).map(ring =>
-              ring.map(([lng, lat]) => [lat, lng] as [number, number])
-            );
+          : (f.coords as [number, number][][]).map(ring => ring.map(([lng, lat]) => [lat, lng] as [number, number]));
         return (
-          <Polygon
-            key={f.id}
-            positions={rings}
-            pathOptions={{
-              color: f.color,
-              fillColor: f.color,
-              fillOpacity: opacity * f.fillOpacity,
-              weight: 1.5,
-              opacity: opacity * 0.6,
-            }}
+          <Polygon key={f.id} positions={rings}
+            pathOptions={{ color: f.color, fillColor: f.color, fillOpacity: opacity * f.fillOpacity, weight: 1.5, opacity: opacity * 0.6 }}
           />
         );
       })}
@@ -223,22 +188,45 @@ function EcoLayer({ layer }: { layer: MapLayer }) {
   );
 }
 
-/* ── Map events ── */
+/* ── Map events with elastic bounds ── */
 function MapEvents({
-  onMove,
-  onZoom,
+  onMove, onZoom, onAtMinZoom,
 }: {
   onMove: (lat: number, lng: number) => void;
   onZoom: (zoom: number) => void;
+  onAtMinZoom: (atMin: boolean) => void;
 }) {
+  const map = useMap();
+
+  useEffect(() => {
+    // Set max bounds with elastic padding
+    map.setMaxBounds(MAX_BOUNDS.pad(0.15)); // 15% padding = rubber band feel
+    map.setMinZoom(MIN_ZOOM);
+    map.setMaxZoom(MAX_ZOOM);
+
+    // When user drags beyond, leaflet will rubber-band back
+    const handleDragEnd = () => {
+      const center = map.getCenter();
+      if (!MAX_BOUNDS.contains(center)) {
+        map.panInsideBounds(MAX_BOUNDS, { animate: true, duration: 0.5 });
+      }
+    };
+    map.on('dragend', handleDragEnd);
+    return () => { map.off('dragend', handleDragEnd); };
+  }, [map]);
+
   useMapEvents({
     moveend(e) {
       const c = e.target.getCenter();
       onMove(c.lat, c.lng);
-      onZoom(e.target.getZoom());
+      const z = e.target.getZoom();
+      onZoom(z);
+      onAtMinZoom(z <= MIN_ZOOM);
     },
     zoomend(e) {
-      onZoom(e.target.getZoom());
+      const z = e.target.getZoom();
+      onZoom(z);
+      onAtMinZoom(z <= MIN_ZOOM);
     },
   });
   return null;
@@ -246,9 +234,6 @@ function MapEvents({
 
 /* ── Main component ── */
 export type MapLayer = 'streets' | 'both' | 'trees';
-
-const CENTER: [number, number] = [40.7359, -73.9911]; // Union Square
-const YOU_LOCATION: [number, number] = [40.7359, -73.9911];
 
 interface StreetMapViewProps {
   pins: Pin[];
@@ -259,73 +244,73 @@ interface StreetMapViewProps {
   onMapMove?: (lat: number, lng: number) => void;
 }
 
-/** Inner controls rendered inside the map */
-function MapControls({ onProfile }: { onProfile: () => void }) {
+/** Map controls rendered inside the map */
+function MapControls({ onProfile, atMinZoom, onRequestCity }: {
+  onProfile: () => void;
+  atMinZoom: boolean;
+  onRequestCity: () => void;
+}) {
   const map = useMap();
 
   const handleZoomIn = () => map.zoomIn();
-  const handleZoomOut = () => map.zoomOut();
+  const handleZoomOut = () => {
+    if (atMinZoom) {
+      onRequestCity();
+      return;
+    }
+    map.zoomOut();
+  };
   const handleLocate = () => map.flyTo(YOU_LOCATION, 15, { duration: 0.8 });
 
+  const dimStyle = atMinZoom
+    ? { background: 'hsla(30,12%,7%,0.5)', border: '1px solid hsla(30,15%,25%,0.25)', cursor: 'default' }
+    : { background: 'hsla(30,12%,7%,0.9)', border: '1px solid hsla(30,15%,25%,0.5)' };
+
   return (
-    <div
-      className="leaflet-control"
-      style={{
-        position: 'absolute',
-        right: 12,
-        bottom: 80,
-        zIndex: 1000,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 6,
-      }}
-    >
-      <button
-        onClick={handleZoomIn}
+    <div className="leaflet-control" style={{ position: 'absolute', right: 12, top: 80, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={{ background: 'hsla(30,12%,7%,0.9)', border: '1px solid hsla(30,15%,25%,0.5)' }}
-        title="Zoom in"
-      >
+        style={{ background: 'hsla(30,12%,7%,0.9)', border: '1px solid hsla(30,15%,25%,0.5)' }} title="Zoom in">
         <Plus size={16} color="hsl(40,20%,85%)" />
       </button>
-      <button
-        onClick={handleZoomOut}
+      <button onClick={handleZoomOut}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={{ background: 'hsla(30,12%,7%,0.9)', border: '1px solid hsla(30,15%,25%,0.5)' }}
-        title="Zoom out"
-      >
-        <Minus size={16} color="hsl(40,20%,85%)" />
+        style={dimStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
+        <Minus size={16} color={atMinZoom ? 'hsla(40,20%,85%,0.3)' : 'hsl(40,20%,85%)'} />
       </button>
-      <button
-        onClick={handleLocate}
+      <button onClick={handleLocate}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={{ background: 'hsla(30,12%,7%,0.9)', border: '1px solid hsla(30,15%,25%,0.5)' }}
-        title="Go to your location"
-      >
+        style={{ background: 'hsla(30,12%,7%,0.9)', border: '1px solid hsla(30,15%,25%,0.5)' }} title="Go to your location">
         <Locate size={16} color="hsl(184,100%,27%)" />
       </button>
-      <button
-        onClick={onProfile}
+      <button onClick={onProfile}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={{ background: 'hsla(184,100%,27%,0.2)', border: '1px solid hsla(184,100%,27%,0.4)' }}
-        title="Your profile"
-      >
+        style={{ background: 'hsla(184,100%,27%,0.2)', border: '1px solid hsla(184,100%,27%,0.4)' }} title="Your profile">
         <User size={16} color="hsl(184,100%,27%)" />
       </button>
     </div>
   );
 }
 
+/** Fly to landmark on click */
+function FlyToHandler({ target }: { target: [number, number] | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (target) {
+      map.flyTo(target, 16, { duration: 1.2 });
+    }
+  }, [target, map]);
+  return null;
+}
+
 export default function StreetMapView({
-  pins,
-  landmarks,
-  onPinClick,
-  onLandmarkClick,
-  layer,
-  onMapMove,
+  pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove,
 }: StreetMapViewProps) {
   const navigate = useNavigate();
   const [zoom, setZoom] = useState(14);
+  const [atMinZoom, setAtMinZoom] = useState(false);
+  const [showRequestCity, setShowRequestCity] = useState(false);
+  const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
   const tier = getZoomTier(zoom);
 
   const pinLatLng = useCallback((pin: Pin): [number, number] => {
@@ -335,20 +320,33 @@ export default function StreetMapView({
   }, []);
 
   const showStreets = layer === 'streets' || layer === 'both';
+  const showWelikia = layer === 'both' || layer === 'trees';
+  const welikiaOpacity = layer === 'trees' ? 0.9 : 0.55;
 
-  // Tier-based filtering
   const visiblePins = useMemo(() => {
-    if (tier === 1) return []; // heatmap only at zoom 1
+    if (tier === 1) return [];
     if (tier === 2) {
-      // Show top urgent pins (urgency >= medium or all if few)
       const sorted = [...pins].sort((a, b) => pinUrgency(b) - pinUrgency(a));
       return sorted.slice(0, Math.max(12, Math.floor(pins.length * 0.3)));
     }
-    return pins; // tier 3: show all
+    return pins;
   }, [pins, tier]);
 
   const showLandmarks = tier <= 2;
   const showHeatmap = tier === 1;
+
+  const handleLandmarkClick = useCallback((lm: Landmark) => {
+    setFlyTarget([lm.lat, lm.lng]);
+    onLandmarkClick(lm);
+  }, [onLandmarkClick]);
+
+  // Clear fly target after animation
+  useEffect(() => {
+    if (flyTarget) {
+      const t = setTimeout(() => setFlyTarget(null), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [flyTarget]);
 
   return (
     <div className="w-full h-full" style={{ zIndex: 0 }}>
@@ -358,13 +356,17 @@ export default function StreetMapView({
         style={{ width: '100%', height: '100%', zIndex: 0 }}
         zoomControl={false}
         attributionControl={false}
+        maxBoundsViscosity={0.8}
       >
         {onMapMove && (
           <MapEvents
             onMove={onMapMove}
             onZoom={setZoom}
+            onAtMinZoom={setAtMinZoom}
           />
         )}
+
+        <FlyToHandler target={flyTarget} />
 
         {/* Street tiles */}
         <TileLayer
@@ -373,7 +375,17 @@ export default function StreetMapView({
           opacity={showStreets ? 1 : 0.15}
         />
 
-        {/* Ecological features overlay */}
+        {/* Welikia historical tiles from their CDN */}
+        {showWelikia && (
+          <TileLayer
+            url="https://d17l30qqe4mnqp.cloudfront.net/overlays/1609Sat/tiles_60k_new/{z}/{x}/{y}.png"
+            opacity={welikiaOpacity}
+            maxZoom={16}
+            minZoom={8}
+          />
+        )}
+
+        {/* GeoJSON ecological features on top */}
         <EcoLayer layer={layer} />
 
         {/* Heatmap at tier 1 */}
@@ -382,29 +394,27 @@ export default function StreetMapView({
         {/* "You" marker */}
         <Marker position={YOU_LOCATION} icon={createYouIcon()} />
 
-        {/* Pins — visible at tier 2 (urgent) and tier 3 (all) */}
+        {/* Pins */}
         {visiblePins.map((pin) => (
-          <Marker
-            key={pin.id}
-            position={pinLatLng(pin)}
-            icon={createPinIcon(pin.category)}
-            eventHandlers={{ click: () => onPinClick(pin) }}
-          />
+          <Marker key={pin.id} position={pinLatLng(pin)} icon={createPinIcon(pin.category)}
+            eventHandlers={{ click: () => onPinClick(pin) }} />
         ))}
 
-        {/* Landmarks — visible at tier 1 & 2, hidden at tier 3 */}
-        {showLandmarks &&
-          landmarks.map((lm) => (
-            <Marker
-              key={lm.id}
-              position={[lm.lat, lm.lng]}
-              icon={createLandmarkIcon(lm.icon, lm.pins.length)}
-              eventHandlers={{ click: () => onLandmarkClick(lm) }}
-            />
-          ))}
+        {/* Landmarks */}
+        {showLandmarks && landmarks.map((lm) => (
+          <Marker key={lm.id} position={[lm.lat, lm.lng]}
+            icon={createLandmarkIcon(lm.icon, lm.pins.length)}
+            eventHandlers={{ click: () => handleLandmarkClick(lm) }} />
+        ))}
 
-        <MapControls onProfile={() => navigate('/profile')} />
+        <MapControls
+          onProfile={() => navigate('/profile')}
+          atMinZoom={atMinZoom}
+          onRequestCity={() => setShowRequestCity(true)}
+        />
       </MapContainer>
+
+      <RequestCityModal open={showRequestCity} onClose={() => setShowRequestCity(false)} />
     </div>
   );
 }
