@@ -104,7 +104,7 @@ export default function MapCanvas() {
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div>
-                      <h3 className="font-display text-lg font-semibold text-accent">{neighborhood.indigenousName}</h3>
+                      <h3 className="font-display text-lg font-semibold text-lime">{neighborhood.indigenousName}</h3>
                       <p className="font-display text-sm text-muted-foreground">{neighborhood.modernName}</p>
                     </div>
                     <button
