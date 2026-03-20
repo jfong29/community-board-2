@@ -50,7 +50,6 @@ export default function MapCanvas() {
     let x = 30 + Math.random() * 40;
     let y = 30 + Math.random() * 40;
     if (data.lat != null && data.lng != null) {
-      const { latLngToXY } = require('@/data/pins');
       const coords = latLngToXY(data.lat, data.lng);
       x = coords.x;
       y = coords.y;
