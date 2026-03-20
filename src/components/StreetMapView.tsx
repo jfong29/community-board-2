@@ -272,7 +272,7 @@ function MapControls({ atMinZoom, onRequestCity }: {
     : btnBase;
 
   return (
-    <div className="leaflet-control" style={{ position: 'absolute', right: 12, top: 80, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="leaflet-control" style={{ position: 'absolute', right: 16, top: 100, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
       <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
         style={btnBase} title="Zoom in">
