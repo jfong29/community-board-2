@@ -27,7 +27,7 @@ const MAX_BOUNDS = L.latLngBounds(
   [40.5700, -74.0800],
   [40.9000, -73.7500],
 );
-const MIN_ZOOM = 11;
+const MIN_ZOOM = 13;
 const MAX_ZOOM = 18;
 
 /* ── Category visuals ── */
@@ -106,11 +106,11 @@ function createYouIcon() {
 }
 
 /* ── Zoom tiers ── */
-// Tier 1: ≤14 (zoomed out), Tier 2: 15–17, Tier 3: 18
+// Tier 1: 13–14 (zoomed out), Tier 2: 15–16, Tier 3: 17–18
 type ZoomTier = 1 | 2 | 3;
 function getZoomTier(zoom: number): ZoomTier {
   if (zoom <= 14) return 1;
-  if (zoom <= 17) return 2;
+  if (zoom <= 16) return 2;
   return 3;
 }
 
@@ -260,7 +260,7 @@ function MapControls({ atMinZoom, onRequestCity }: {
     }
     map.zoomOut();
   };
-  const handleLocate = () => map.flyTo(YOU_LOCATION, 18, { duration: 0.8 });
+  const handleLocate = () => map.flyTo(YOU_LOCATION, 17, { duration: 0.8 });
 
   const btnBase: React.CSSProperties = {
     background: 'hsla(15,16%,17%,0.92)',
@@ -295,7 +295,7 @@ function FlyToHandler({ target }: { target: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
     if (target) {
-      map.flyTo(target, 18, { duration: 1.2 });
+      map.flyTo(target, 17, { duration: 1.2 });
     }
   }, [target, map]);
   return null;
@@ -355,6 +355,8 @@ export default function StreetMapView({
         style={{ width: '100%', height: '100%', zIndex: 0 }}
         zoomControl={false}
         attributionControl={false}
+        zoomSnap={1}
+        zoomDelta={1}
         maxBoundsViscosity={0.8}
       >
         {onMapMove && (
