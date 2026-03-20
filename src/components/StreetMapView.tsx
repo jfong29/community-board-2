@@ -318,9 +318,8 @@ export default function StreetMapView({
     return [lat, lng];
   }, []);
 
-  const showStreets = layer === 'streets' || layer === 'both';
-  const showWelikia = layer === 'both' || layer === 'trees';
-  const welikiaOpacity = layer === 'trees' ? 0.9 : 0.55;
+  const streetOpacity = layer === 'streets' ? 1 : layer === 'both' ? 1 : 0.15;
+  const welikiaOpacity = layer === 'trees' ? 0.9 : layer === 'both' ? 0.55 : 0;
 
   const visiblePins = useMemo(() => {
     if (tier === 1) return [];
