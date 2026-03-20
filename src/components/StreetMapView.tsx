@@ -28,8 +28,8 @@ const MAX_BOUNDS = L.latLngBounds(
   [40.5700, -74.0800],
   [40.9000, -73.7500],
 );
-const MIN_ZOOM = 11;
-const MAX_ZOOM = 16;
+const MIN_ZOOM = 12;
+const MAX_ZOOM = 15;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
@@ -101,13 +101,19 @@ function createYouIcon() {
   });
 }
 
-/* ── Zoom tiers (shifted up 2 notches) ── */
-// Tier 1: 11–12 (zoomed out), Tier 2: 13–14, Tier 3: 15–16
-type ZoomTier = 1 | 2 | 3;
+/*
+ * ── Zoom tiers (4 zoom levels: 12–15) ──
+ * Zoom 15 (most zoomed in): Tier 1 — all pins, no landmarks
+ * Zoom 14: Tier 1b — landmarks + urgent pulsing pins
+ * Zoom 13: landmarks + gradients, no pins
+ * Zoom 12 (most zoomed out): just gradients, no landmarks
+ */
+type ZoomTier = 'all-pins' | 'landmarks-urgent' | 'landmarks-gradient' | 'gradient-only';
 function getZoomTier(zoom: number): ZoomTier {
-  if (zoom <= 12) return 1;
-  if (zoom <= 14) return 2;
-  return 3;
+  if (zoom >= 15) return 'all-pins';
+  if (zoom >= 14) return 'landmarks-urgent';
+  if (zoom >= 13) return 'landmarks-gradient';
+  return 'gradient-only';
 }
 
 /* ── Urgency scoring ── */
