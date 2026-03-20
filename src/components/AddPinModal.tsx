@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { PinCategory, Pin } from '@/data/pins';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown } from 'lucide-react';
+import { X } from 'lucide-react';
 import PinIcon from './PinIcon';
+import LocationPicker from './LocationPicker';
 
 interface AddPinModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (pin: Omit<Pin, 'id' | 'x' | 'y'>) => void;
+  onSubmit: (pin: Omit<Pin, 'id' | 'x' | 'y'> & { lat?: number; lng?: number }) => void;
 }
 
 const categories: { value: PinCategory; label: string; hint: string }[] = [
@@ -37,6 +38,13 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
   const [timeframe, setTimeframe] = useState('');
   const [urgency, setUrgency] = useState<'low' | 'medium' | 'high'>('low');
   const [quantity, setQuantity] = useState('');
+  const [pinLat, setPinLat] = useState<number | null>(null);
+  const [pinLng, setPinLng] = useState<number | null>(null);
+
+  const handleLocationChange = (lat: number, lng: number) => {
+    setPinLat(lat);
+    setPinLng(lng);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,10 +63,12 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
       subcategory: subcategory || 'General',
       distance: 'Nearby',
       postedBy: 'You',
+      lat: pinLat ?? undefined,
+      lng: pinLng ?? undefined,
     });
-    // Reset
     setTitle(''); setDescription(''); setSubcategory(''); setContact('');
     setLocation(''); setFulfillment('Pickup'); setTimeframe(''); setQuantity('');
+    setPinLat(null); setPinLng(null);
     onClose();
   };
 
@@ -84,9 +94,7 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
           >
             <div className="earth-panel rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-display text-base font-bold text-foreground">
-                  New Post
-                </h2>
+                <h2 className="font-display text-base font-bold text-foreground">New Post</h2>
                 <button onClick={onClose} className="p-1 rounded-full hover:bg-muted/30 text-foreground">
                   <X size={18} />
                 </button>
@@ -153,10 +161,26 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
                   className={`${inputClass} resize-none`}
                 />
 
+                {/* Location input */}
+                <input
+                  type="text"
+                  placeholder={category === 'observation' ? 'Location observed' : 'Location (e.g. Union Square, Eastern ridge)'}
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className={inputClass}
+                />
+
+                {/* Map pin picker */}
+                <LocationPicker
+                  lat={pinLat}
+                  lng={pinLng}
+                  onLocationChange={handleLocationChange}
+                  locationText={location}
+                />
+
                 {/* Category-specific fields */}
                 {(category === 'offer' || category === 'request') && (
                   <>
-                    {/* Quantity */}
                     <input
                       type="text"
                       placeholder="Quantity (e.g. 2 baskets, plenty)"
@@ -164,8 +188,6 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
                       onChange={(e) => setQuantity(e.target.value)}
                       className={inputClass}
                     />
-
-                    {/* Fulfillment */}
                     <div>
                       <p className="text-[11px] text-muted-foreground mb-1.5 font-display">How to get it</p>
                       <div className="flex gap-1.5 flex-wrap">
@@ -185,15 +207,6 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
                         ))}
                       </div>
                     </div>
-
-                    {/* Location */}
-                    <input
-                      type="text"
-                      placeholder="Pickup/meetup location"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className={inputClass}
-                    />
                   </>
                 )}
 
@@ -219,31 +232,12 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
                   </div>
                 )}
 
-                {category === 'event' && (
-                  <>
-                    <input
-                      type="text"
-                      placeholder="When? (e.g. Next full moon, Saturday)"
-                      value={timeframe}
-                      onChange={(e) => setTimeframe(e.target.value)}
-                      className={inputClass}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Where? (e.g. Eastern ridge, Union Square)"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className={inputClass}
-                    />
-                  </>
-                )}
-
-                {category === 'observation' && (
+                {(category === 'event' || category === 'offer') && (
                   <input
                     type="text"
-                    placeholder="Location observed"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder={category === 'event' ? 'When? (e.g. Next full moon, Saturday)' : 'Available until? (e.g. end of week, ongoing)'}
+                    value={timeframe}
+                    onChange={(e) => setTimeframe(e.target.value)}
                     className={inputClass}
                   />
                 )}
@@ -256,17 +250,6 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
                   onChange={(e) => setContact(e.target.value)}
                   className={inputClass}
                 />
-
-                {/* Timeframe for offers */}
-                {category === 'offer' && (
-                  <input
-                    type="text"
-                    placeholder="Available until? (e.g. end of week, ongoing)"
-                    value={timeframe}
-                    onChange={(e) => setTimeframe(e.target.value)}
-                    className={inputClass}
-                  />
-                )}
 
                 <button
                   type="submit"
