@@ -355,6 +355,8 @@ export default function StreetMapView({
         style={{ width: '100%', height: '100%', zIndex: 0 }}
         zoomControl={false}
         attributionControl={false}
+        zoomSnap={1}
+        zoomDelta={1}
         maxBoundsViscosity={0.8}
       >
         {onMapMove && (
