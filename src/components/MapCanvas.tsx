@@ -12,14 +12,17 @@ import AddPinModal from './AddPinModal';
 import ChatPanel from './ChatPanel';
 import EcoStatusBar from './EcoStatusBar';
 import StreetMapView, { MapLayer } from './StreetMapView';
-import { Layers, TreePine, Map as MapIcon } from 'lucide-react';
 import { usePosts } from '@/hooks/use-posts';
 import { useProfile } from '@/hooks/use-profile';
+import layersIcon from '@/assets/layers.svg';
+import humanIcon from '@/assets/human.svg';
+import bothIcon from '@/assets/both.svg';
+import welikiaLayerIcon from '@/assets/welikia-icon.svg';
 
-const layerOptions: { value: MapLayer; icon: React.ReactNode; label: string }[] = [
-  { value: 'streets', icon: <MapIcon size={13} />, label: 'Streets' },
-  { value: 'both', icon: <Layers size={13} />, label: 'Both' },
-  { value: 'trees', icon: <TreePine size={13} />, label: 'Welikia' },
+const layerOptions: { value: MapLayer; icon: string; label: string }[] = [
+  { value: 'streets', icon: humanIcon, label: 'Streets' },
+  { value: 'both', icon: bothIcon, label: 'Both' },
+  { value: 'trees', icon: welikiaLayerIcon, label: 'Welikia' },
 ];
 
 export default function MapCanvas() {
@@ -38,9 +41,9 @@ export default function MapCanvas() {
   const [mapLayer, setMapLayer] = useState<MapLayer>('both');
   const [neighborhood, setNeighborhood] = useState<Neighborhood>(getNeighborhoodAtCoords(40.7359, -73.9911));
   const [showNeighborhoodInfo, setShowNeighborhoodInfo] = useState(false);
-  const [currentZoom, setCurrentZoom] = useState(14);
+  const [currentZoom, setCurrentZoom] = useState(12);
+  const [layerMenuOpen, setLayerMenuOpen] = useState(false);
 
-  // Multi-select filter: if no filters active, show all
   const filteredPins = activeFilters.size === 0
     ? allPins
     : allPins.filter((p) => activeFilters.has(p.category));
@@ -57,7 +60,7 @@ export default function MapCanvas() {
     });
   }, []);
 
-  // Neighborhood label at tier 2+ (zoom >= 15)
+  // Neighborhood label at tier 3 (zoom >= 15)
   const showNeighborhoodLabel = currentZoom >= 15;
 
   const handleMapMove = useCallback((lat: number, lng: number) => {
@@ -89,7 +92,7 @@ export default function MapCanvas() {
         onToggleFilter={handleToggleFilter}
       />
 
-      {/* Neighborhood label — visible at tier 2+ (zoom >= 15), centered below top bar */}
+      {/* Neighborhood label — visible at tier 3 (zoom >= 15), centered below top bar */}
       <AnimatePresence>
         {showNeighborhoodLabel && (
           <motion.div
@@ -144,30 +147,51 @@ export default function MapCanvas() {
         )}
       </AnimatePresence>
 
-      {/* Layer toggle — aligned right with consistent grid padding */}
+      {/* Layer toggle — fan-out menu from single icon */}
       <motion.div
-        className="fixed z-40 earth-panel rounded-xl flex items-center overflow-hidden"
+        className="fixed z-40"
         style={{ top: 'calc(var(--grid-gap) * 2 + 64px)', right: 'var(--grid-gap)' }}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
       >
-        {layerOptions.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setMapLayer(opt.value)}
-            className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-display font-semibold transition-colors ${
-              mapLayer === opt.value
-                ? 'text-foreground'
-                : 'text-foreground/60 hover:text-foreground hover:bg-muted/20'
-            }`}
-            style={mapLayer === opt.value ? { backgroundColor: 'rgba(218,225,107,0.2)', color: '#DAE16B' } : undefined}
-            title={opt.label}
-          >
-            {opt.icon}
-            <span className="hidden sm:inline">{opt.label}</span>
-          </button>
-        ))}
+        <button
+          onClick={() => setLayerMenuOpen(!layerMenuOpen)}
+          className="w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
+          title="Map layers"
+        >
+          <img src={layersIcon} alt="Layers" className="w-5 h-4" />
+        </button>
+
+        <AnimatePresence>
+          {layerMenuOpen && (
+            <motion.div
+              className="flex flex-col gap-1.5 mt-1.5"
+              initial={{ opacity: 0, y: -8, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.9 }}
+              transition={{ duration: 0.15 }}
+            >
+              {layerOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => { setMapLayer(opt.value); setLayerMenuOpen(false); }}
+                  className={`w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-all active:scale-95 ${
+                    mapLayer === opt.value ? 'ring-1 ring-lime/50' : 'hover:bg-muted/20'
+                  }`}
+                  title={opt.label}
+                >
+                  <img
+                    src={opt.icon}
+                    alt={opt.label}
+                    className="w-5 h-5 object-contain"
+                    style={mapLayer === opt.value ? { filter: 'brightness(1.3)' } : { opacity: 0.6 }}
+                  />
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       <StreetMapView
