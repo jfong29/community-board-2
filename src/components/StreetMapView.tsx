@@ -194,11 +194,12 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
 
 /* ── Map events ── */
 function MapEvents({
-  onMove, onZoom, onAtMinZoom,
+  onMove, onZoom, onAtMinZoom, onAtMaxZoom,
 }: {
   onMove: (lat: number, lng: number) => void;
   onZoom: (zoom: number) => void;
   onAtMinZoom: (atMin: boolean) => void;
+  onAtMaxZoom: (atMax: boolean) => void;
 }) {
   const map = useMap();
 
@@ -224,11 +225,13 @@ function MapEvents({
       const z = e.target.getZoom();
       onZoom(z);
       onAtMinZoom(z <= MIN_ZOOM);
+      onAtMaxZoom(z >= MAX_ZOOM);
     },
     zoomend(e) {
       const z = e.target.getZoom();
       onZoom(z);
       onAtMinZoom(z <= MIN_ZOOM);
+      onAtMaxZoom(z >= MAX_ZOOM);
     },
   });
   return null;
