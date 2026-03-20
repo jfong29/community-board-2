@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Pin, PinCategory, samplePins } from '@/data/pins';
+import { Pin, PinCategory, samplePins, latLngToXY } from '@/data/pins';
 import { landmarks, Landmark } from '@/data/landmarks';
 import { getNeighborhoodAtCoords, Neighborhood } from '@/data/neighborhoods';
 import { motion } from 'framer-motion';
