@@ -44,7 +44,7 @@ export default function MapCanvas() {
   const filteredPins = activeFilter ? allPins.filter((p) => p.category === activeFilter) : allPins;
 
   // Neighborhood label at tier 2+ (zoom >= 15)
-  const showNeighborhoodLabel = currentZoom >= 15;
+  const showNeighborhoodLabel = currentZoom >= 17;
 
   const handleMapMove = useCallback((lat: number, lng: number) => {
     setNeighborhood(getNeighborhoodAtCoords(lat, lng));
