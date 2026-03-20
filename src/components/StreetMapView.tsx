@@ -250,13 +250,15 @@ interface StreetMapViewProps {
   onZoomChange?: (zoom: number) => void;
 }
 
-function MapControls({ atMinZoom, onRequestCity }: {
+function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
   atMinZoom: boolean;
+  atMaxZoom: boolean;
   onRequestCity: () => void;
 }) {
   const map = useMap();
 
   const handleZoomIn = () => {
+    if (atMaxZoom) return;
     if (map.getZoom() < MAX_ZOOM) map.zoomIn();
   };
   const handleZoomOut = () => {
@@ -272,7 +274,10 @@ function MapControls({ atMinZoom, onRequestCity }: {
     background: 'hsla(15,16%,17%,0.92)',
     border: '1px solid hsla(15,12%,30%,0.5)',
   };
-  const dimStyle: React.CSSProperties = atMinZoom
+  const dimOutStyle: React.CSSProperties = atMinZoom
+    ? { ...btnBase, opacity: 0.4, cursor: 'default' }
+    : btnBase;
+  const dimInStyle: React.CSSProperties = atMaxZoom
     ? { ...btnBase, opacity: 0.4, cursor: 'default' }
     : btnBase;
 
@@ -280,12 +285,12 @@ function MapControls({ atMinZoom, onRequestCity }: {
     <div className="leaflet-control" style={{ position: 'absolute', right: 'var(--grid-gap, 16px)', top: 'calc(var(--grid-gap, 16px) * 2 + 64px + 48px)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
       <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={btnBase} title="Zoom in">
-        <Plus size={16} color="#F4EDE8" />
+        style={dimInStyle} title={atMaxZoom ? 'Maximum zoom reached' : 'Zoom in'}>
+        <Plus size={16} color={atMaxZoom ? 'rgba(244,237,232,0.3)' : '#F4EDE8'} />
       </button>
       <button onClick={handleZoomOut}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={dimStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
+        style={dimOutStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
         <Minus size={16} color={atMinZoom ? 'rgba(244,237,232,0.3)' : '#F4EDE8'} />
       </button>
       <button onClick={handleLocate}
