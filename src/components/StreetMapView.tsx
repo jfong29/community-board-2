@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, ImageOverlay, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Pin, xyToLatLng } from '@/data/pins';
 import { Landmark } from '@/data/landmarks';
-import { renderToString } from 'react-dom/server';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -76,21 +75,46 @@ function createLandmarkIcon(emoji: string, count: number) {
   });
 }
 
+export type MapLayer = 'streets' | 'both' | 'trees';
+
 const CENTER: [number, number] = [40.7280, -73.9960];
+
+// Bounds for the Welikia image overlay — matches the coordinate conversion in pins.ts
+const WELIKIA_BOUNDS: L.LatLngBoundsExpression = [
+  [40.69, -74.02], // SW
+  [40.75, -73.96], // NE
+];
+
+/** Reports map center on move so parent can update neighborhood */
+function MapEvents({ onMove }: { onMove: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    moveend(e) {
+      const c = e.target.getCenter();
+      onMove(c.lat, c.lng);
+    },
+  });
+  return null;
+}
 
 interface StreetMapViewProps {
   pins: Pin[];
   landmarks: Landmark[];
   onPinClick: (pin: Pin) => void;
   onLandmarkClick: (landmark: Landmark) => void;
+  layer: MapLayer;
+  onMapMove?: (lat: number, lng: number) => void;
 }
 
-export default function StreetMapView({ pins, landmarks, onPinClick, onLandmarkClick }: StreetMapViewProps) {
+export default function StreetMapView({ pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove }: StreetMapViewProps) {
   const pinLatLng = (pin: Pin): [number, number] => {
     if (pin.lat != null && pin.lng != null) return [pin.lat, pin.lng];
     const { lat, lng } = xyToLatLng(pin.x, pin.y);
     return [lat, lng];
   };
+
+  const showStreets = layer === 'streets' || layer === 'both';
+  const showWelikia = layer === 'trees' || layer === 'both';
+  const welikiaOpacity = layer === 'trees' ? 1 : layer === 'both' ? 0.55 : 0;
 
   return (
     <div className="w-full h-full" style={{ zIndex: 0 }}>
@@ -98,12 +122,27 @@ export default function StreetMapView({ pins, landmarks, onPinClick, onLandmarkC
         center={CENTER}
         zoom={14}
         style={{ width: '100%', height: '100%', zIndex: 0 }}
-        zoomControl={true}
+        zoomControl={false}
+        attributionControl={false}
       >
+        {onMapMove && <MapEvents onMove={onMapMove} />}
+
+        {/* Street tiles — always present but dim under trees-only */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          opacity={showStreets ? 1 : 0.15}
         />
+
+        {/* Welikia image overlay */}
+        {showWelikia && (
+          <ImageOverlay
+            url="/lovable-uploads/066a23b3-414b-4f51-86cb-c8d74e050a17.jpg"
+            bounds={WELIKIA_BOUNDS}
+            opacity={welikiaOpacity}
+            className="welikia-overlay"
+          />
+        )}
 
         {pins.map((pin) => (
           <Marker
