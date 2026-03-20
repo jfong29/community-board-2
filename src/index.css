@@ -6,32 +6,32 @@
 
 @layer base {
   :root {
-    --background: 30 12% 7%;
-    --foreground: 40 20% 85%;
+    --background: 15 16% 17%;
+    --foreground: 25 40% 93%;
 
-    --card: 30 10% 11%;
-    --card-foreground: 40 20% 85%;
+    --card: 15 14% 14%;
+    --card-foreground: 25 40% 93%;
 
-    --popover: 30 10% 9%;
-    --popover-foreground: 40 20% 85%;
+    --popover: 15 14% 12%;
+    --popover-foreground: 25 40% 93%;
 
     --primary: 184 100% 27%;
-    --primary-foreground: 40 20% 85%;
+    --primary-foreground: 25 40% 93%;
 
     --secondary: 22 100% 42%;
-    --secondary-foreground: 40 20% 85%;
+    --secondary-foreground: 25 40% 93%;
 
-    --muted: 30 8% 16%;
-    --muted-foreground: 30 15% 50%;
+    --muted: 15 10% 22%;
+    --muted-foreground: 25 15% 55%;
 
     --accent: 268 42% 65%;
-    --accent-foreground: 40 20% 85%;
+    --accent-foreground: 25 40% 93%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 40 20% 85%;
+    --destructive-foreground: 25 40% 93%;
 
-    --border: 30 10% 18%;
-    --input: 30 10% 18%;
+    --border: 15 10% 24%;
+    --input: 15 10% 24%;
     --ring: 184 100% 27%;
 
     --radius: 1rem;
@@ -42,9 +42,12 @@
     --observation: 141 65% 32%;
     --event: 268 42% 65%;
 
+    /* Lime action color */
+    --lime: 64 67% 65%;
+
     /* Earthy panel backgrounds */
-    --panel-bg: hsla(30, 12%, 7%, 0.85);
-    --panel-border: hsla(30, 15%, 25%, 0.4);
+    --panel-bg: hsla(15, 16%, 17%, 0.88);
+    --panel-border: hsla(15, 12%, 30%, 0.4);
 
     /* Glow effects */
     --glow-offer: 0 0 12px hsla(184, 100%, 27%, 0.5);
@@ -55,13 +58,13 @@
     --font-display: 'Labrada', serif;
     --font-body: 'Labrada', serif;
 
-    --sidebar-background: 30 12% 7%;
-    --sidebar-foreground: 40 20% 85%;
+    --sidebar-background: 15 16% 17%;
+    --sidebar-foreground: 25 40% 93%;
     --sidebar-primary: 184 100% 27%;
-    --sidebar-primary-foreground: 40 20% 85%;
-    --sidebar-accent: 30 8% 16%;
-    --sidebar-accent-foreground: 40 20% 85%;
-    --sidebar-border: 30 10% 18%;
+    --sidebar-primary-foreground: 25 40% 93%;
+    --sidebar-accent: 15 10% 22%;
+    --sidebar-accent-foreground: 25 40% 93%;
+    --sidebar-border: 15 10% 24%;
     --sidebar-ring: 184 100% 27%;
   }
 }
@@ -73,6 +76,8 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.6;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
@@ -108,7 +113,6 @@
     animation: ripple 2s ease-out infinite;
   }
 
-  /* Ragged / cut-paper edge effect via SVG filter */
   .ragged-edge {
     filter: url(#ragged);
   }

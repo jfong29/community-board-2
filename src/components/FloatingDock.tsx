@@ -27,7 +27,7 @@ export default function FloatingDock({ activeFilter, onFilter, onAdd }: Floating
           <button
             key={cat}
             onClick={() => onFilter(activeFilter === cat ? null : cat)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all text-xs font-display font-medium ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all text-sm font-display font-medium ${
               activeFilter === cat
                 ? 'bg-muted/40'
                 : 'hover:bg-muted/20'
@@ -52,7 +52,8 @@ export default function FloatingDock({ activeFilter, onFilter, onAdd }: Floating
         {/* Add button */}
         <button
           onClick={onAdd}
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground hover:scale-110 active:scale-95 transition-transform"
+          className="flex items-center justify-center w-10 h-10 rounded-full hover:scale-110 active:scale-95 transition-transform"
+          style={{ backgroundColor: '#DAE16B', color: '#322924' }}
           title="Add"
         >
           <Plus size={20} />

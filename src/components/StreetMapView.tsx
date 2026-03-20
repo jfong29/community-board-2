@@ -9,7 +9,7 @@ import { Pin, xyToLatLng } from '@/data/pins';
 import { Landmark } from '@/data/landmarks';
 import { ecoFeatures } from '@/data/welikia-ecology';
 import { useNavigate } from 'react-router-dom';
-import { User, Locate, Plus, Minus } from 'lucide-react';
+import { Locate, Plus, Minus } from 'lucide-react';
 import RequestCityModal from './RequestCityModal';
 
 // Fix default marker icons
@@ -24,13 +24,12 @@ L.Icon.Default.mergeOptions({
 const CENTER: [number, number] = [40.7359, -73.9911];
 const YOU_LOCATION: [number, number] = [40.7359, -73.9911];
 
-// Bounds: roughly Prospect Park south to northern Manhattan
 const MAX_BOUNDS = L.latLngBounds(
-  [40.6500, -74.0500], // SW — south of Prospect Park
-  [40.8200, -73.9000], // NE — northern Manhattan / Harlem
+  [40.5700, -74.0800],
+  [40.9000, -73.7500],
 );
 const MIN_ZOOM = 11;
-const MAX_ZOOM = 19;
+const MAX_ZOOM = 18;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
@@ -55,7 +54,7 @@ function pinSvg(category: string, size: number): string {
     return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
       <circle cx="${half}" cy="${half}" r="${half - 2}" fill="none" stroke="${color}" stroke-width="2" stroke-opacity="0.4"/>
       <polygon points="${points}" fill="${color}" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/>
-      <circle cx="${half}" cy="${cy}" r="3" fill="hsla(40,20%,85%,0.9)"/>
+      <circle cx="${half}" cy="${cy}" r="3" fill="hsla(25,40%,93%,0.9)"/>
     </svg>`;
   }
   let shape = '';
@@ -87,29 +86,30 @@ function createPinIcon(category: string) {
 
 function createLandmarkIcon(emoji: string, count: number) {
   return L.divIcon({
-    html: `<div style="width:40px;height:40px;border-radius:12px;background:hsla(30,12%,7%,0.92);border:1px solid hsla(30,15%,25%,0.6);display:flex;align-items:center;justify-content:center;font-size:20px;position:relative;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.4);">${emoji}<span style="position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:hsl(184,100%,27%);color:hsl(40,20%,85%);font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-family:Labrada,serif;padding:0 3px;">${count}</span></div>`,
+    html: `<div style="width:44px;height:44px;border-radius:12px;background:hsla(15,16%,17%,0.92);border:1px solid hsla(15,12%,30%,0.6);display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.4);">${emoji}<span style="position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:#DAE16B;color:#322924;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-family:Labrada,serif;padding:0 3px;">${count}</span></div>`,
     className: '',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
   });
 }
 
 function createYouIcon() {
   return L.divIcon({
-    html: `<div style="width:28px;height:28px;border-radius:50%;background:hsl(184,100%,27%);border:3px solid hsl(40,20%,85%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(0,131,138,0.6);cursor:pointer;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(40,20%,85%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    html: `<div style="width:30px;height:30px;border-radius:50%;background:#DAE16B;border:3px solid #F4EDE8;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(218,225,107,0.6);cursor:pointer;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#322924" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </div>`,
     className: '',
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
   });
 }
 
 /* ── Zoom tiers ── */
+// Tier 1: ≤14 (zoomed out), Tier 2: 15–17, Tier 3: 18
 type ZoomTier = 1 | 2 | 3;
 function getZoomTier(zoom: number): ZoomTier {
-  if (zoom <= 13) return 1;
-  if (zoom <= 15) return 2;
+  if (zoom <= 14) return 1;
+  if (zoom <= 17) return 2;
   return 3;
 }
 
@@ -119,44 +119,73 @@ function pinUrgency(pin: Pin): number {
   return urgencyScore[(pin as any).urgency ?? 'low'] ?? 0;
 }
 
-/* ── Heatmap layer ── */
+/* ── Heatmap layer — fixed to map coordinates ── */
 function HeatmapLayer({ pins }: { pins: Pin[] }) {
   const map = useMap();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   useEffect(() => {
     if (!pins.length) return;
-    const canvas = L.DomUtil.create('canvas');
-    const size = map.getSize();
-    canvas.width = size.x; canvas.height = size.y;
-    canvas.style.position = 'absolute'; canvas.style.top = '0'; canvas.style.left = '0';
-    canvas.style.pointerEvents = 'none'; canvas.style.zIndex = '200'; canvas.style.opacity = '0.6';
     const pane = map.getPane('overlayPane');
-    if (pane) pane.appendChild(canvas);
+    if (!pane) return;
+
+    const canvas = L.DomUtil.create('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '200';
+    pane.appendChild(canvas);
+    canvasRef.current = canvas;
+
     function draw() {
-      const ctx = canvas.getContext('2d'); if (!ctx) return;
-      const s = map.getSize(); canvas.width = s.x; canvas.height = s.y;
-      ctx.clearRect(0, 0, s.x, s.y);
+      const size = map.getSize();
+      const topLeft = map.containerPointToLayerPoint([0, 0]);
+      canvas.style.transform = `translate(${topLeft.x}px, ${topLeft.y}px)`;
+      canvas.width = size.x;
+      canvas.height = size.y;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.clearRect(0, 0, size.x, size.y);
+
       pins.forEach(pin => {
         const ll = pin.lat != null && pin.lng != null
           ? L.latLng(pin.lat, pin.lng)
           : L.latLng(xyToLatLng(pin.x, pin.y).lat, xyToLatLng(pin.x, pin.y).lng);
         const pt = map.latLngToContainerPoint(ll);
-        const r = 60;
+        const r = 80;
         const gradient = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
         const c = categoryColor[pin.category] || '#888';
-        gradient.addColorStop(0, c + 'AA'); gradient.addColorStop(0.4, c + '44'); gradient.addColorStop(1, c + '00');
-        ctx.fillStyle = gradient; ctx.fillRect(pt.x - r, pt.y - r, r * 2, r * 2);
+        gradient.addColorStop(0, c + 'CC');
+        gradient.addColorStop(0.3, c + '88');
+        gradient.addColorStop(0.6, c + '33');
+        gradient.addColorStop(1, c + '00');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(pt.x - r, pt.y - r, r * 2, r * 2);
       });
     }
-    draw(); map.on('moveend zoomend', draw);
-    let frame: number, opacity = 0.5, dir = 1;
+
+    draw();
+    map.on('move zoom moveend zoomend', draw);
+
+    let frame: number;
+    let opacity = 0.6;
+    let dir = 1;
     function pulse() {
-      opacity += dir * 0.004;
-      if (opacity > 0.7) dir = -1; if (opacity < 0.4) dir = 1;
-      canvas.style.opacity = String(opacity); frame = requestAnimationFrame(pulse);
+      opacity += dir * 0.003;
+      if (opacity > 0.8) dir = -1;
+      if (opacity < 0.5) dir = 1;
+      canvas.style.opacity = String(opacity);
+      frame = requestAnimationFrame(pulse);
     }
     pulse();
-    return () => { map.off('moveend zoomend', draw); cancelAnimationFrame(frame); if (pane && canvas.parentNode === pane) pane.removeChild(canvas); };
+
+    return () => {
+      map.off('move zoom moveend zoomend', draw);
+      cancelAnimationFrame(frame);
+      if (pane && canvas.parentNode === pane) pane.removeChild(canvas);
+    };
   }, [map, pins]);
+
   return null;
 }
 
@@ -188,7 +217,7 @@ function EcoLayer({ layer }: { layer: MapLayer }) {
   );
 }
 
-/* ── Map events with elastic bounds ── */
+/* ── Map events ── */
 function MapEvents({
   onMove, onZoom, onAtMinZoom,
 }: {
@@ -199,12 +228,10 @@ function MapEvents({
   const map = useMap();
 
   useEffect(() => {
-    // Set max bounds with elastic padding
-    map.setMaxBounds(MAX_BOUNDS.pad(0.15)); // 15% padding = rubber band feel
+    map.setMaxBounds(MAX_BOUNDS.pad(0.15));
     map.setMinZoom(MIN_ZOOM);
     map.setMaxZoom(MAX_ZOOM);
 
-    // When user drags beyond, leaflet will rubber-band back
     const handleDragEnd = () => {
       const center = map.getCenter();
       if (!MAX_BOUNDS.contains(center)) {
@@ -244,15 +271,15 @@ interface StreetMapViewProps {
   onMapMove?: (lat: number, lng: number) => void;
 }
 
-/** Map controls rendered inside the map */
-function MapControls({ onProfile, atMinZoom, onRequestCity }: {
-  onProfile: () => void;
+function MapControls({ atMinZoom, onRequestCity }: {
   atMinZoom: boolean;
   onRequestCity: () => void;
 }) {
   const map = useMap();
 
-  const handleZoomIn = () => map.zoomIn();
+  const handleZoomIn = () => {
+    if (map.getZoom() < MAX_ZOOM) map.zoomIn();
+  };
   const handleZoomOut = () => {
     if (atMinZoom) {
       onRequestCity();
@@ -260,44 +287,43 @@ function MapControls({ onProfile, atMinZoom, onRequestCity }: {
     }
     map.zoomOut();
   };
-  const handleLocate = () => map.flyTo(YOU_LOCATION, 15, { duration: 0.8 });
+  // Locator zooms to Tier 3
+  const handleLocate = () => map.flyTo(YOU_LOCATION, 18, { duration: 0.8 });
 
-  const dimStyle = atMinZoom
-    ? { background: 'hsla(30,12%,7%,0.5)', border: '1px solid hsla(30,15%,25%,0.25)', cursor: 'default' }
-    : { background: 'hsla(30,12%,7%,0.9)', border: '1px solid hsla(30,15%,25%,0.5)' };
+  const btnBase: React.CSSProperties = {
+    background: 'hsla(15,16%,17%,0.92)',
+    border: '1px solid hsla(15,12%,30%,0.5)',
+  };
+  const dimStyle: React.CSSProperties = atMinZoom
+    ? { ...btnBase, opacity: 0.4, cursor: 'default' }
+    : btnBase;
 
   return (
     <div className="leaflet-control" style={{ position: 'absolute', right: 12, top: 80, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
       <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={{ background: 'hsla(30,12%,7%,0.9)', border: '1px solid hsla(30,15%,25%,0.5)' }} title="Zoom in">
-        <Plus size={16} color="hsl(40,20%,85%)" />
+        style={btnBase} title="Zoom in">
+        <Plus size={16} color="#F4EDE8" />
       </button>
       <button onClick={handleZoomOut}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
         style={dimStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
-        <Minus size={16} color={atMinZoom ? 'hsla(40,20%,85%,0.3)' : 'hsl(40,20%,85%)'} />
+        <Minus size={16} color={atMinZoom ? 'rgba(244,237,232,0.3)' : '#F4EDE8'} />
       </button>
       <button onClick={handleLocate}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={{ background: 'hsla(30,12%,7%,0.9)', border: '1px solid hsla(30,15%,25%,0.5)' }} title="Go to your location">
-        <Locate size={16} color="hsl(184,100%,27%)" />
-      </button>
-      <button onClick={onProfile}
-        className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={{ background: 'hsla(184,100%,27%,0.2)', border: '1px solid hsla(184,100%,27%,0.4)' }} title="Your profile">
-        <User size={16} color="hsl(184,100%,27%)" />
+        style={btnBase} title="Go to your location">
+        <Locate size={16} color="#DAE16B" />
       </button>
     </div>
   );
 }
 
-/** Fly to landmark on click */
 function FlyToHandler({ target }: { target: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
     if (target) {
-      map.flyTo(target, 16, { duration: 1.2 });
+      map.flyTo(target, 18, { duration: 1.2 });
     }
   }, [target, map]);
   return null;
@@ -340,7 +366,6 @@ export default function StreetMapView({
     onLandmarkClick(lm);
   }, [onLandmarkClick]);
 
-  // Clear fly target after animation
   useEffect(() => {
     if (flyTarget) {
       const t = setTimeout(() => setFlyTarget(null), 1500);
@@ -368,14 +393,12 @@ export default function StreetMapView({
 
         <FlyToHandler target={flyTarget} />
 
-        {/* Street tiles */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           opacity={showStreets ? 1 : 0.15}
         />
 
-        {/* Welikia historical tiles from their CDN */}
         {showWelikia && (
           <TileLayer
             url="https://d17l30qqe4mnqp.cloudfront.net/overlays/1609Sat/tiles_60k_new/{z}/{x}/{y}.png"
@@ -385,22 +408,18 @@ export default function StreetMapView({
           />
         )}
 
-        {/* GeoJSON ecological features on top */}
         <EcoLayer layer={layer} />
 
-        {/* Heatmap at tier 1 */}
         {showHeatmap && <HeatmapLayer pins={pins} />}
 
-        {/* "You" marker */}
+        {/* "You" marker — always visible */}
         <Marker position={YOU_LOCATION} icon={createYouIcon()} />
 
-        {/* Pins */}
         {visiblePins.map((pin) => (
           <Marker key={pin.id} position={pinLatLng(pin)} icon={createPinIcon(pin.category)}
             eventHandlers={{ click: () => onPinClick(pin) }} />
         ))}
 
-        {/* Landmarks */}
         {showLandmarks && landmarks.map((lm) => (
           <Marker key={lm.id} position={[lm.lat, lm.lng]}
             icon={createLandmarkIcon(lm.icon, lm.pins.length)}
@@ -408,7 +427,6 @@ export default function StreetMapView({
         ))}
 
         <MapControls
-          onProfile={() => navigate('/profile')}
           atMinZoom={atMinZoom}
           onRequestCity={() => setShowRequestCity(true)}
         />
