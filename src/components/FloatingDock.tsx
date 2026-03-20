@@ -17,7 +17,8 @@ export default function FloatingDock({ activeFilter, onFilter, onAdd }: Floating
 
   return (
     <motion.div
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40"
+      className="fixed left-1/2 -translate-x-1/2 z-40"
+      style={{ bottom: 'var(--grid-gap)' }}
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.3 }}

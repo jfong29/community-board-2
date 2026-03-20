@@ -242,6 +242,7 @@ interface StreetMapViewProps {
   onLandmarkClick: (landmark: Landmark) => void;
   layer: MapLayer;
   onMapMove?: (lat: number, lng: number) => void;
+  onZoomChange?: (zoom: number) => void;
 }
 
 function MapControls({ atMinZoom, onRequestCity }: {
@@ -271,7 +272,7 @@ function MapControls({ atMinZoom, onRequestCity }: {
     : btnBase;
 
   return (
-    <div className="leaflet-control" style={{ position: 'absolute', right: 12, top: 80, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="leaflet-control" style={{ position: 'absolute', right: 16, top: 100, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
       <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
         style={btnBase} title="Zoom in">
@@ -302,10 +303,14 @@ function FlyToHandler({ target }: { target: [number, number] | null }) {
 }
 
 export default function StreetMapView({
-  pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove,
+  pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange,
 }: StreetMapViewProps) {
   const navigate = useNavigate();
-  const [zoom, setZoom] = useState(14);
+  const [zoom, setZoomLocal] = useState(14);
+  const setZoom = useCallback((z: number) => {
+    setZoomLocal(z);
+    onZoomChange?.(z);
+  }, [onZoomChange]);
   const [atMinZoom, setAtMinZoom] = useState(false);
   const [showRequestCity, setShowRequestCity] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
