@@ -11,10 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import { Locate, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RequestCityModal from './RequestCityModal';
-import layersIcon from '@/assets/layers.svg';
-import humanIcon from '@/assets/human.svg';
-import bothIcon from '@/assets/both.svg';
-import welikiaLayerIcon from '@/assets/welikia-icon.svg';
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -322,9 +318,8 @@ export default function StreetMapView({
     return [lat, lng];
   }, []);
 
-  const showStreets = layer === 'streets' || layer === 'both';
-  const showWelikia = layer === 'both' || layer === 'trees';
-  const welikiaOpacity = layer === 'trees' ? 0.9 : 0.55;
+  const streetOpacity = layer === 'streets' ? 1 : layer === 'both' ? 1 : 0.15;
+  const welikiaOpacity = layer === 'trees' ? 0.9 : layer === 'both' ? 0.55 : 0;
 
   const visiblePins = useMemo(() => {
     if (tier === 1) return [];
@@ -374,17 +369,15 @@ export default function StreetMapView({
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          opacity={showStreets ? 1 : 0.15}
+          opacity={streetOpacity}
         />
 
-        {showWelikia && (
-          <TileLayer
-            url="https://d17l30qqe4mnqp.cloudfront.net/overlays/1609Sat/tiles_60k_new/{z}/{x}/{y}.png"
-            opacity={welikiaOpacity}
-            maxZoom={16}
-            minZoom={8}
-          />
-        )}
+        <TileLayer
+          url="https://d17l30qqe4mnqp.cloudfront.net/overlays/1609Sat/tiles_60k_new/{z}/{x}/{y}.png"
+          opacity={welikiaOpacity}
+          maxZoom={16}
+          minZoom={8}
+        />
 
         {showHeatmap && <HeatmapLayer pins={pins} />}
 
@@ -416,9 +409,9 @@ export default function StreetMapView({
         className="fixed z-30 font-display text-[10px] text-muted-foreground/60"
         style={{ bottom: 'var(--grid-gap)', left: 'var(--grid-gap)' }}
       >
-        {showStreets && <span>Streets: <a href="https://carto.com" target="_blank" rel="noopener" className="underline hover:text-foreground/60">CARTO</a> / <a href="https://www.openstreetmap.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">OSM</a></span>}
-        {showStreets && showWelikia && <span className="mx-1">·</span>}
-        {showWelikia && <span>Ecology: <a href="https://welikia.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">Welikia Project</a></span>}
+        {streetOpacity > 0.2 && <span>Streets: <a href="https://carto.com" target="_blank" rel="noopener" className="underline hover:text-foreground/60">CARTO</a> / <a href="https://www.openstreetmap.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">OSM</a></span>}
+        {streetOpacity > 0.2 && welikiaOpacity > 0 && <span className="mx-1">·</span>}
+        {welikiaOpacity > 0 && <span>Ecology: <a href="https://welikia.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">Welikia Project</a></span>}
       </div>
 
       <RequestCityModal open={showRequestCity} onClose={() => setShowRequestCity(false)} />
