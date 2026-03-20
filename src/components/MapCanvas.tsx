@@ -12,7 +12,6 @@ import AddPinModal from './AddPinModal';
 import ChatPanel from './ChatPanel';
 import EcoStatusBar from './EcoStatusBar';
 import StreetMapView, { MapLayer } from './StreetMapView';
-import NeighborhoodInfoSheet from './NeighborhoodInfoSheet';
 import { Layers, TreePine, Map as MapIcon } from 'lucide-react';
 import { usePosts } from '@/hooks/use-posts';
 import { useProfile } from '@/hooks/use-profile';
