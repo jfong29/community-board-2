@@ -86,7 +86,7 @@ export default function MapCanvas() {
               onClick={() => setShowNeighborhoodInfo(!showNeighborhoodInfo)}
               className="earth-panel rounded-full px-4 py-1.5 flex items-center gap-2 hover:bg-muted/20 transition-colors active:scale-95"
             >
-              <span className="font-display text-sm font-semibold text-accent">{neighborhood.indigenousName}</span>
+              <span className="font-display text-sm font-semibold text-lime">{neighborhood.indigenousName}</span>
               <span className="text-muted-foreground text-xs">·</span>
               <span className="font-display text-xs text-muted-foreground">{neighborhood.modernName}</span>
             </button>
