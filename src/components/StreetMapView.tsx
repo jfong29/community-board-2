@@ -32,44 +32,44 @@ const MAX_ZOOM = 18;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
-  offer: '#00838A', request: '#D54E00', observation: '#1D8636', event: '#9D7AD2',
+  offer: '#68D07F', request: '#D54E00', observation: '#C06014', event: '#F984CA',
 };
 const categoryGlow: Record<string, string> = {
-  offer: 'rgba(0,131,138,0.6)', request: 'rgba(213,78,0,0.6)',
-  observation: 'rgba(29,134,54,0.4)', event: 'rgba(157,122,210,0.5)',
+  offer: 'rgba(104,208,127,0.6)', request: 'rgba(213,78,0,0.6)',
+  observation: 'rgba(192,96,20,0.4)', event: 'rgba(249,132,202,0.5)',
 };
 
-/* ── Pin SVG builder ── */
+/* ── Pin SVG builder using actual icon shapes ── */
 function pinSvg(category: string, size: number, dim = false): string {
   const color = categoryColor[category] || '#888';
-  const half = size / 2;
   const opacity = dim ? 0.35 : 1;
-  const isAd = category === 'offer' || category === 'request';
-  if (isAd) {
-    const isOffer = category === 'offer';
-    const points = isOffer
-      ? `${half},3 ${size - 4},${size - 4} 4,${size - 4}`
-      : `4,4 ${size - 4},4 ${half},${size - 3}`;
-    const cy = isOffer ? half + 3 : half - 2;
-    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
-      <circle cx="${half}" cy="${half}" r="${half - 2}" fill="none" stroke="${color}" stroke-width="2" stroke-opacity="0.4"/>
-      <polygon points="${points}" fill="${color}" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/>
-      <circle cx="${half}" cy="${cy}" r="3" fill="hsla(25,40%,93%,0.9)"/>
-    </svg>`;
-  }
-  let shape = '';
+
+  // Use the actual uploaded icon shapes, scaled to size
   switch (category) {
+    case 'offer':
+      // Upward triangle
+      return `<svg width="${size}" height="${size}" viewBox="0 0 21 18" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
+        <path d="M5.15488 8.79268C8.16928 4.39553 10.2204 0 10.5971 0C11.3509 0 15.4886 6.68996 16.8074 8.79268C18.705 11.8181 20.9429 16.9746 20.6651 17.3974C20.3873 17.8203 4.64486 17.3974 0.0458554 17.3974C-0.330963 17.3974 1.63608 13.9256 5.15488 8.79268Z" fill="${color}"/>
+      </svg>`;
+    case 'request':
+      // Downward triangle
+      return `<svg width="${size}" height="${size}" viewBox="0 0 21 19" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
+        <path d="M15.937 10.2477C13.4362 15.1371 10.9826 18.56 10.223 18.5625C9.46328 18.565 6.5407 13.0567 5.20421 10.8611C3.28123 7.70192 -0.263081 0.836818 0.0154676 0.393478C0.294015 -0.0498635 16.2437 -0.178414 20.7978 0.325091C21.1753 0.366827 18.8678 4.51793 15.937 10.2477Z" fill="${color}"/>
+      </svg>`;
     case 'observation':
-      shape = `<polygon points="${half},2 ${size - 1},${half - 1} ${size - 2},${half + 1} ${half},${size - 2} 2,${half + 1} 1,${half - 1}" fill="${color}" fill-opacity="0.7" stroke="${color}" stroke-width="0.8" stroke-linejoin="round"/>`;
-      break;
+      // Eye shape
+      return `<svg width="${size}" height="${Math.round(size * 0.62)}" viewBox="0 0 34 21" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
+        <path d="M16.5088 0.0206971C19.8265 -0.108465 21.9836 0.288067 26.9024 3.49238C31.6451 6.58203 32.4625 8.84754 33.0313 9.55878C33.0664 9.56406 33.0892 9.56999 33.0996 9.57636C33.1291 9.59484 33.1327 9.6326 33.1143 9.68769C33.1425 9.7519 33.1282 9.78648 33.0655 9.7912C32.4817 10.803 28.109 15.4025 25.4258 17.4211C23.3535 18.9801 21.0308 20.5385 17.0752 20.673C12.7498 20.8201 11.05 19.885 6.95902 16.7219C2.95795 13.6283 0.738805 11.6629 0.109406 10.9328C0.0754985 10.9274 0.0530707 10.9211 0.0430002 10.9143C0.00857911 10.8908 -0.00205135 10.8459 0.00686737 10.7814C-0.00533738 10.7475 -0.00156893 10.7232 0.0205392 10.7102C0.28807 9.79675 3.36599 6.28794 6.03909 4.11249C8.10592 2.43045 10.6048 0.250616 16.5088 0.0206971Z" fill="${color}"/>
+        <path d="M22.0382 9.76578C21.458 7.60359 19.1372 5.44141 16.8164 5.44141C12.1748 5.98195 12.1748 9.11712 12.1748 10.8469C12.1748 13.0091 15.0758 15.7118 17.3966 15.1712C19.7174 14.6307 22.6184 11.928 22.0382 9.76578Z" fill="${color}"/>
+      </svg>`;
     case 'event':
-      shape = `<polygon points="1,${half} ${half - 3},4 ${half - 2},${half - 2} ${half - 2},${half + 2} ${half - 3},${size - 4}" fill="${color}" fill-opacity="0.9" stroke="${color}" stroke-width="0.8" stroke-linejoin="round"/>
-        <polygon points="${size - 1},${half} ${half + 3},4 ${half + 2},${half - 2} ${half + 2},${half + 2} ${half + 3},${size - 4}" fill="${color}" fill-opacity="0.9" stroke="${color}" stroke-width="0.8" stroke-linejoin="round"/>`;
-      break;
+      // Bowtie shape
+      return `<svg width="${size}" height="${Math.round(size * 0.63)}" viewBox="0 0 30 19" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
+        <path d="M0.273336 0.0361198C0.308554 -0.303863 3.44773 1.80074 7.78017 4.4746C11.4785 6.75716 14.1737 9.28239 14.1737 9.62108C14.1703 9.96181 9.88401 13.0049 8.21767 14.2099C5.81904 15.9445 0.608562 19.1377 0.273336 18.8838C-0.0616529 18.6221 -0.119428 4.16358 0.273336 0.0361198ZM21.4726 3.54491C24.0705 1.81161 28.498 -0.232225 28.8612 0.0214714C29.2243 0.27524 28.8612 14.6552 28.8612 18.8564C28.8612 19.2006 25.8802 17.4038 21.4726 14.1894C17.6967 11.4359 14.1737 9.92125 14.1737 9.57714C14.1755 9.23177 19.6672 4.74942 21.4726 3.54491Z" fill="${color}"/>
+      </svg>`;
     default:
-      shape = `<circle cx="${half}" cy="${half}" r="${half - 2}" fill="${color}" fill-opacity="0.7"/>`;
+      return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 2}" fill="${color}" fill-opacity="0.7"/></svg>`;
   }
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">${shape}</svg>`;
 }
 
 function createPinIcon(category: string, dim = false) {

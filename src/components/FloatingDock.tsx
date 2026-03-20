@@ -1,18 +1,12 @@
-import { PinCategory } from '@/data/pins';
 import { motion } from 'framer-motion';
 import { Plus, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import PinIcon from './PinIcon';
 
 interface FloatingDockProps {
-  activeFilter: PinCategory | null;
-  onFilter: (cat: PinCategory | null) => void;
   onAdd: () => void;
 }
 
-const categories: PinCategory[] = ['offer', 'request', 'observation', 'event'];
-
-export default function FloatingDock({ activeFilter, onFilter, onAdd }: FloatingDockProps) {
+export default function FloatingDock({ onAdd }: FloatingDockProps) {
   const navigate = useNavigate();
 
   return (
@@ -23,24 +17,7 @@ export default function FloatingDock({ activeFilter, onFilter, onAdd }: Floating
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.3 }}
     >
-      <div className="earth-panel rounded-full px-3 py-2 flex items-center gap-1 md:gap-2">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => onFilter(activeFilter === cat ? null : cat)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all text-sm font-display font-medium ${
-              activeFilter === cat
-                ? 'bg-muted/40'
-                : 'hover:bg-muted/20'
-            }`}
-            title={cat}
-          >
-            <PinIcon category={cat} size={16} animate={false} />
-          </button>
-        ))}
-
-        <div className="w-px h-6 bg-border/40 mx-1" />
-
+      <div className="earth-panel rounded-full px-3 py-2 flex items-center gap-2">
         {/* Observations dashboard */}
         <button
           onClick={() => navigate('/observations')}

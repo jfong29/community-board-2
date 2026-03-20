@@ -29,7 +29,7 @@ export default function MapCanvas() {
   const { posts: dbPosts, addPost } = usePosts(profile?.id);
   const allPins = [...samplePins, ...dbPosts];
 
-  const [activeFilter, setActiveFilter] = useState<PinCategory | null>(null);
+  const [activeFilters, setActiveFilters] = useState<Set<PinCategory>>(new Set());
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
@@ -40,7 +40,22 @@ export default function MapCanvas() {
   const [showNeighborhoodInfo, setShowNeighborhoodInfo] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(14);
 
-  const filteredPins = activeFilter ? allPins.filter((p) => p.category === activeFilter) : allPins;
+  // Multi-select filter: if no filters active, show all
+  const filteredPins = activeFilters.size === 0
+    ? allPins
+    : allPins.filter((p) => activeFilters.has(p.category));
+
+  const handleToggleFilter = useCallback((cat: PinCategory) => {
+    setActiveFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(cat)) {
+        next.delete(cat);
+      } else {
+        next.add(cat);
+      }
+      return next;
+    });
+  }, []);
 
   // Neighborhood label at tier 2+ (zoom >= 15)
   const showNeighborhoodLabel = currentZoom >= 15;
@@ -67,14 +82,19 @@ export default function MapCanvas() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
-      <EcoStatusBar initialSearch={initialSearch} onPinSelect={handleSearchSelect} />
+      <EcoStatusBar
+        initialSearch={initialSearch}
+        onPinSelect={handleSearchSelect}
+        activeFilters={activeFilters}
+        onToggleFilter={handleToggleFilter}
+      />
 
       {/* Neighborhood label — visible at tier 2+ (zoom >= 15), centered below top bar */}
       <AnimatePresence>
         {showNeighborhoodLabel && (
           <motion.div
             className="fixed left-1/2 -translate-x-1/2 z-30"
-            style={{ top: 'calc(var(--grid-gap) * 2 + 40px)' }}
+            style={{ top: 'calc(var(--grid-gap) * 2 + 64px)' }}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -127,7 +147,7 @@ export default function MapCanvas() {
       {/* Layer toggle — aligned right with consistent grid padding */}
       <motion.div
         className="fixed z-40 earth-panel rounded-xl flex items-center overflow-hidden"
-        style={{ top: 'calc(var(--grid-gap) * 2 + 40px)', right: 'var(--grid-gap)' }}
+        style={{ top: 'calc(var(--grid-gap) * 2 + 64px)', right: 'var(--grid-gap)' }}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
@@ -162,7 +182,7 @@ export default function MapCanvas() {
         onZoomChange={setCurrentZoom}
       />
 
-      <FloatingDock activeFilter={activeFilter} onFilter={setActiveFilter} onAdd={() => setShowAdd(true)} />
+      <FloatingDock onAdd={() => setShowAdd(true)} />
 
       <DetailSheet pin={selectedPin} onClose={() => setSelectedPin(null)} onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }} onTagClick={handleTagClick} />
       <LandmarkSheet landmark={selectedLandmark} onClose={() => setSelectedLandmark(null)} onPinSelect={handleLandmarkPinSelect} />
