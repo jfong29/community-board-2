@@ -122,3 +122,15 @@
   .status-bg-declining { background-color: hsl(var(--request) / 0.15); }
   .status-bg-critical { background-color: hsl(var(--destructive) / 0.15); }
 }
+
+/* Keep Leaflet map below app UI overlays */
+.leaflet-container {
+  z-index: 0 !important;
+}
+.leaflet-pane {
+  z-index: 0 !important;
+}
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 10 !important;
+}
