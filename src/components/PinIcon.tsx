@@ -10,17 +10,17 @@ interface PinIconProps {
 }
 
 const colorMap: Record<PinCategory, string> = {
-  offer: '#00838A',
+  offer: '#68D07F',
   request: '#D54E00',
-  observation: '#1D8636',
-  event: '#9D7AD2',
+  observation: '#C06014',
+  event: '#F984CA',
 };
 
 const glowMap: Record<PinCategory, string> = {
-  offer: '0 0 18px rgba(0,131,138,0.8)',
+  offer: '0 0 18px rgba(104,208,127,0.8)',
   request: '0 0 18px rgba(213,78,0,0.8)',
-  observation: '0 0 10px rgba(29,134,54,0.5)',
-  event: '0 0 14px rgba(157,122,210,0.6)',
+  observation: '0 0 10px rgba(192,96,20,0.5)',
+  event: '0 0 14px rgba(249,132,202,0.6)',
 };
 
 function renderShape(category: PinCategory, size: number, color: string, isAd: boolean) {
