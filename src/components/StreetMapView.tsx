@@ -322,6 +322,7 @@ export default function StreetMapView({
     onZoomChange?.(z);
   }, [onZoomChange]);
   const [atMinZoom, setAtMinZoom] = useState(false);
+  const [atMaxZoom, setAtMaxZoom] = useState(false);
   const [showRequestCity, setShowRequestCity] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
   const tier = getZoomTier(zoom);
@@ -336,15 +337,15 @@ export default function StreetMapView({
   const welikiaOpacity = layer === 'trees' ? 0.9 : layer === 'both' ? 0.55 : 0;
 
   const visiblePins = useMemo(() => {
-    if (tier === 1) return [];
-    if (tier === 2) {
+    if (tier === 'gradient-only' || tier === 'landmarks-gradient') return [];
+    if (tier === 'landmarks-urgent') {
       return pins.filter(p => pinUrgency(p) >= 2);
     }
-    return pins;
+    return pins; // all-pins
   }, [pins, tier]);
 
-  const showLandmarks = tier <= 2;
-  const showHeatmap = tier === 1;
+  const showLandmarks = tier === 'landmarks-gradient' || tier === 'landmarks-urgent';
+  const showHeatmap = tier === 'gradient-only' || tier === 'landmarks-gradient';
 
   const handleLandmarkClick = useCallback((lm: Landmark) => {
     setFlyTarget([lm.lat, lm.lng]);
@@ -369,12 +370,14 @@ export default function StreetMapView({
         zoomSnap={1}
         zoomDelta={1}
         maxBoundsViscosity={0.8}
+        wheelDebounceTime={80}
       >
         {onMapMove && (
           <MapEvents
             onMove={onMapMove}
             onZoom={setZoom}
             onAtMinZoom={setAtMinZoom}
+            onAtMaxZoom={setAtMaxZoom}
           />
         )}
 
@@ -399,7 +402,7 @@ export default function StreetMapView({
         <Marker position={YOU_LOCATION} icon={createYouIcon()} />
 
         {visiblePins.map((pin) => {
-          const isDim = tier === 3 && pinUrgency(pin) <= 1;
+          const isDim = tier === 'all-pins' && pinUrgency(pin) <= 1;
           return (
             <Marker key={pin.id} position={pinLatLng(pin)} icon={createPinIcon(pin.category, isDim)}
               eventHandlers={{ click: () => onPinClick(pin) }} />
@@ -414,6 +417,7 @@ export default function StreetMapView({
 
         <MapControls
           atMinZoom={atMinZoom}
+          atMaxZoom={atMaxZoom}
           onRequestCity={() => setShowRequestCity(true)}
         />
       </MapContainer>
