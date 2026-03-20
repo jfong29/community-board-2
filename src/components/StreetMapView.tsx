@@ -9,7 +9,12 @@ import { Pin, xyToLatLng } from '@/data/pins';
 import { Landmark } from '@/data/landmarks';
 import { useNavigate } from 'react-router-dom';
 import { Locate, Plus, Minus } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import RequestCityModal from './RequestCityModal';
+import layersIcon from '@/assets/layers.svg';
+import humanIcon from '@/assets/human.svg';
+import bothIcon from '@/assets/both.svg';
+import welikiaLayerIcon from '@/assets/welikia-icon.svg';
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -27,16 +32,16 @@ const MAX_BOUNDS = L.latLngBounds(
   [40.5700, -74.0800],
   [40.9000, -73.7500],
 );
-const MIN_ZOOM = 13;
-const MAX_ZOOM = 18;
+const MIN_ZOOM = 11;
+const MAX_ZOOM = 16;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
-  offer: '#68D07F', request: '#D54E00', observation: '#C06014', event: '#F984CA',
+  offer: '#68D07F', request: '#D54E00', observation: '#39BBD6', event: '#F984CA',
 };
 const categoryGlow: Record<string, string> = {
   offer: 'rgba(104,208,127,0.6)', request: 'rgba(213,78,0,0.6)',
-  observation: 'rgba(192,96,20,0.4)', event: 'rgba(249,132,202,0.5)',
+  observation: 'rgba(57,187,214,0.5)', event: 'rgba(249,132,202,0.5)',
 };
 
 /* ── Pin SVG builder using actual icon shapes ── */
@@ -44,26 +49,21 @@ function pinSvg(category: string, size: number, dim = false): string {
   const color = categoryColor[category] || '#888';
   const opacity = dim ? 0.35 : 1;
 
-  // Use the actual uploaded icon shapes, scaled to size
   switch (category) {
     case 'offer':
-      // Upward triangle
       return `<svg width="${size}" height="${size}" viewBox="0 0 21 18" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
         <path d="M5.15488 8.79268C8.16928 4.39553 10.2204 0 10.5971 0C11.3509 0 15.4886 6.68996 16.8074 8.79268C18.705 11.8181 20.9429 16.9746 20.6651 17.3974C20.3873 17.8203 4.64486 17.3974 0.0458554 17.3974C-0.330963 17.3974 1.63608 13.9256 5.15488 8.79268Z" fill="${color}"/>
       </svg>`;
     case 'request':
-      // Downward triangle
       return `<svg width="${size}" height="${size}" viewBox="0 0 21 19" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
         <path d="M15.937 10.2477C13.4362 15.1371 10.9826 18.56 10.223 18.5625C9.46328 18.565 6.5407 13.0567 5.20421 10.8611C3.28123 7.70192 -0.263081 0.836818 0.0154676 0.393478C0.294015 -0.0498635 16.2437 -0.178414 20.7978 0.325091C21.1753 0.366827 18.8678 4.51793 15.937 10.2477Z" fill="${color}"/>
       </svg>`;
     case 'observation':
-      // Eye shape
       return `<svg width="${size}" height="${Math.round(size * 0.62)}" viewBox="0 0 34 21" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
-        <path d="M16.5088 0.0206971C19.8265 -0.108465 21.9836 0.288067 26.9024 3.49238C31.6451 6.58203 32.4625 8.84754 33.0313 9.55878C33.0664 9.56406 33.0892 9.56999 33.0996 9.57636C33.1291 9.59484 33.1327 9.6326 33.1143 9.68769C33.1425 9.7519 33.1282 9.78648 33.0655 9.7912C32.4817 10.803 28.109 15.4025 25.4258 17.4211C23.3535 18.9801 21.0308 20.5385 17.0752 20.673C12.7498 20.8201 11.05 19.885 6.95902 16.7219C2.95795 13.6283 0.738805 11.6629 0.109406 10.9328C0.0754985 10.9274 0.0530707 10.9211 0.0430002 10.9143C0.00857911 10.8908 -0.00205135 10.8459 0.00686737 10.7814C-0.00533738 10.7475 -0.00156893 10.7232 0.0205392 10.7102C0.28807 9.79675 3.36599 6.28794 6.03909 4.11249C8.10592 2.43045 10.6048 0.250616 16.5088 0.0206971Z" fill="${color}"/>
+        <path d="M16.5088 0.0206971C19.8265 -0.108465 21.9836 0.288067 26.9024 3.49238C31.6451 6.58203 32.4625 8.84754 33.0313 9.55878C33.0664 9.56406 33.0892 9.56999 33.0996 9.57636C33.1291 9.59484 33.1327 9.6326 33.1143 9.68769C33.1425 9.7519 33.1282 9.78648 33.0655 9.7912C32.4817 10.803 28.109 15.4025 25.4258 17.4211C23.3535 18.9801 21.0308 20.5385 17.0752 20.673C12.7498 20.8201 11.05 19.885 6.95902 16.7219C2.95795 13.6283 0.738805 11.6629 0.109406 10.9328C0.0754985 10.9274 0.0530707 10.9211 0.0430002 10.9143C0.00857911 10.8908 -0.00205135 10.8459 0.00686737 10.7814C-0.00533738 10.7475 -0.00156893 10.7232 0.0205392 10.7102C0.28807 9.79675 3.36599 6.28794 6.03909 4.11249C8.10592 2.43045 10.6048 0.250616 16.5088 0.0206971ZM16.4278 2.80683C12.7199 2.95472 11.1571 4.57246 9.86429 5.81953C8.19227 7.43256 6.27122 10.0387 6.10648 10.7189C6.09256 10.7286 6.08992 10.7463 6.09769 10.7717C6.09229 10.8198 6.09941 10.8536 6.12113 10.8713C6.12757 10.8763 6.14127 10.8809 6.16214 10.885C6.5596 11.4322 7.32122 12.8731 9.84476 15.1984C12.4246 17.5756 14.1342 18.3152 16.8506 18.2228C19.3346 18.1384 21.4339 16.711 22.7305 15.5559C22.7305 15.5559 26.9591 10.7358 26.96 10.3107C26.9606 9.88522 25.9564 7.7643 22.9678 5.43964C19.8678 3.02831 18.5113 2.72378 16.4278 2.80683Z" fill="${color}"/>
         <path d="M22.0382 9.76578C21.458 7.60359 19.1372 5.44141 16.8164 5.44141C12.1748 5.98195 12.1748 9.11712 12.1748 10.8469C12.1748 13.0091 15.0758 15.7118 17.3966 15.1712C19.7174 14.6307 22.6184 11.928 22.0382 9.76578Z" fill="${color}"/>
       </svg>`;
     case 'event':
-      // Bowtie shape
       return `<svg width="${size}" height="${Math.round(size * 0.63)}" viewBox="0 0 30 19" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
         <path d="M0.273336 0.0361198C0.308554 -0.303863 3.44773 1.80074 7.78017 4.4746C11.4785 6.75716 14.1737 9.28239 14.1737 9.62108C14.1703 9.96181 9.88401 13.0049 8.21767 14.2099C5.81904 15.9445 0.608562 19.1377 0.273336 18.8838C-0.0616529 18.6221 -0.119428 4.16358 0.273336 0.0361198ZM21.4726 3.54491C24.0705 1.81161 28.498 -0.232225 28.8612 0.0214714C29.2243 0.27524 28.8612 14.6552 28.8612 18.8564C28.8612 19.2006 25.8802 17.4038 21.4726 14.1894C17.6967 11.4359 14.1737 9.92125 14.1737 9.57714C14.1755 9.23177 19.6672 4.74942 21.4726 3.54491Z" fill="${color}"/>
       </svg>`;
@@ -105,12 +105,12 @@ function createYouIcon() {
   });
 }
 
-/* ── Zoom tiers ── */
-// Tier 1: 13–14 (zoomed out), Tier 2: 15–16, Tier 3: 17–18
+/* ── Zoom tiers (shifted up 2 notches) ── */
+// Tier 1: 11–12 (zoomed out), Tier 2: 13–14, Tier 3: 15–16
 type ZoomTier = 1 | 2 | 3;
 function getZoomTier(zoom: number): ZoomTier {
-  if (zoom <= 14) return 1;
-  if (zoom <= 16) return 2;
+  if (zoom <= 12) return 1;
+  if (zoom <= 14) return 2;
   return 3;
 }
 
@@ -261,7 +261,7 @@ function MapControls({ atMinZoom, onRequestCity }: {
     }
     map.zoomOut();
   };
-  const handleLocate = () => map.flyTo(YOU_LOCATION, 17, { duration: 0.8 });
+  const handleLocate = () => map.flyTo(YOU_LOCATION, 15, { duration: 0.8 });
 
   const btnBase: React.CSSProperties = {
     background: 'hsla(15,16%,17%,0.92)',
@@ -272,7 +272,7 @@ function MapControls({ atMinZoom, onRequestCity }: {
     : btnBase;
 
   return (
-    <div className="leaflet-control" style={{ position: 'absolute', right: 16, top: 100, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="leaflet-control" style={{ position: 'absolute', right: 'var(--grid-gap, 16px)', top: 'calc(var(--grid-gap, 16px) * 2 + 64px + 48px)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
       <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
         style={btnBase} title="Zoom in">
@@ -296,7 +296,7 @@ function FlyToHandler({ target }: { target: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
     if (target) {
-      map.flyTo(target, 17, { duration: 1.2 });
+      map.flyTo(target, 15, { duration: 1.2 });
     }
   }, [target, map]);
   return null;
@@ -306,7 +306,7 @@ export default function StreetMapView({
   pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange,
 }: StreetMapViewProps) {
   const navigate = useNavigate();
-  const [zoom, setZoomLocal] = useState(14);
+  const [zoom, setZoomLocal] = useState(12);
   const setZoom = useCallback((z: number) => {
     setZoomLocal(z);
     onZoomChange?.(z);
@@ -326,13 +326,10 @@ export default function StreetMapView({
   const showWelikia = layer === 'both' || layer === 'trees';
   const welikiaOpacity = layer === 'trees' ? 0.9 : 0.55;
 
-  // Tier 1: no pins, just heatmap + landmarks
-  // Tier 2: urgent pins only (critical/high)
-  // Tier 3: all pins, low urgency ones are dim
   const visiblePins = useMemo(() => {
     if (tier === 1) return [];
     if (tier === 2) {
-      return pins.filter(p => pinUrgency(p) >= 2); // critical or high
+      return pins.filter(p => pinUrgency(p) >= 2);
     }
     return pins;
   }, [pins, tier]);
@@ -356,7 +353,7 @@ export default function StreetMapView({
     <div className="w-full h-full" style={{ zIndex: 0 }}>
       <MapContainer
         center={CENTER}
-        zoom={14}
+        zoom={12}
         style={{ width: '100%', height: '100%', zIndex: 0 }}
         zoomControl={false}
         attributionControl={false}
@@ -413,6 +410,16 @@ export default function StreetMapView({
           onRequestCity={() => setShowRequestCity(true)}
         />
       </MapContainer>
+
+      {/* Map source attribution — fixed bottom left */}
+      <div
+        className="fixed z-30 font-display text-[10px] text-muted-foreground/60"
+        style={{ bottom: 'var(--grid-gap)', left: 'var(--grid-gap)' }}
+      >
+        {showStreets && <span>Streets: <a href="https://carto.com" target="_blank" rel="noopener" className="underline hover:text-foreground/60">CARTO</a> / <a href="https://www.openstreetmap.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">OSM</a></span>}
+        {showStreets && showWelikia && <span className="mx-1">·</span>}
+        {showWelikia && <span>Ecology: <a href="https://welikia.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">Welikia Project</a></span>}
+      </div>
 
       <RequestCityModal open={showRequestCity} onClose={() => setShowRequestCity(false)} />
     </div>
