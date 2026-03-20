@@ -27,7 +27,7 @@ const MAX_BOUNDS = L.latLngBounds(
   [40.5700, -74.0800],
   [40.9000, -73.7500],
 );
-const MIN_ZOOM = 11;
+const MIN_ZOOM = 13;
 const MAX_ZOOM = 18;
 
 /* ── Category visuals ── */
