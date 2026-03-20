@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { Sun, CloudSun, Cloud, Zap, User } from 'lucide-react';
 import SearchBar from './SearchBar';
 import SeasonalIndicators from './SeasonalIndicators';
-import { Pin } from '@/data/pins';
+import CategoryFilters from './CategoryFilters';
+import { Pin, PinCategory } from '@/data/pins';
 
 function getMoonPhase(): { icon: string; name: string } {
   const now = new Date();
@@ -40,9 +41,11 @@ function getWeather(): { icon: React.ReactNode } {
 interface EcoStatusBarProps {
   initialSearch?: string;
   onPinSelect: (pin: Pin) => void;
+  activeFilters: Set<PinCategory>;
+  onToggleFilter: (cat: PinCategory) => void;
 }
 
-export default function EcoStatusBar({ initialSearch = '', onPinSelect }: EcoStatusBarProps) {
+export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFilters, onToggleFilter }: EcoStatusBarProps) {
   const navigate = useNavigate();
   const [showSeasonal, setShowSeasonal] = useState(false);
   const moon = getMoonPhase();
@@ -60,6 +63,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect }: EcoSta
         animate={{ y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
       >
+        {/* Row 1: Status bar */}
         <div className="flex items-center justify-between gap-2 px-3 py-1.5 max-w-screen-xl mx-auto">
           {/* Left: moon + time + seasonal day */}
           <button
@@ -109,6 +113,11 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect }: EcoSta
               <User size={13} style={{ color: '#DAE16B' }} />
             </button>
           </div>
+        </div>
+
+        {/* Row 2: Category filters */}
+        <div className="flex items-center justify-center px-3 pb-1.5 max-w-screen-xl mx-auto">
+          <CategoryFilters activeFilters={activeFilters} onToggle={onToggleFilter} />
         </div>
       </motion.div>
 
