@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Pin, PinCategory, samplePins, latLngToXY } from '@/data/pins';
 import { landmarks, Landmark } from '@/data/landmarks';
 import { getNeighborhoodAtCoords, Neighborhood } from '@/data/neighborhoods';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import FloatingDock from './FloatingDock';
 import DetailSheet from './DetailSheet';
 import LandmarkSheet from './LandmarkSheet';
@@ -37,10 +37,14 @@ export default function MapCanvas() {
   const [chatPin, setChatPin] = useState<Pin | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [mapLayer, setMapLayer] = useState<MapLayer>('both');
-  const [neighborhood, setNeighborhood] = useState<Neighborhood>(getNeighborhoodAtCoords(40.728, -73.996));
+  const [neighborhood, setNeighborhood] = useState<Neighborhood>(getNeighborhoodAtCoords(40.7359, -73.9911));
   const [showNeighborhoodInfo, setShowNeighborhoodInfo] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState(14);
 
   const filteredPins = activeFilter ? allPins.filter((p) => p.category === activeFilter) : allPins;
+
+  // Show neighborhood label at zoom tier 2+ (zoom >= 14)
+  const showNeighborhoodLabel = currentZoom >= 14;
 
   const handleMapMove = useCallback((lat: number, lng: number) => {
     setNeighborhood(getNeighborhoodAtCoords(lat, lng));
@@ -66,25 +70,30 @@ export default function MapCanvas() {
     <div className="fixed inset-0 overflow-hidden bg-background">
       <EcoStatusBar initialSearch={initialSearch} onPinSelect={handleSearchSelect} />
 
-      {/* Neighborhood label — clickable for info */}
-      <motion.button
-        className="fixed top-12 left-1/2 -translate-x-1/2 z-30"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        key={neighborhood.id}
-        onClick={() => setShowNeighborhoodInfo(true)}
-      >
-        <div className="earth-panel rounded-full px-4 py-1.5 flex items-center gap-2 hover:bg-muted/20 transition-colors active:scale-95">
-          <span className="font-display text-xs font-semibold text-primary">{neighborhood.indigenousName}</span>
-          <span className="text-muted-foreground text-[10px]">·</span>
-          <span className="font-display text-[10px] text-muted-foreground">{neighborhood.modernName}</span>
-        </div>
-      </motion.button>
+      {/* Neighborhood label — visible at tier 2+ */}
+      <AnimatePresence>
+        {showNeighborhoodLabel && (
+          <motion.button
+            className="fixed top-12 left-1/2 -translate-x-1/2 z-30"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            key={neighborhood.id}
+            onClick={() => setShowNeighborhoodInfo(true)}
+          >
+            <div className="earth-panel rounded-full px-4 py-1.5 flex items-center gap-2 hover:bg-muted/20 transition-colors active:scale-95">
+              <span className="font-display text-xs font-semibold text-primary">{neighborhood.indigenousName}</span>
+              <span className="text-muted-foreground text-[10px]">·</span>
+              <span className="font-display text-[10px] text-muted-foreground">{neighborhood.modernName}</span>
+            </div>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
-      {/* Layer toggle */}
+      {/* Layer toggle — positioned with padding from top nav */}
       <motion.div
-        className="fixed top-12 right-3 z-40 earth-panel rounded-xl flex items-center overflow-hidden"
+        className="fixed top-14 right-4 z-40 earth-panel rounded-xl flex items-center overflow-hidden"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
@@ -112,7 +121,9 @@ export default function MapCanvas() {
         onPinClick={(pin) => { setSelectedPin(pin); setSelectedLandmark(null); setActiveSubcategory(null); }}
         onLandmarkClick={(lm) => { setSelectedLandmark(lm); setSelectedPin(null); setActiveSubcategory(null); }}
         layer={mapLayer}
-        onMapMove={handleMapMove}
+        onMapMove={(lat, lng) => {
+          handleMapMove(lat, lng);
+        }}
       />
 
       <FloatingDock activeFilter={activeFilter} onFilter={setActiveFilter} onAdd={() => setShowAdd(true)} />
