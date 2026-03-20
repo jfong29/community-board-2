@@ -62,33 +62,33 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect }: EcoSta
         <div className="flex items-center justify-between gap-2 px-3 py-1.5 max-w-screen-xl mx-auto">
           {/* Left: moon + time + seasonal day */}
           <button
-            className="flex items-center gap-1.5 text-xs font-display text-foreground hover:bg-muted/20 rounded-lg px-1.5 py-0.5 transition-colors flex-shrink-0"
+            className="flex items-center gap-1.5 text-sm font-display text-foreground hover:bg-muted/20 rounded-lg px-1.5 py-0.5 transition-colors flex-shrink-0"
             onClick={() => setShowSeasonal(true)}
             title="View seasonal indicators"
           >
             <span className="text-sm" title={moon.name}>{moon.icon}</span>
-            <span className="text-muted-foreground">{timeStr}</span>
-            <span className="text-[10px] text-accent font-medium hidden sm:inline">· Siquon</span>
+            <span className="text-muted-foreground text-sm">{timeStr}</span>
+            <span className="text-xs font-medium hidden sm:inline" style={{ color: '#DAE16B' }}>· Siquon</span>
           </button>
 
           {/* Center: search bar */}
           <SearchBar initialQuery={initialSearch} onPinSelect={onPinSelect} />
 
-          {/* Right: eco indicators + solar */}
-          <div className="flex items-center gap-2 text-xs flex-shrink-0">
+          {/* Right: eco indicators + profile */}
+          <div className="flex items-center gap-2 text-sm flex-shrink-0">
             <div className="hidden sm:flex items-center gap-2">
               <span title="Air quality" className="flex items-center gap-0.5">
-                <span className="text-[10px]">🍃</span>
+                <span className="text-xs">🍃</span>
                 <span className="text-observation font-display font-semibold">82</span>
               </span>
               <span title="Water" className="flex items-center gap-0.5">
-                <span className="text-[10px]">💧</span>
+                <span className="text-xs">💧</span>
                 <span className="text-primary font-display font-semibold">71</span>
               </span>
             </div>
             <span className="text-muted-foreground">{weather.icon}</span>
             <div className="flex items-center gap-1" title={`Solar: ${solar}%`}>
-              <Zap size={10} className="text-offer" />
+              <Zap size={10} style={{ color: '#DAE16B' }} />
               <div className="w-5 h-2 rounded-sm border border-border/60 overflow-hidden">
                 <div
                   className="h-full rounded-sm transition-all duration-500"
@@ -101,10 +101,11 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect }: EcoSta
             </div>
             <button
               onClick={() => navigate('/profile')}
-              className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center hover:bg-primary/30 transition-colors"
+              className="w-7 h-7 rounded-full flex items-center justify-center hover:scale-110 transition-transform active:scale-95"
+              style={{ backgroundColor: 'rgba(218,225,107,0.2)', border: '1px solid rgba(218,225,107,0.4)' }}
               title="Profile"
             >
-              <User size={12} className="text-primary" />
+              <User size={13} style={{ color: '#DAE16B' }} />
             </button>
           </div>
         </div>

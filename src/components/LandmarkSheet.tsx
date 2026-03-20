@@ -20,7 +20,6 @@ interface LandmarkSheetProps {
 export default function LandmarkSheet({ landmark, onClose, onPinSelect }: LandmarkSheetProps) {
   const handleItemClick = (lPin: LandmarkPin) => {
     if (!onPinSelect || !landmark) return;
-    // Convert landmark pin to a full Pin for the detail sheet
     const fullPin: Pin = {
       id: `${landmark.id}-${lPin.title}`,
       category: lPin.category,
@@ -45,7 +44,7 @@ export default function LandmarkSheet({ landmark, onClose, onPinSelect }: Landma
           exit={{ y: '100%' }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
-          <div className="earth-panel rounded-2xl p-5 space-y-4">
+          <div className="earth-panel rounded-2xl p-5 space-y-4 max-h-[70vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{landmark.icon}</span>
@@ -56,6 +55,19 @@ export default function LandmarkSheet({ landmark, onClose, onPinSelect }: Landma
               </button>
             </div>
 
+            {/* Description */}
+            {landmark.description && (
+              <p className="text-sm text-foreground/80 leading-relaxed">
+                {landmark.description}
+              </p>
+            )}
+            {landmark.source && (
+              <p className="text-xs text-muted-foreground italic">
+                Source: {landmark.source}
+              </p>
+            )}
+
+            {/* Pins */}
             <div className="space-y-2.5">
               {landmark.pins.map((pin, i) => (
                 <motion.button
@@ -69,16 +81,16 @@ export default function LandmarkSheet({ landmark, onClose, onPinSelect }: Landma
                   <PinIcon category={pin.category} size={20} animate={false} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">
+                      <span className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">
                         {categoryLabels[pin.category]}
                       </span>
-                      <span className="text-[10px] text-muted-foreground/60">·</span>
-                      <span className="text-[10px] text-muted-foreground/60">{pin.subcategory}</span>
+                      <span className="text-xs text-muted-foreground/60">·</span>
+                      <span className="text-xs text-muted-foreground/60">{pin.subcategory}</span>
                     </div>
                     <p className="font-display text-sm font-semibold text-foreground mt-0.5">{pin.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{pin.description}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{pin.description}</p>
                   </div>
-                  <span className="text-muted-foreground/40 text-xs mt-1">→</span>
+                  <span className="text-muted-foreground/40 text-sm mt-1">→</span>
                 </motion.button>
               ))}
             </div>

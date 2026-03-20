@@ -43,8 +43,8 @@ export default function MapCanvas() {
 
   const filteredPins = activeFilter ? allPins.filter((p) => p.category === activeFilter) : allPins;
 
-  // Show neighborhood label at zoom tier 2+ (zoom >= 14)
-  const showNeighborhoodLabel = currentZoom >= 14;
+  // Neighborhood label at tier 2+ (zoom >= 15)
+  const showNeighborhoodLabel = currentZoom >= 15;
 
   const handleMapMove = useCallback((lat: number, lng: number) => {
     setNeighborhood(getNeighborhoodAtCoords(lat, lng));
@@ -83,7 +83,7 @@ export default function MapCanvas() {
             onClick={() => setShowNeighborhoodInfo(true)}
           >
             <div className="earth-panel rounded-full px-4 py-1.5 flex items-center gap-2 hover:bg-muted/20 transition-colors active:scale-95">
-              <span className="font-display text-xs font-semibold text-primary">{neighborhood.indigenousName}</span>
+              <span className="font-display text-xs font-semibold" style={{ color: '#DAE16B' }}>{neighborhood.indigenousName}</span>
               <span className="text-muted-foreground text-[10px]">·</span>
               <span className="font-display text-[10px] text-muted-foreground">{neighborhood.modernName}</span>
             </div>
@@ -91,7 +91,7 @@ export default function MapCanvas() {
         )}
       </AnimatePresence>
 
-      {/* Layer toggle — positioned with padding from top nav */}
+      {/* Layer toggle */}
       <motion.div
         className="fixed top-14 right-4 z-40 earth-panel rounded-xl flex items-center overflow-hidden"
         initial={{ opacity: 0, x: 20 }}
@@ -102,11 +102,12 @@ export default function MapCanvas() {
           <button
             key={opt.value}
             onClick={() => setMapLayer(opt.value)}
-            className={`flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-display font-semibold transition-colors ${
+            className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-display font-semibold transition-colors ${
               mapLayer === opt.value
-                ? 'bg-primary/20 text-primary'
+                ? 'text-foreground'
                 : 'text-foreground/60 hover:text-foreground hover:bg-muted/20'
             }`}
+            style={mapLayer === opt.value ? { backgroundColor: 'rgba(218,225,107,0.2)', color: '#DAE16B' } : undefined}
             title={opt.label}
           >
             {opt.icon}
@@ -123,6 +124,7 @@ export default function MapCanvas() {
         layer={mapLayer}
         onMapMove={(lat, lng) => {
           handleMapMove(lat, lng);
+          // Track zoom from StreetMapView via its internal state — we get it via onMapMove side effect
         }}
       />
 

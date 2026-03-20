@@ -13,8 +13,8 @@ export default function NeighborhoodInfoSheet({ neighborhood, onClose }: Neighbo
     <Sheet open={!!neighborhood} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="bottom" className="earth-panel border-t border-border/40 rounded-t-2xl max-h-[60vh] overflow-y-auto">
         <SheetHeader className="text-left pb-3">
-          <SheetTitle className="font-display text-lg text-foreground flex items-center gap-2">
-            <span className="text-primary">{neighborhood.indigenousName}</span>
+          <SheetTitle className="font-display text-xl text-foreground flex items-center gap-2">
+            <span style={{ color: '#DAE16B' }}>{neighborhood.indigenousName}</span>
             <span className="text-muted-foreground text-sm font-normal">·</span>
             <span className="text-sm text-muted-foreground font-normal">{neighborhood.modernName}</span>
           </SheetTitle>
@@ -28,7 +28,7 @@ export default function NeighborhoodInfoSheet({ neighborhood, onClose }: Neighbo
         </p>
 
         {neighborhood.source && (
-          <p className="text-[10px] text-muted-foreground italic">
+          <p className="text-xs text-muted-foreground italic">
             Source: {neighborhood.source}
           </p>
         )}
