@@ -70,30 +70,65 @@ export default function MapCanvas() {
     <div className="fixed inset-0 overflow-hidden bg-background">
       <EcoStatusBar initialSearch={initialSearch} onPinSelect={handleSearchSelect} />
 
-      {/* Neighborhood label — visible at tier 2+ */}
+      {/* Neighborhood label — visible at tier 2+ (zoom >= 15), centered below top bar */}
       <AnimatePresence>
         {showNeighborhoodLabel && (
-          <motion.button
-            className="fixed top-12 left-1/2 -translate-x-1/2 z-30"
+          <motion.div
+            className="fixed left-1/2 -translate-x-1/2 z-30"
+            style={{ top: 'calc(var(--grid-gap) * 2 + 40px)' }}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
             key={neighborhood.id}
-            onClick={() => setShowNeighborhoodInfo(true)}
           >
-            <div className="earth-panel rounded-full px-4 py-1.5 flex items-center gap-2 hover:bg-muted/20 transition-colors active:scale-95">
-              <span className="font-display text-xs font-semibold" style={{ color: '#DAE16B' }}>{neighborhood.indigenousName}</span>
-              <span className="text-muted-foreground text-[10px]">·</span>
-              <span className="font-display text-[10px] text-muted-foreground">{neighborhood.modernName}</span>
-            </div>
-          </motion.button>
+            <button
+              onClick={() => setShowNeighborhoodInfo(!showNeighborhoodInfo)}
+              className="earth-panel rounded-full px-4 py-1.5 flex items-center gap-2 hover:bg-muted/20 transition-colors active:scale-95"
+            >
+              <span className="font-display text-sm font-semibold text-accent">{neighborhood.indigenousName}</span>
+              <span className="text-muted-foreground text-xs">·</span>
+              <span className="font-display text-xs text-muted-foreground">{neighborhood.modernName}</span>
+            </button>
+
+            {/* Popup anchored below the label */}
+            <AnimatePresence>
+              {showNeighborhoodInfo && (
+                <motion.div
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[min(90vw,360px)] earth-panel rounded-xl border border-border/40 shadow-xl overflow-hidden"
+                  style={{ padding: 'var(--grid-gap)' }}
+                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div>
+                      <h3 className="font-display text-lg font-semibold text-accent">{neighborhood.indigenousName}</h3>
+                      <p className="font-display text-sm text-muted-foreground">{neighborhood.modernName}</p>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setShowNeighborhoodInfo(false); }}
+                      className="text-muted-foreground hover:text-foreground text-lg leading-none mt-0.5"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-relaxed mb-2">{neighborhood.description}</p>
+                  {neighborhood.source && (
+                    <p className="text-xs text-muted-foreground italic">Source: {neighborhood.source}</p>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Layer toggle */}
+      {/* Layer toggle — aligned right with consistent grid padding */}
       <motion.div
-        className="fixed top-14 right-4 z-40 earth-panel rounded-xl flex items-center overflow-hidden"
+        className="fixed z-40 earth-panel rounded-xl flex items-center overflow-hidden"
+        style={{ top: 'calc(var(--grid-gap) * 2 + 40px)', right: 'var(--grid-gap)' }}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
@@ -124,8 +159,8 @@ export default function MapCanvas() {
         layer={mapLayer}
         onMapMove={(lat, lng) => {
           handleMapMove(lat, lng);
-          // Track zoom from StreetMapView via its internal state — we get it via onMapMove side effect
         }}
+        onZoomChange={setCurrentZoom}
       />
 
       <FloatingDock activeFilter={activeFilter} onFilter={setActiveFilter} onAdd={() => setShowAdd(true)} />
@@ -135,7 +170,6 @@ export default function MapCanvas() {
       <SubcategorySheet subcategory={activeSubcategory} onClose={() => setActiveSubcategory(null)} onPinSelect={handleSubcategoryPinSelect} />
       <AddPinModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddPin} />
       <ChatPanel pin={chatPin} onClose={() => setChatPin(null)} />
-      <NeighborhoodInfoSheet neighborhood={showNeighborhoodInfo ? neighborhood : null} onClose={() => setShowNeighborhoodInfo(false)} />
     </div>
   );
 }
