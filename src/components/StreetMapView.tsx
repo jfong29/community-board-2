@@ -106,11 +106,11 @@ function createYouIcon() {
 }
 
 /* ── Zoom tiers ── */
-// Tier 1: ≤14 (zoomed out), Tier 2: 15–17, Tier 3: 18
+// Tier 1: 13–14 (zoomed out), Tier 2: 15–16, Tier 3: 17–18
 type ZoomTier = 1 | 2 | 3;
 function getZoomTier(zoom: number): ZoomTier {
   if (zoom <= 14) return 1;
-  if (zoom <= 17) return 2;
+  if (zoom <= 16) return 2;
   return 3;
 }
 
