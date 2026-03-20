@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Pin } from '@/data/pins';
+import { Pin, xyToLatLng } from '@/data/pins';
 import { Landmark } from '@/data/landmarks';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -50,8 +50,8 @@ interface StreetMapViewProps {
 
 export default function StreetMapView({ pins, landmarks, onPinClick, onLandmarkClick }: StreetMapViewProps) {
   const pinLatLng = (pin: Pin): [number, number] => {
-    const lat = 40.75 - (pin.y / 100) * 0.06;
-    const lng = -74.02 + (pin.x / 100) * 0.06;
+    if (pin.lat != null && pin.lng != null) return [pin.lat, pin.lng];
+    const { lat, lng } = xyToLatLng(pin.x, pin.y);
     return [lat, lng];
   };
 
@@ -61,7 +61,7 @@ export default function StreetMapView({ pins, landmarks, onPinClick, onLandmarkC
         center={CENTER}
         zoom={14}
         style={{ width: '100%', height: '100%' }}
-        zoomControl={false}
+        zoomControl={true}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'

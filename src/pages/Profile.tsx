@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, MessageCircle, Vote, BarChart3, Settings, Check } from 'lucide-react';
+import { ArrowLeft, User, MessageCircle, Vote, ScrollText, Settings, Check, MapPin, ChevronRight } from 'lucide-react';
 import { useProfile } from '@/hooks/use-profile';
+import { usePosts } from '@/hooks/use-posts';
+import PinIcon from '@/components/PinIcon';
 
-type Tab = 'settings' | 'chats' | 'votes' | 'stats';
+type Tab = 'settings' | 'chats' | 'votes' | 'log';
 
 const languages = ['English', 'Lenape', 'Español', 'Français'];
 const timezones = ['EST (UTC-5)', 'CST (UTC-6)', 'MST (UTC-7)', 'PST (UTC-8)'];
@@ -22,18 +24,17 @@ const mockVotes = [
   { id: '3', title: 'New Composting Station Location', voted: 'no', total: 62 },
 ];
 
-const mockStats = {
-  postsCreated: 7,
-  offersCompleted: 4,
-  requestsFulfilled: 2,
-  observationsLogged: 12,
-  eventsAttended: 5,
-  communityScore: 84,
+const categoryColorMap: Record<string, string> = {
+  offer: 'hsl(184, 100%, 27%)',
+  request: 'hsl(22, 100%, 42%)',
+  observation: 'hsl(140, 65%, 32%)',
+  event: 'hsl(262, 45%, 65%)',
 };
 
 export default function Profile() {
   const navigate = useNavigate();
   const { profile, isLoading, updateProfile } = useProfile();
+  const { posts, userPosts } = usePosts(profile?.id);
   const [tab, setTab] = useState<Tab>('settings');
   const [name, setName] = useState('');
   const [pronouns, setPronouns] = useState('');
@@ -44,7 +45,6 @@ export default function Profile() {
   const [highContrast, setHighContrast] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Sync local state from DB profile
   useEffect(() => {
     if (profile) {
       setName(profile.name);
@@ -78,9 +78,9 @@ export default function Profile() {
 
   const tabs: { key: Tab; icon: React.ReactNode; label: string }[] = [
     { key: 'settings', icon: <Settings size={16} />, label: 'Settings' },
+    { key: 'log', icon: <ScrollText size={16} />, label: 'Log' },
     { key: 'chats', icon: <MessageCircle size={16} />, label: 'Chats' },
     { key: 'votes', icon: <Vote size={16} />, label: 'Votes' },
-    { key: 'stats', icon: <BarChart3 size={16} />, label: 'Stats' },
   ];
 
   if (isLoading) {
@@ -90,6 +90,19 @@ export default function Profile() {
       </div>
     );
   }
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = now.getTime() - d.getTime();
+    const hours = Math.floor(diff / 3600000);
+    if (hours < 1) return 'Just now';
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return d.toLocaleDateString();
+  };
 
   return (
     <div className="fixed inset-0 bg-background overflow-y-auto">
@@ -200,6 +213,58 @@ export default function Profile() {
           </motion.div>
         )}
 
+        {tab === 'log' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+            {/* Summary counts */}
+            <div className="grid grid-cols-4 gap-2 mb-2">
+              {(['offer', 'request', 'observation', 'event'] as const).map((cat) => {
+                const count = userPosts.filter(p => p.category === cat).length;
+                return (
+                  <div key={cat} className="earth-panel rounded-xl p-2 text-center">
+                    <PinIcon category={cat} size={16} animate={false} />
+                    <p className="text-lg font-display font-bold text-foreground mt-1">{count}</p>
+                    <p className="text-[9px] text-muted-foreground font-display capitalize">{cat}s</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {userPosts.length === 0 ? (
+              <div className="text-center py-8">
+                <ScrollText size={32} className="mx-auto text-muted-foreground/40 mb-3" />
+                <p className="text-sm text-muted-foreground font-display">No posts yet</p>
+                <p className="text-xs text-muted-foreground/60 font-body mt-1">Your posts will appear here</p>
+              </div>
+            ) : (
+              userPosts.map((post: any) => (
+                <button
+                  key={post.id}
+                  onClick={() => navigate(`/?search=${encodeURIComponent(post.title)}`)}
+                  className="w-full earth-panel rounded-xl p-3 flex items-center gap-3 hover:bg-muted/20 transition-colors text-left"
+                >
+                  <PinIcon category={post.category} size={24} animate={false} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-display font-semibold text-foreground truncate">{post.title}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span
+                        className="text-[10px] font-display font-medium px-1.5 py-0.5 rounded-full"
+                        style={{
+                          backgroundColor: `${categoryColorMap[post.category]}15`,
+                          color: categoryColorMap[post.category],
+                        }}
+                      >
+                        {post.subcategory}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">{formatDate(post.createdAt)}</span>
+                    </div>
+                  </div>
+                  <ChevronRight size={14} className="text-muted-foreground flex-shrink-0" />
+                </button>
+              ))
+            )}
+          </motion.div>
+        )}
+
         {tab === 'chats' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
             {mockChats.map((chat) => (
@@ -232,29 +297,6 @@ export default function Profile() {
                 </div>
               </div>
             ))}
-          </motion.div>
-        )}
-
-        {tab === 'stats' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
-            <div className="earth-panel rounded-xl p-4 text-center">
-              <p className="text-3xl font-display font-bold text-primary">{mockStats.communityScore}</p>
-              <p className="text-xs text-muted-foreground font-display mt-1">Community Score</p>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { label: 'Posts Created', value: mockStats.postsCreated },
-                { label: 'Offers Completed', value: mockStats.offersCompleted },
-                { label: 'Requests Fulfilled', value: mockStats.requestsFulfilled },
-                { label: 'Observations', value: mockStats.observationsLogged },
-                { label: 'Events Attended', value: mockStats.eventsAttended },
-              ].map((stat) => (
-                <div key={stat.label} className="earth-panel rounded-xl p-3 text-center">
-                  <p className="text-xl font-display font-bold text-foreground">{stat.value}</p>
-                  <p className="text-[10px] text-muted-foreground font-display mt-0.5">{stat.label}</p>
-                </div>
-              ))}
-            </div>
           </motion.div>
         )}
       </div>

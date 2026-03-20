@@ -10,6 +10,22 @@ export interface Pin {
   postedBy: string;
   x: number;
   y: number;
+  lat?: number;
+  lng?: number;
+}
+
+// Convert lat/lng to Welikia map x/y percentages
+export function latLngToXY(lat: number, lng: number): { x: number; y: number } {
+  const y = ((40.75 - lat) / 0.06) * 100;
+  const x = ((lng + 74.02) / 0.06) * 100;
+  return { x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) };
+}
+
+// Convert Welikia map x/y to lat/lng
+export function xyToLatLng(x: number, y: number): { lat: number; lng: number } {
+  const lat = 40.75 - (y / 100) * 0.06;
+  const lng = -74.02 + (x / 100) * 0.06;
+  return { lat, lng };
 }
 
 export interface ObservationData {

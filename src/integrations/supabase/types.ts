@@ -61,6 +61,8 @@ export type Database = {
           description: string | null
           fulfillment: string | null
           id: string
+          lat: number | null
+          lng: number | null
           location: string | null
           profile_id: string | null
           quantity: string | null
@@ -79,6 +81,8 @@ export type Database = {
           description?: string | null
           fulfillment?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           location?: string | null
           profile_id?: string | null
           quantity?: string | null
@@ -97,6 +101,8 @@ export type Database = {
           description?: string | null
           fulfillment?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           location?: string | null
           profile_id?: string | null
           quantity?: string | null
