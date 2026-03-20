@@ -260,7 +260,7 @@ function MapControls({ atMinZoom, onRequestCity }: {
     }
     map.zoomOut();
   };
-  const handleLocate = () => map.flyTo(YOU_LOCATION, 18, { duration: 0.8 });
+  const handleLocate = () => map.flyTo(YOU_LOCATION, 17, { duration: 0.8 });
 
   const btnBase: React.CSSProperties = {
     background: 'hsla(15,16%,17%,0.92)',
