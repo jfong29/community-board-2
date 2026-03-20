@@ -7,7 +7,6 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Pin, xyToLatLng } from '@/data/pins';
 import { Landmark } from '@/data/landmarks';
-import { ecoFeatures } from '@/data/welikia-ecology';
 import { useNavigate } from 'react-router-dom';
 import { Locate, Plus, Minus } from 'lucide-react';
 import RequestCityModal from './RequestCityModal';
@@ -41,9 +40,10 @@ const categoryGlow: Record<string, string> = {
 };
 
 /* ── Pin SVG builder ── */
-function pinSvg(category: string, size: number): string {
+function pinSvg(category: string, size: number, dim = false): string {
   const color = categoryColor[category] || '#888';
   const half = size / 2;
+  const opacity = dim ? 0.35 : 1;
   const isAd = category === 'offer' || category === 'request';
   if (isAd) {
     const isOffer = category === 'offer';
@@ -51,7 +51,7 @@ function pinSvg(category: string, size: number): string {
       ? `${half},3 ${size - 4},${size - 4} 4,${size - 4}`
       : `4,4 ${size - 4},4 ${half},${size - 3}`;
     const cy = isOffer ? half + 3 : half - 2;
-    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
       <circle cx="${half}" cy="${half}" r="${half - 2}" fill="none" stroke="${color}" stroke-width="2" stroke-opacity="0.4"/>
       <polygon points="${points}" fill="${color}" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/>
       <circle cx="${half}" cy="${cy}" r="3" fill="hsla(25,40%,93%,0.9)"/>
@@ -69,15 +69,16 @@ function pinSvg(category: string, size: number): string {
     default:
       shape = `<circle cx="${half}" cy="${half}" r="${half - 2}" fill="${color}" fill-opacity="0.7"/>`;
   }
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">${shape}</svg>`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">${shape}</svg>`;
 }
 
-function createPinIcon(category: string) {
+function createPinIcon(category: string, dim = false) {
   const isAd = category === 'offer' || category === 'request';
   const size = isAd ? 44 : category === 'event' ? 40 : 32;
   const glow = categoryGlow[category] || 'rgba(0,0,0,0.3)';
+  const glowStr = dim ? 'none' : `drop-shadow(0 0 12px ${glow})`;
   return L.divIcon({
-    html: `<div style="filter:drop-shadow(0 0 12px ${glow});cursor:pointer;">${pinSvg(category, size)}</div>`,
+    html: `<div style="filter:${glowStr};cursor:pointer;">${pinSvg(category, size, dim)}</div>`,
     className: '',
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
@@ -116,7 +117,7 @@ function getZoomTier(zoom: number): ZoomTier {
 /* ── Urgency scoring ── */
 const urgencyScore: Record<string, number> = { critical: 3, high: 2, medium: 1, low: 0 };
 function pinUrgency(pin: Pin): number {
-  return urgencyScore[(pin as any).urgency ?? 'low'] ?? 0;
+  return urgencyScore[pin.urgency ?? 'low'] ?? 0;
 }
 
 /* ── Heatmap layer — fixed to map coordinates ── */
@@ -189,34 +190,6 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
   return null;
 }
 
-/* ── Eco overlay ── */
-function EcoLayer({ layer }: { layer: MapLayer }) {
-  if (layer === 'streets') return null;
-  const opacity = layer === 'trees' ? 1 : 0.6;
-  return (
-    <>
-      {ecoFeatures.map(f => {
-        if (f.type === 'stream' || f.type === 'shoreline') {
-          return (
-            <Polyline key={f.id}
-              positions={(f.coords as [number, number][]).map(([lng, lat]) => [lat, lng] as [number, number])}
-              pathOptions={{ color: f.color, weight: f.type === 'shoreline' ? 2 : 3, opacity: opacity * f.fillOpacity, dashArray: f.type === 'shoreline' ? '6 4' : undefined }}
-            />
-          );
-        }
-        const rings = f.type === 'pond'
-          ? [(f.coords as [number, number][]).map(([lng, lat]) => [lat, lng] as [number, number])]
-          : (f.coords as [number, number][][]).map(ring => ring.map(([lng, lat]) => [lat, lng] as [number, number]));
-        return (
-          <Polygon key={f.id} positions={rings}
-            pathOptions={{ color: f.color, fillColor: f.color, fillOpacity: opacity * f.fillOpacity, weight: 1.5, opacity: opacity * 0.6 }}
-          />
-        );
-      })}
-    </>
-  );
-}
-
 /* ── Map events ── */
 function MapEvents({
   onMove, onZoom, onAtMinZoom,
@@ -287,7 +260,6 @@ function MapControls({ atMinZoom, onRequestCity }: {
     }
     map.zoomOut();
   };
-  // Locator zooms to Tier 3
   const handleLocate = () => map.flyTo(YOU_LOCATION, 18, { duration: 0.8 });
 
   const btnBase: React.CSSProperties = {
@@ -349,11 +321,13 @@ export default function StreetMapView({
   const showWelikia = layer === 'both' || layer === 'trees';
   const welikiaOpacity = layer === 'trees' ? 0.9 : 0.55;
 
+  // Tier 1: no pins, just heatmap + landmarks
+  // Tier 2: urgent pins only (critical/high)
+  // Tier 3: all pins, low urgency ones are dim
   const visiblePins = useMemo(() => {
     if (tier === 1) return [];
     if (tier === 2) {
-      const sorted = [...pins].sort((a, b) => pinUrgency(b) - pinUrgency(a));
-      return sorted.slice(0, Math.max(12, Math.floor(pins.length * 0.3)));
+      return pins.filter(p => pinUrgency(p) >= 2); // critical or high
     }
     return pins;
   }, [pins, tier]);
@@ -408,17 +382,18 @@ export default function StreetMapView({
           />
         )}
 
-        <EcoLayer layer={layer} />
-
         {showHeatmap && <HeatmapLayer pins={pins} />}
 
         {/* "You" marker — always visible */}
         <Marker position={YOU_LOCATION} icon={createYouIcon()} />
 
-        {visiblePins.map((pin) => (
-          <Marker key={pin.id} position={pinLatLng(pin)} icon={createPinIcon(pin.category)}
-            eventHandlers={{ click: () => onPinClick(pin) }} />
-        ))}
+        {visiblePins.map((pin) => {
+          const isDim = tier === 3 && pinUrgency(pin) <= 1;
+          return (
+            <Marker key={pin.id} position={pinLatLng(pin)} icon={createPinIcon(pin.category, isDim)}
+              eventHandlers={{ click: () => onPinClick(pin) }} />
+          );
+        })}
 
         {showLandmarks && landmarks.map((lm) => (
           <Marker key={lm.id} position={[lm.lat, lm.lng]}
