@@ -242,6 +242,7 @@ interface StreetMapViewProps {
   onLandmarkClick: (landmark: Landmark) => void;
   layer: MapLayer;
   onMapMove?: (lat: number, lng: number) => void;
+  onZoomChange?: (zoom: number) => void;
 }
 
 function MapControls({ atMinZoom, onRequestCity }: {
