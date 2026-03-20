@@ -295,7 +295,7 @@ function FlyToHandler({ target }: { target: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
     if (target) {
-      map.flyTo(target, 18, { duration: 1.2 });
+      map.flyTo(target, 17, { duration: 1.2 });
     }
   }, [target, map]);
   return null;
