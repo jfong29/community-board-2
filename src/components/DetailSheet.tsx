@@ -14,14 +14,14 @@ const categoryColorMap: Record<string, string> = {
   offer: '#00838A',
   request: '#D54E00',
   observation: '#1D8636',
-  event: '#9D7AD2',
+  event: '#9D7AD2'
 };
 
 const categoryLabels: Record<string, string> = {
   offer: 'Offer',
   request: 'Request',
   observation: 'Observation',
-  event: 'Gathering',
+  event: 'Gathering'
 };
 
 export default function DetailSheet({ pin, onClose, onChat, onTagClick }: DetailSheetProps) {
@@ -32,30 +32,30 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
 
   return (
     <AnimatePresence>
-      {pin && (
-        <motion.div
-          className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 md:px-0 md:max-w-md md:mx-auto"
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        >
+      {pin &&
+      <motion.div
+        className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 md:px-0 md:max-w-md md:mx-auto"
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
+        
           <div className="earth-panel rounded-2xl p-6 space-y-4">
             {/* Category label + close */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <PinIcon category={pin.category} size={28} animate={false} />
                 <span
-                  className="font-display text-sm font-bold uppercase tracking-wider"
-                  style={{ color: accentColor }}
-                >
+                className="font-display text-sm font-bold uppercase tracking-wider"
+                style={{ color: accentColor }}>
+                
                   {categoryLabels[pin.category]}
                 </span>
               </div>
               <button
-                onClick={onClose}
-                className="p-1 rounded-full hover:bg-muted/30 transition-colors text-foreground"
-              >
+              onClick={onClose}
+              className="p-1 rounded-full hover:bg-muted/30 transition-colors text-foreground">
+              
                 <X size={18} />
               </button>
             </div>
@@ -67,14 +67,14 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
 
             {/* Clickable subcategory tag */}
             <button
-              onClick={() => onTagClick?.(pin.subcategory)}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display font-semibold transition-all hover:scale-105 active:scale-95 border"
-              style={{
-                borderColor: accentColor,
-                color: accentColor,
-                backgroundColor: `${accentColor}15`,
-              }}
-            >
+            onClick={() => onTagClick?.(pin.subcategory)}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-display font-semibold transition-all hover:scale-105 active:scale-95 border"
+            style={{
+              borderColor: accentColor,
+              color: accentColor,
+              backgroundColor: `${accentColor}15`
+            }}>
+            
               {pin.subcategory}
               <span className="opacity-50">→</span>
             </button>
@@ -94,43 +94,43 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
             </div>
 
             {/* Action buttons */}
-            {showActions ? (
-              <div className="flex gap-2">
+            {showActions ?
+          <div className="flex gap-2">
                 <button
-                  onClick={() => onChat(pin)}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
-                >
+              onClick={() => onChat(pin)}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+              style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
+              
                   <MessageCircle size={16} />
                   <span>Chat</span>
                 </button>
                 <button
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{ backgroundColor: accentColor, color: 'hsl(40, 20%, 85%)' }}
-                >
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] text-lg"
+              style={{ backgroundColor: accentColor, color: 'hsl(40, 20%, 85%)' }}>
+              
                   <Package size={16} />
                   <span>Pickup</span>
                 </button>
                 <button
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{ backgroundColor: `${accentColor}40`, color: accentColor }}
-                >
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+              style={{ backgroundColor: `${accentColor}40`, color: accentColor }}>
+              
                   <Truck size={16} />
                   <span>Delivery</span>
                 </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => onChat(pin)}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
-                style={{ backgroundColor: accentColor, color: 'hsl(40, 20%, 85%)' }}
-              >
+              </div> :
+
+          <button
+            onClick={() => onChat(pin)}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-display font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+            style={{ backgroundColor: accentColor, color: 'hsl(40, 20%, 85%)' }}>
+            
                 <MessageCircle size={16} />
               </button>
-            )}
+          }
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
-  );
+      }
+    </AnimatePresence>);
+
 }
