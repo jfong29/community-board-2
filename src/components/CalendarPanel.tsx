@@ -53,17 +53,34 @@ function getMonthName(date: Date) {
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-// Generate fake dates for pins that are events/gatherings to populate calendar
+// Deterministic date for any pin across 2-week window
 function getPinDate(pin: Pin, weekDates: Date[]): Date | null {
-  if (pin.category !== 'event') return null;
-  // Hash pin id to a day index deterministically
   let hash = 0;
   for (let i = 0; i < pin.id.length; i++) hash = ((hash << 5) - hash + pin.id.charCodeAt(i)) | 0;
-  const dayIdx = Math.abs(hash) % 14; // spread across 2 weeks
+  const dayIdx = Math.abs(hash) % 14;
   const base = new Date(weekDates[0]);
   base.setDate(base.getDate() + dayIdx);
   return base;
 }
+
+// Determine time-of-day bucket from pin title/description
+type TimeSlot = 'morning' | 'afternoon' | 'evening' | 'anytime';
+function getTimeSlot(pin: Pin): TimeSlot {
+  const text = (pin.title + ' ' + pin.description).toLowerCase();
+  if (/sunrise|morning|dawn|breakfast|am\b|early/.test(text)) return 'morning';
+  if (/sunset|evening|twilight|dusk|candlelight|bonfire|night|vigil|pm\b/.test(text)) return 'evening';
+  if (/afternoon|lunch|midday|noon/.test(text)) return 'afternoon';
+  return 'anytime';
+}
+
+const TIME_LABELS: Record<TimeSlot, { label: string; icon: string }> = {
+  morning: { label: 'Morning', icon: '🌅' },
+  afternoon: { label: 'Afternoon', icon: '☀️' },
+  evening: { label: 'Evening', icon: '🌇' },
+  anytime: { label: 'Anytime', icon: '🕐' },
+};
+
+const TIME_ORDER: TimeSlot[] = ['morning', 'afternoon', 'evening', 'anytime'];
 
 const FILTER_OPTIONS: { value: CalendarFilter; label: string; icon?: string }[] = [
   { value: 'all', label: 'All' },
@@ -88,6 +105,15 @@ const CATEGORY_DOT: Record<PinCategory, string> = {
   event: 'bg-event',
 };
 
+const CATEGORY_ICON: Record<PinCategory, string> = {
+  offer: offerIcon,
+  request: requestIcon,
+  observation: observationIcon,
+  event: gatheringIcon,
+};
+
+const urgencyScore: Record<string, number> = { critical: 3, high: 2, medium: 1, low: 0 };
+
 export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPanelProps) {
   const [weekOffset, setWeekOffset] = useState(0);
   const [filter, setFilter] = useState<CalendarFilter>('all');
@@ -105,13 +131,8 @@ export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPa
   const today = new Date();
   const todayStr = today.toDateString();
 
-  // All event/gathering pins plus actionable seasonal indicators
-  const calendarPins = useMemo(() => {
-    const actionablePins = samplePins.filter(p =>
-      p.category === 'event' || p.urgency === 'critical' || p.urgency === 'high'
-    );
-    return actionablePins;
-  }, []);
+  // ALL pins appear in calendar now — not just events
+  const calendarPins = useMemo(() => samplePins, []);
 
   const pinsByDate = useMemo(() => {
     const map = new Map<string, (Pin & { date: Date })[]>();
@@ -125,15 +146,30 @@ export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPa
     return map;
   }, [calendarPins, weekDates]);
 
+  // Sort pins: urgent first (brighter), then by time of day
+  function sortPins(pins: (Pin & { date: Date })[]) {
+    return [...pins].sort((a, b) => {
+      const ua = urgencyScore[a.urgency ?? 'low'] ?? 0;
+      const ub = urgencyScore[b.urgency ?? 'low'] ?? 0;
+      if (ub !== ua) return ub - ua;
+      const ta = TIME_ORDER.indexOf(getTimeSlot(a));
+      const tb = TIME_ORDER.indexOf(getTimeSlot(b));
+      return ta - tb;
+    });
+  }
+
+  function filterPins(pins: (Pin & { date: Date })[]) {
+    let filtered = pins;
+    if (filter === 'saved') filtered = pins.filter(p => savedPinIds.has(p.id));
+    else if (filter !== 'all') filtered = pins.filter(p => p.category === filter);
+    return sortPins(filtered);
+  }
+
   const filteredPinsForDay = useMemo(() => {
     if (!selectedDay) return [];
-    const dayPins = pinsByDate.get(selectedDay) || [];
-    if (filter === 'all') return dayPins;
-    if (filter === 'saved') return dayPins.filter(p => savedPinIds.has(p.id));
-    return dayPins.filter(p => p.category === filter);
+    return filterPins(pinsByDate.get(selectedDay) || []);
   }, [selectedDay, pinsByDate, filter, savedPinIds]);
 
-  // All pins for the week, filtered
   const allWeekPins = useMemo(() => {
     const all: (Pin & { date: Date })[] = [];
     weekDates.forEach(d => {
@@ -141,10 +177,20 @@ export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPa
       const pins = pinsByDate.get(key) || [];
       all.push(...pins);
     });
-    if (filter === 'all') return all;
-    if (filter === 'saved') return all.filter(p => savedPinIds.has(p.id));
-    return all.filter(p => p.category === filter);
+    return filterPins(all);
   }, [weekDates, pinsByDate, filter, savedPinIds]);
+
+  // Group by time slot
+  function groupByTime(pins: (Pin & { date: Date })[]) {
+    const groups: Record<TimeSlot, (Pin & { date: Date })[]> = {
+      morning: [], afternoon: [], evening: [], anytime: [],
+    };
+    pins.forEach(p => groups[getTimeSlot(p)].push(p));
+    return groups;
+  }
+
+  const displayPins = selectedDay ? filteredPinsForDay : allWeekPins;
+  const groupedPins = groupByTime(displayPins);
 
   const toggleSave = (pinId: string) => {
     setSavedPinIds(prev => {
@@ -162,6 +208,13 @@ export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPa
       onClose();
       onPinSelect(linked);
     }
+  };
+
+  const urgencyBrightness = (pin: Pin) => {
+    const score = urgencyScore[pin.urgency ?? 'low'] ?? 0;
+    if (score >= 3) return 'brightness-125';
+    if (score >= 2) return 'brightness-110';
+    return '';
   };
 
   return (
@@ -333,7 +386,7 @@ export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPa
                       </span>
                       {hasPins && (
                         <div className="flex gap-0.5 mt-0.5">
-                          {categories.slice(0, 3).map(cat => (
+                          {categories.slice(0, 4).map(cat => (
                             <div key={cat} className={`w-1 h-1 rounded-full ${CATEGORY_DOT[cat]}`} />
                           ))}
                         </div>
@@ -343,41 +396,62 @@ export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPa
                 })}
               </div>
 
-              {/* Events list */}
-              <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
-                {(selectedDay ? filteredPinsForDay : allWeekPins).length === 0 ? (
+              {/* Events list grouped by time of day */}
+              <div className="space-y-2 max-h-[240px] overflow-y-auto">
+                {displayPins.length === 0 ? (
                   <p className="text-[11px] text-muted-foreground text-center py-3">
-                    {filter === 'saved' ? 'No saved events' : 'No events this period'}
+                    {filter === 'saved' ? 'No saved items' : 'No items this period'}
                   </p>
                 ) : (
-                  (selectedDay ? filteredPinsForDay : allWeekPins).map(pin => (
-                    <motion.div
-                      key={pin.id}
-                      className={`flex items-center gap-2.5 p-2 rounded-xl border ${CATEGORY_COLORS[pin.category]} cursor-pointer`}
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      onClick={() => {
-                        if (onPinSelect) {
-                          onClose();
-                          onPinSelect(pin);
-                        }
-                      }}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="font-display text-xs font-semibold truncate">{pin.title}</p>
-                        <p className="text-[10px] opacity-70 truncate">{pin.postedBy} · {pin.distance}</p>
+                  TIME_ORDER.map(slot => {
+                    const slotPins = groupedPins[slot];
+                    if (slotPins.length === 0) return null;
+                    return (
+                      <div key={slot}>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-xs">{TIME_LABELS[slot].icon}</span>
+                          <span className="text-[10px] font-display font-semibold text-muted-foreground uppercase tracking-wider">
+                            {TIME_LABELS[slot].label}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          {slotPins.slice(0, 8).map(pin => (
+                            <motion.div
+                              key={pin.id}
+                              className={`flex items-center gap-2.5 p-2 rounded-xl border cursor-pointer ${CATEGORY_COLORS[pin.category]} ${urgencyBrightness(pin)}`}
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              onClick={() => {
+                                if (onPinSelect) {
+                                  onClose();
+                                  onPinSelect(pin);
+                                }
+                              }}
+                            >
+                              <img src={CATEGORY_ICON[pin.category]} alt="" className="w-4 h-4 flex-shrink-0 opacity-80" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-display text-xs font-semibold truncate">{pin.title}</p>
+                                <p className="text-[10px] opacity-70 truncate">
+                                  {pin.postedBy}
+                                  {pin.urgency === 'critical' && ' · 🔴 Urgent'}
+                                  {pin.urgency === 'high' && ' · 🟠 High'}
+                                </p>
+                              </div>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); toggleSave(pin.id); }}
+                                className={`p-1 rounded-md transition-colors ${
+                                  savedPinIds.has(pin.id) ? 'text-lime' : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                                title={savedPinIds.has(pin.id) ? 'Unsave' : 'Save to calendar'}
+                              >
+                                <Bookmark size={14} fill={savedPinIds.has(pin.id) ? 'currentColor' : 'none'} />
+                              </button>
+                            </motion.div>
+                          ))}
+                        </div>
                       </div>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleSave(pin.id); }}
-                        className={`p-1 rounded-md transition-colors ${
-                          savedPinIds.has(pin.id) ? 'text-lime' : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                        title={savedPinIds.has(pin.id) ? 'Unsave' : 'Save to calendar'}
-                      >
-                        <Bookmark size={14} fill={savedPinIds.has(pin.id) ? 'currentColor' : 'none'} />
-                      </button>
-                    </motion.div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

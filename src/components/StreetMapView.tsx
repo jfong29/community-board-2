@@ -29,7 +29,7 @@ const MAX_BOUNDS = L.latLngBounds(
   [40.9000, -73.7500],
 );
 const MIN_ZOOM = 13;
-const MAX_ZOOM = 16;
+const MAX_ZOOM = 17;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
@@ -40,7 +40,7 @@ const categoryGlow: Record<string, string> = {
   observation: 'rgba(57,187,214,0.5)', event: 'rgba(249,132,202,0.5)',
 };
 
-/* ── Pin SVG builder using actual icon shapes ── */
+/* ── Pin SVG builder ── */
 function pinSvg(category: string, size: number, dim = false): string {
   const color = categoryColor[category] || '#888';
   const opacity = dim ? 0.6 : 1;
@@ -68,14 +68,17 @@ function pinSvg(category: string, size: number, dim = false): string {
   }
 }
 
-function createPinIcon(category: string, dim = false, urgent = false) {
-  const isAd = category === 'offer' || category === 'request';
-  const size = isAd ? 44 : category === 'event' ? 40 : 32;
+function createPinIcon(category: string, dim = false, urgent = false, highlighted = false) {
+  const baseSize = category === 'offer' || category === 'request' ? 44 : category === 'event' ? 40 : 32;
+  const size = highlighted ? Math.round(baseSize * 1.6) : baseSize;
   const glow = categoryGlow[category] || 'rgba(0,0,0,0.3)';
-  const glowStr = dim ? 'none' : `drop-shadow(0 0 12px ${glow})`;
+  const glowStr = dim ? 'none' : `drop-shadow(0 0 ${highlighted ? '20' : '12'}px ${glow})`;
   const pulseClass = urgent ? 'pin-urgent-pulse' : '';
+  const highlightRing = highlighted
+    ? `<div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid ${categoryColor[category] || '#888'};opacity:0.6;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>`
+    : '';
   return L.divIcon({
-    html: `<div class="${pulseClass}" style="filter:${glowStr};cursor:pointer;">${pinSvg(category, size, dim)}</div>`,
+    html: `<div class="${pulseClass}" style="filter:${glowStr};cursor:pointer;position:relative;">${highlightRing}${pinSvg(category, size, dim)}</div>`,
     className: '',
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
@@ -103,17 +106,18 @@ function createYouIcon() {
 }
 
 /*
- * ── Zoom tiers (4 zoom levels: 13–16) ──
- * Zoom 16 (most zoomed in): Tier 1 — all pins, no landmarks
- * Zoom 15: Tier 1b — landmarks + urgent pulsing pins
- * Zoom 14: landmarks + gradients, no pins
+ * ── Zoom tiers (5 zoom levels: 13–17) ──
+ * Zoom 17 (most zoomed in): Tier 1 — all pins, no landmarks
+ * Zoom 16: Tier 1b — landmarks + urgent pulsing pins
+ * Zoom 15: landmarks + gradients, no pins
+ * Zoom 14: just gradients, no landmarks
  * Zoom 13 (most zoomed out): just gradients, no landmarks
  */
 type ZoomTier = 'all-pins' | 'landmarks-urgent' | 'landmarks-gradient' | 'gradient-only';
 function getZoomTier(zoom: number): ZoomTier {
-  if (zoom >= 16) return 'all-pins';
-  if (zoom >= 15) return 'landmarks-urgent';
-  if (zoom >= 14) return 'landmarks-gradient';
+  if (zoom >= 17) return 'all-pins';
+  if (zoom >= 16) return 'landmarks-urgent';
+  if (zoom >= 15) return 'landmarks-gradient';
   return 'gradient-only';
 }
 
@@ -123,7 +127,7 @@ function pinUrgency(pin: Pin): number {
   return urgencyScore[pin.urgency ?? 'low'] ?? 0;
 }
 
-/* ── Heatmap layer — fixed to map coordinates ── */
+/* ── Heatmap layer ── */
 function HeatmapLayer({ pins }: { pins: Pin[] }) {
   const map = useMap();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -193,7 +197,7 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
   return null;
 }
 
-/* ── Smooth zoom handler — uses flyTo for animated zoom like Apple Maps ── */
+/* ── Smooth zoom handler ── */
 function SmoothZoomHandler() {
   const map = useMap();
 
@@ -291,6 +295,7 @@ interface StreetMapViewProps {
   layer: MapLayer;
   onMapMove?: (lat: number, lng: number) => void;
   onZoomChange?: (zoom: number) => void;
+  highlightedPinId?: string | null;
 }
 
 function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
@@ -311,7 +316,7 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
     }
     map.flyTo(map.getCenter(), Math.max(map.getZoom() - 1, MIN_ZOOM), { duration: 0.4 });
   };
-  const handleLocate = () => map.flyTo(YOU_LOCATION, 16, { duration: 0.8 });
+  const handleLocate = () => map.flyTo(YOU_LOCATION, 17, { duration: 0.8 });
 
   const btnBase: React.CSSProperties = {
     background: 'hsla(15,16%,17%,0.92)',
@@ -345,18 +350,18 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
   );
 }
 
-function FlyToHandler({ target }: { target: [number, number] | null }) {
+function FlyToHandler({ target, zoom }: { target: [number, number] | null; zoom?: number }) {
   const map = useMap();
   useEffect(() => {
     if (target) {
-      map.flyTo(target, 16, { duration: 1.2 });
+      map.flyTo(target, zoom ?? MAX_ZOOM, { duration: 1.2 });
     }
-  }, [target, map]);
+  }, [target, map, zoom]);
   return null;
 }
 
 export default function StreetMapView({
-  pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange,
+  pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange, highlightedPinId,
 }: StreetMapViewProps) {
   const navigate = useNavigate();
   const [zoom, setZoomLocal] = useState(13);
@@ -368,6 +373,7 @@ export default function StreetMapView({
   const [atMaxZoom, setAtMaxZoom] = useState(false);
   const [showRequestCity, setShowRequestCity] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
+  const [flyZoom, setFlyZoom] = useState<number | undefined>(undefined);
   const tier = getZoomTier(zoom);
 
   const pinLatLng = useCallback((pin: Pin): [number, number] => {
@@ -375,6 +381,18 @@ export default function StreetMapView({
     const { lat, lng } = xyToLatLng(pin.x, pin.y);
     return [lat, lng];
   }, []);
+
+  // When highlightedPinId changes, fly to that pin
+  useEffect(() => {
+    if (highlightedPinId) {
+      const pin = pins.find(p => p.id === highlightedPinId);
+      if (pin) {
+        const ll = pinLatLng(pin);
+        setFlyTarget(ll);
+        setFlyZoom(MAX_ZOOM);
+      }
+    }
+  }, [highlightedPinId, pins, pinLatLng]);
 
   const streetOpacity = layer === 'streets' ? 1 : layer === 'both' ? 1 : 0.15;
   const welikiaOpacity = layer === 'trees' ? 0.9 : layer === 'both' ? 0.55 : 0;
@@ -392,12 +410,13 @@ export default function StreetMapView({
 
   const handleLandmarkClick = useCallback((lm: Landmark) => {
     setFlyTarget([lm.lat, lm.lng]);
+    setFlyZoom(16);
     onLandmarkClick(lm);
   }, [onLandmarkClick]);
 
   useEffect(() => {
     if (flyTarget) {
-      const t = setTimeout(() => setFlyTarget(null), 1500);
+      const t = setTimeout(() => { setFlyTarget(null); setFlyZoom(undefined); }, 1500);
       return () => clearTimeout(t);
     }
   }, [flyTarget]);
@@ -429,7 +448,7 @@ export default function StreetMapView({
         )}
 
         <SmoothZoomHandler />
-        <FlyToHandler target={flyTarget} />
+        <FlyToHandler target={flyTarget} zoom={flyZoom} />
 
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
@@ -441,7 +460,7 @@ export default function StreetMapView({
         <TileLayer
           url="https://d17l30qqe4mnqp.cloudfront.net/overlays/1609Sat/tiles_60k_new/{z}/{x}/{y}.png"
           opacity={welikiaOpacity}
-          maxZoom={16}
+          maxZoom={17}
           minZoom={8}
           keepBuffer={6}
         />
@@ -453,11 +472,12 @@ export default function StreetMapView({
         {visiblePins.map((pin) => {
           const isDim = tier === 'all-pins' && pinUrgency(pin) <= 1;
           const isUrgent = pinUrgency(pin) >= 2;
+          const isHighlighted = pin.id === highlightedPinId;
           return (
             <Marker
               key={pin.id}
               position={pinLatLng(pin)}
-              icon={createPinIcon(pin.category, isDim, isUrgent)}
+              icon={createPinIcon(pin.category, isDim, isUrgent, isHighlighted)}
               eventHandlers={{ click: () => onPinClick(pin) }}
             />
           );
@@ -479,7 +499,7 @@ export default function StreetMapView({
         />
       </MapContainer>
 
-      {/* Map source attribution — fixed bottom left */}
+      {/* Map source attribution */}
       <div
         className="fixed z-30 font-display text-muted-foreground/60"
         style={{ bottom: 'var(--grid-gap)', left: 'var(--grid-gap)', fontSize: '10px' }}

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Pin, PinCategory, samplePins, latLngToXY } from '@/data/pins';
 import { landmarks, Landmark } from '@/data/landmarks';
@@ -20,10 +20,20 @@ import bothIcon from '@/assets/both.svg';
 import welikiaLayerIcon from '@/assets/welikia-icon.svg';
 
 const layerOptions: { value: MapLayer; icon: string; label: string }[] = [
-  { value: 'streets', icon: humanIcon, label: 'Streets' },
+  { value: 'streets', icon: humanIcon, label: 'Human' },
   { value: 'both', icon: bothIcon, label: 'Both' },
-  { value: 'trees', icon: welikiaLayerIcon, label: 'Welikia' },
+  { value: 'trees', icon: welikiaLayerIcon, label: 'Nonhuman' },
 ];
+
+// Pins tagged as nonhuman / nature observations
+const NONHUMAN_SUBCATEGORIES = new Set([
+  'Pollinators', 'Marine Life', 'Water Quality', 'Wildlife', 'Birding',
+  'Fungi', 'Tree Health', 'Spring Sign', 'Ecology', 'Nature',
+]);
+
+function isNonhumanPin(pin: Pin): boolean {
+  return NONHUMAN_SUBCATEGORIES.has(pin.subcategory) || (pin as any).isNature === true;
+}
 
 export default function MapCanvas() {
   const [searchParams] = useSearchParams();
@@ -34,6 +44,7 @@ export default function MapCanvas() {
 
   const [activeFilters, setActiveFilters] = useState<Set<PinCategory>>(new Set());
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
+  const [highlightedPinId, setHighlightedPinId] = useState<string | null>(null);
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
   const [chatPin, setChatPin] = useState<Pin | null>(null);
@@ -44,23 +55,26 @@ export default function MapCanvas() {
   const [currentZoom, setCurrentZoom] = useState(12);
   const [layerMenuOpen, setLayerMenuOpen] = useState(false);
 
+  // Layer-based pin filtering: streets = human only, trees = nonhuman only, both = all
+  const layerFilteredPins = useMemo(() => {
+    if (mapLayer === 'streets') return allPins.filter(p => !isNonhumanPin(p));
+    if (mapLayer === 'trees') return allPins.filter(p => isNonhumanPin(p));
+    return allPins;
+  }, [allPins, mapLayer]);
+
   const filteredPins = activeFilters.size === 0
-    ? allPins
-    : allPins.filter((p) => activeFilters.has(p.category));
+    ? layerFilteredPins
+    : layerFilteredPins.filter((p) => activeFilters.has(p.category));
 
   const handleToggleFilter = useCallback((cat: PinCategory) => {
     setActiveFilters(prev => {
       const next = new Set(prev);
-      if (next.has(cat)) {
-        next.delete(cat);
-      } else {
-        next.add(cat);
-      }
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
       return next;
     });
   }, []);
 
-  // Neighborhood label at tier 3 (zoom >= 15)
   const showNeighborhoodLabel = currentZoom >= 15;
 
   const handleMapMove = useCallback((lat: number, lng: number) => {
@@ -78,21 +92,28 @@ export default function MapCanvas() {
     addPost.mutate({ ...data, x, y, profileId: profile?.id });
   };
 
-  const handleTagClick = (subcategory: string) => { setSelectedPin(null); setActiveSubcategory(subcategory); };
-  const handleLandmarkPinSelect = (pin: Pin) => { setSelectedLandmark(null); setSelectedPin(pin); };
-  const handleSubcategoryPinSelect = (pin: Pin) => { setActiveSubcategory(null); setSelectedPin(pin); };
-  const handleSearchSelect = (pin: Pin) => { setSelectedPin(pin); setSelectedLandmark(null); setActiveSubcategory(null); };
+  // When selecting a pin (from calendar, search, or direct click), highlight + pan
+  const handlePinSelect = useCallback((pin: Pin) => {
+    setSelectedPin(pin);
+    setHighlightedPinId(pin.id);
+    setSelectedLandmark(null);
+    setActiveSubcategory(null);
+  }, []);
+
+  const handleTagClick = (subcategory: string) => { setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(subcategory); };
+  const handleLandmarkPinSelect = (pin: Pin) => { setSelectedLandmark(null); handlePinSelect(pin); };
+  const handleSubcategoryPinSelect = (pin: Pin) => { setActiveSubcategory(null); handlePinSelect(pin); };
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
       <EcoStatusBar
         initialSearch={initialSearch}
-        onPinSelect={handleSearchSelect}
+        onPinSelect={handlePinSelect}
         activeFilters={activeFilters}
         onToggleFilter={handleToggleFilter}
       />
 
-      {/* Neighborhood label — visible at tier 3 (zoom >= 15), centered below top bar */}
+      {/* Neighborhood label */}
       <AnimatePresence>
         {showNeighborhoodLabel && (
           <motion.div
@@ -113,13 +134,11 @@ export default function MapCanvas() {
               <span className="font-display text-xs text-muted-foreground">{neighborhood.modernName}</span>
             </button>
 
-            {/* Popup anchored below the label */}
             <AnimatePresence>
               {showNeighborhoodInfo && (
                 <motion.div
-                  className="absolute top-full mt-2 w-[min(85vw,360px)] earth-panel rounded-xl border border-border/40 shadow-xl overflow-hidden left-1/2 -translate-x-1/2 sm:left-1/2 sm:-translate-x-1/2"
+                  className="absolute top-full mt-2 w-[min(85vw,360px)] earth-panel rounded-xl border border-border/40 shadow-xl overflow-hidden left-1/2 -translate-x-1/2"
                   style={{ padding: 'var(--grid-gap)', maxWidth: 'calc(100vw - 32px)' }}
-                  
                   initial={{ opacity: 0, y: -8, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.95 }}
@@ -148,7 +167,7 @@ export default function MapCanvas() {
         )}
       </AnimatePresence>
 
-      {/* Layer toggle — fan-out menu horizontally to the left */}
+      {/* Layer toggle */}
       <motion.div
         className="fixed z-40 flex items-center"
         style={{ top: 'calc(var(--grid-gap) * 2 + 64px)', right: 'var(--grid-gap)' }}
@@ -198,22 +217,21 @@ export default function MapCanvas() {
       <StreetMapView
         pins={filteredPins}
         landmarks={landmarks}
-        onPinClick={(pin) => { setSelectedPin(pin); setSelectedLandmark(null); setActiveSubcategory(null); }}
-        onLandmarkClick={(lm) => { setSelectedLandmark(lm); setSelectedPin(null); setActiveSubcategory(null); }}
+        onPinClick={handlePinSelect}
+        onLandmarkClick={(lm) => { setSelectedLandmark(lm); setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(null); }}
         layer={mapLayer}
-        onMapMove={(lat, lng) => {
-          handleMapMove(lat, lng);
-        }}
+        onMapMove={handleMapMove}
         onZoomChange={setCurrentZoom}
+        highlightedPinId={highlightedPinId}
       />
 
       <FloatingDock onAdd={() => setShowAdd(true)} />
 
-      <DetailSheet pin={selectedPin} onClose={() => setSelectedPin(null)} onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }} onTagClick={handleTagClick} />
+      <DetailSheet pin={selectedPin} onClose={() => { setSelectedPin(null); setHighlightedPinId(null); }} onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }} onTagClick={handleTagClick} />
       <LandmarkSheet landmark={selectedLandmark} onClose={() => setSelectedLandmark(null)} onPinSelect={handleLandmarkPinSelect} />
       <SubcategorySheet subcategory={activeSubcategory} onClose={() => setActiveSubcategory(null)} onPinSelect={handleSubcategoryPinSelect} />
       <AddPinModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddPin} />
-      <ChatPanel pin={chatPin} onClose={() => setChatPin(null)} onBackToPin={(pin) => { setChatPin(null); setSelectedPin(pin); }} />
+      <ChatPanel pin={chatPin} onClose={() => setChatPin(null)} onBackToPin={(pin) => { setChatPin(null); handlePinSelect(pin); }} />
     </div>
   );
 }
