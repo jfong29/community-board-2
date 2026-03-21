@@ -163,10 +163,17 @@
   will-change: transform;
 }
 
-/* Dark filter for OSM tiles */
-.dark-tiles .leaflet-tile,
-.dark-tiles img.leaflet-tile {
-  filter: invert(1) hue-rotate(180deg) brightness(0.55) contrast(1.1) saturate(0.3);
+/* Dark filter for Stamen Toner background — dark buildings, visible streets */
+.dark-tiles-bg .leaflet-tile,
+.dark-tiles-bg img.leaflet-tile {
+  filter: invert(1) hue-rotate(180deg) brightness(0.3) contrast(1.4) saturate(0);
+}
+
+/* Labels layer — keep text legible with warm tint */
+.dark-tiles-labels .leaflet-tile,
+.dark-tiles-labels img.leaflet-tile {
+  filter: invert(1) hue-rotate(180deg) brightness(0.7) contrast(1.0) saturate(0);
+  mix-blend-mode: screen;
 }
 
 /* Extra small text uses Public Sans */

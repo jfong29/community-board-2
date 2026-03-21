@@ -449,12 +449,20 @@ export default function StreetMapView({
         <SmoothZoomHandler />
         <FlyToHandler target={flyTarget} zoom={flyZoom} />
 
+        {/* Road lines only – no POI icons */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://stamen.com">Stamen</a>'
+          url="https://tiles.stadiamaps.com/tiles/stamen_toner_background/{z}/{x}/{y}{r}.png"
           opacity={streetOpacity}
           keepBuffer={6}
-          className="dark-tiles"
+          className="dark-tiles-bg"
+        />
+        {/* Street names only – no icons */}
+        <TileLayer
+          url="https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png"
+          opacity={streetOpacity}
+          keepBuffer={6}
+          className="dark-tiles-labels"
         />
 
         <TileLayer
@@ -504,7 +512,7 @@ export default function StreetMapView({
         className="fixed z-30 font-display text-muted-foreground/60"
         style={{ bottom: 'var(--grid-gap)', left: 'var(--grid-gap)', fontSize: '10px' }}
       >
-        {streetOpacity > 0.2 && <span>Streets: <a href="https://www.openstreetmap.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">OpenStreetMap</a></span>}
+        {streetOpacity > 0.2 && <span>Streets: <a href="https://stamen.com" target="_blank" rel="noopener" className="underline hover:text-foreground/60">Stamen</a> / <a href="https://www.openstreetmap.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">OSM</a></span>}
         {streetOpacity > 0.2 && welikiaOpacity > 0 && <span className="mx-1">·</span>}
         {welikiaOpacity > 0 && <span>Ecology: <a href="https://welikia.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">Welikia Project</a></span>}
       </div>
