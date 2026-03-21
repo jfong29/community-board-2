@@ -122,13 +122,8 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
                       key={cat.value}
                       onClick={() => { setCategory(cat.value); setSubcategory(''); setFulfillment([]); }}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-display font-medium transition-all ${
-                        category === cat.value ? 'ring-1' : 'hover:bg-muted/20'
+                        category === cat.value ? 'ring-1 ring-lime/40 bg-lime/10' : 'hover:bg-muted/20'
                       }`}
-                      style={category === cat.value ? {
-                        backgroundColor: `${limeColor}20`,
-                        borderColor: `${limeColor}60`,
-                        ringColor: `${limeColor}60`,
-                      } : {}}
                     >
                       <img src={cat.icon} alt={cat.label} className="w-4 h-3.5" />
                       <span className="text-foreground" style={{ fontSize: '13px' }}>{cat.label}</span>
