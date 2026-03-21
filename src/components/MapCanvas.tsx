@@ -212,7 +212,7 @@ export default function MapCanvas() {
       <LandmarkSheet landmark={selectedLandmark} onClose={() => setSelectedLandmark(null)} onPinSelect={handleLandmarkPinSelect} />
       <SubcategorySheet subcategory={activeSubcategory} onClose={() => setActiveSubcategory(null)} onPinSelect={handleSubcategoryPinSelect} />
       <AddPinModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddPin} />
-      <ChatPanel pin={chatPin} onClose={() => setChatPin(null)} />
+      <ChatPanel pin={chatPin} onClose={() => setChatPin(null)} onBackToPin={(pin) => { setChatPin(null); setSelectedPin(pin); }} />
     </div>
   );
 }
