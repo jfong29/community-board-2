@@ -452,11 +452,12 @@ export default function StreetMapView({
 
         {visiblePins.map((pin) => {
           const isDim = tier === 'all-pins' && pinUrgency(pin) <= 1;
+          const isUrgent = pinUrgency(pin) >= 2;
           return (
             <Marker
               key={pin.id}
               position={pinLatLng(pin)}
-              icon={createPinIcon(pin.category, isDim)}
+              icon={createPinIcon(pin.category, isDim, isUrgent)}
               eventHandlers={{ click: () => onPinClick(pin) }}
             />
           );
