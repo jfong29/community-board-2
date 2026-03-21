@@ -2,7 +2,10 @@ import { Pin, samplePins, categoryConfig } from '@/data/pins';
 import { landmarks } from '@/data/landmarks';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import PinIcon from './PinIcon';
+import offerIcon from '@/assets/offer.svg';
+import requestIcon from '@/assets/request.svg';
+import observationIcon from '@/assets/observation.svg';
+import gatheringIcon from '@/assets/gathering.svg';
 
 interface SubcategorySheetProps {
   subcategory: string | null;
@@ -13,14 +16,20 @@ interface SubcategorySheetProps {
 const categoryLabels: Record<string, string> = {
   offer: 'Offer',
   request: 'Request',
-  observation: 'Observation',
+  observation: 'Signal',
   event: 'Gathering',
+};
+
+const categoryIcons: Record<string, string> = {
+  offer: offerIcon,
+  request: requestIcon,
+  observation: observationIcon,
+  event: gatheringIcon,
 };
 
 export default function SubcategorySheet({ subcategory, onClose, onPinSelect }: SubcategorySheetProps) {
   if (!subcategory) return null;
 
-  // Gather all items matching this subcategory from both pins and landmarks
   const matchingPins: Pin[] = samplePins.filter(
     (p) => p.subcategory.toLowerCase() === subcategory.toLowerCase()
   );
@@ -56,7 +65,7 @@ export default function SubcategorySheet({ subcategory, onClose, onPinSelect }: 
           <div className="earth-panel rounded-2xl p-5 space-y-4 max-h-[65vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-lg font-bold text-foreground">
-                {subcategory} <span className="text-muted-foreground text-sm font-normal">nearby</span>
+                {subcategory} <span className="text-muted-foreground font-normal" style={{ fontSize: '14px' }}>nearby</span>
               </h2>
               <button onClick={onClose} className="p-1 rounded-full hover:bg-muted/30 transition-colors text-foreground">
                 <X size={18} />
@@ -64,7 +73,7 @@ export default function SubcategorySheet({ subcategory, onClose, onPinSelect }: 
             </div>
 
             {allItems.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No nearby items found.</p>
+              <p className="text-muted-foreground">No nearby items found.</p>
             ) : (
               <div className="space-y-2">
                 {allItems.map((item, i) => (
@@ -79,19 +88,19 @@ export default function SubcategorySheet({ subcategory, onClose, onPinSelect }: 
                       onClose();
                     }}
                   >
-                    <PinIcon category={item.category} size={20} animate={false} />
+                    <img src={categoryIcons[item.category]} alt={categoryLabels[item.category]} className="w-5 h-4 mt-1" />
                     <div className="flex-1 min-w-0">
-                      <span className="text-[10px] font-display font-bold uppercase tracking-wider text-muted-foreground">
+                      <span className="font-display font-bold uppercase tracking-wider text-muted-foreground" style={{ fontSize: '11px' }}>
                         {categoryLabels[item.category]}
                       </span>
-                      <p className="font-display text-sm font-semibold text-foreground mt-0.5">{item.title}</p>
-                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                      <p className="font-display font-semibold text-foreground mt-0.5">{item.title}</p>
+                      <div className="flex items-center gap-2 mt-1 text-muted-foreground" style={{ fontSize: '13px' }}>
                         <span>{item.distance}</span>
                         <span>·</span>
                         <span>{item.postedBy}</span>
                       </div>
                     </div>
-                    <span className="text-muted-foreground/40 text-xs mt-1">→</span>
+                    <span className="text-muted-foreground/40 mt-1" style={{ fontSize: '13px' }}>→</span>
                   </motion.button>
                 ))}
               </div>

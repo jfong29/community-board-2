@@ -43,7 +43,7 @@ const categoryGlow: Record<string, string> = {
 /* ── Pin SVG builder using actual icon shapes ── */
 function pinSvg(category: string, size: number, dim = false): string {
   const color = categoryColor[category] || '#888';
-  const opacity = dim ? 0.35 : 1;
+  const opacity = dim ? 0.2 : 1;
 
   switch (category) {
     case 'offer':
@@ -192,6 +192,59 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
   return null;
 }
 
+/* ── Smooth zoom handler — Apple Maps style ── */
+function SmoothZoomHandler() {
+  const map = useMap();
+
+  useEffect(() => {
+    // Throttle wheel zoom to prevent rapid-fire white-flash zooms
+    let lastZoomTime = 0;
+    const ZOOM_COOLDOWN = 600; // ms between zoom steps
+    let pendingZoom: ReturnType<typeof setTimeout> | null = null;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const now = Date.now();
+      const elapsed = now - lastZoomTime;
+
+      if (elapsed < ZOOM_COOLDOWN) {
+        // Queue the zoom for after cooldown
+        if (!pendingZoom) {
+          pendingZoom = setTimeout(() => {
+            pendingZoom = null;
+            const delta = e.deltaY > 0 ? -1 : 1;
+            const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, map.getZoom() + delta));
+            if (newZoom !== map.getZoom()) {
+              lastZoomTime = Date.now();
+              map.setZoom(newZoom, { animate: true });
+            }
+          }, ZOOM_COOLDOWN - elapsed);
+        }
+        return;
+      }
+
+      lastZoomTime = now;
+      const delta = e.deltaY > 0 ? -1 : 1;
+      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, map.getZoom() + delta));
+      if (newZoom !== map.getZoom()) {
+        map.setZoom(newZoom, { animate: true });
+      }
+    };
+
+    const container = map.getContainer();
+    container.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+      if (pendingZoom) clearTimeout(pendingZoom);
+    };
+  }, [map]);
+
+  return null;
+}
+
 /* ── Map events ── */
 function MapEvents({
   onMove, onZoom, onAtMinZoom, onAtMaxZoom,
@@ -208,9 +261,6 @@ function MapEvents({
     map.setMinZoom(MIN_ZOOM);
     map.setMaxZoom(MAX_ZOOM);
     map.options.bounceAtZoomLimits = false;
-    map.options.zoomAnimation = false;
-    map.options.markerZoomAnimation = false;
-    map.options.fadeAnimation = false;
 
     const handleDragEnd = () => {
       const center = map.getCenter();
@@ -219,16 +269,10 @@ function MapEvents({
       }
     };
 
-    const stopQueuedZoom = () => {
-      map.stop();
-    };
-
     map.on('dragend', handleDragEnd);
-    map.on('zoomstart', stopQueuedZoom);
 
     return () => {
       map.off('dragend', handleDragEnd);
-      map.off('zoomstart', stopQueuedZoom);
     };
   }, [map]);
 
@@ -273,16 +317,14 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
 
   const handleZoomIn = () => {
     if (atMaxZoom) return;
-    map.stop();
-    map.setZoom(Math.min(map.getZoom() + 1, MAX_ZOOM), { animate: false });
+    map.setZoom(Math.min(map.getZoom() + 1, MAX_ZOOM), { animate: true });
   };
   const handleZoomOut = () => {
     if (atMinZoom) {
       onRequestCity();
       return;
     }
-    map.stop();
-    map.setZoom(Math.max(map.getZoom() - 1, MIN_ZOOM), { animate: false });
+    map.setZoom(Math.max(map.getZoom() - 1, MIN_ZOOM), { animate: true });
   };
   const handleLocate = () => map.flyTo(YOU_LOCATION, 16, { duration: 0.8 });
 
@@ -387,11 +429,10 @@ export default function StreetMapView({
         zoomDelta={1}
         maxBoundsViscosity={0.8}
         bounceAtZoomLimits={false}
-        zoomAnimation={false}
-        markerZoomAnimation={false}
-        fadeAnimation={false}
-        wheelDebounceTime={240}
-        wheelPxPerZoomLevel={160}
+        scrollWheelZoom={false}
+        zoomAnimation={true}
+        markerZoomAnimation={true}
+        fadeAnimation={true}
       >
         {onMapMove && (
           <MapEvents
@@ -402,12 +443,14 @@ export default function StreetMapView({
           />
         )}
 
+        <SmoothZoomHandler />
         <FlyToHandler target={flyTarget} />
 
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           opacity={streetOpacity}
+          keepBuffer={6}
         />
 
         <TileLayer
@@ -415,6 +458,7 @@ export default function StreetMapView({
           opacity={welikiaOpacity}
           maxZoom={16}
           minZoom={8}
+          keepBuffer={6}
         />
 
         {showHeatmap && <HeatmapLayer pins={pins} />}
@@ -451,8 +495,8 @@ export default function StreetMapView({
 
       {/* Map source attribution — fixed bottom left */}
       <div
-        className="fixed z-30 font-display text-[10px] text-muted-foreground/60"
-        style={{ bottom: 'var(--grid-gap)', left: 'var(--grid-gap)' }}
+        className="fixed z-30 font-display text-muted-foreground/60"
+        style={{ bottom: 'var(--grid-gap)', left: 'var(--grid-gap)', fontSize: '10px' }}
       >
         {streetOpacity > 0.2 && <span>Streets: <a href="https://carto.com" target="_blank" rel="noopener" className="underline hover:text-foreground/60">CARTO</a> / <a href="https://www.openstreetmap.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">OSM</a></span>}
         {streetOpacity > 0.2 && welikiaOpacity > 0 && <span className="mx-1">·</span>}
