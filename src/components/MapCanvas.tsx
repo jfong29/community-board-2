@@ -106,7 +106,7 @@ export default function MapCanvas() {
           >
             <button
               onClick={() => setShowNeighborhoodInfo(!showNeighborhoodInfo)}
-              className="earth-panel rounded-full px-4 py-1.5 flex items-center gap-2 hover:bg-muted/20 transition-colors active:scale-95"
+              className="earth-panel rounded-full px-4 py-1.5 flex items-center gap-2 hover:bg-muted/20 transition-colors active:scale-95 max-w-[90vw]"
             >
               <span className="font-display text-sm font-semibold text-lime">{neighborhood.indigenousName}</span>
               <span className="text-muted-foreground text-xs">·</span>
@@ -117,8 +117,9 @@ export default function MapCanvas() {
             <AnimatePresence>
               {showNeighborhoodInfo && (
                 <motion.div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[min(90vw,360px)] earth-panel rounded-xl border border-border/40 shadow-xl overflow-hidden"
-                  style={{ padding: 'var(--grid-gap)' }}
+                  className="absolute top-full mt-2 w-[min(85vw,360px)] earth-panel rounded-xl border border-border/40 shadow-xl overflow-hidden left-1/2 -translate-x-1/2 sm:left-1/2 sm:-translate-x-1/2"
+                  style={{ padding: 'var(--grid-gap)', maxWidth: 'calc(100vw - 32px)' }}
+                  
                   initial={{ opacity: 0, y: -8, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.95 }}
