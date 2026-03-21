@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Labrada:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Labrada:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Public+Sans:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -58,6 +58,7 @@
 
     --font-display: 'Labrada', serif;
     --font-body: 'Labrada', serif;
+    --font-small: 'Public Sans', sans-serif;
 
     --sidebar-background: 15 16% 17%;
     --sidebar-foreground: 25 40% 93%;
@@ -160,4 +161,15 @@
 }
 .leaflet-zoom-anim .leaflet-tile-container {
   will-change: transform;
+}
+
+/* Dark filter for OSM tiles */
+.dark-tiles .leaflet-tile,
+.dark-tiles img.leaflet-tile {
+  filter: invert(1) hue-rotate(180deg) brightness(0.55) contrast(1.1) saturate(0.3);
+}
+
+/* Extra small text uses Public Sans */
+.text-xs, .text-\[10px\], .text-\[11px\] {
+  font-family: var(--font-small);
 }
