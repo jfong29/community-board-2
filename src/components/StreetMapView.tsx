@@ -106,18 +106,17 @@ function createYouIcon() {
 }
 
 /*
- * ── Zoom tiers (5 zoom levels: 13–17) ──
- * Zoom 17 (most zoomed in): Tier 1 — all pins, no landmarks
- * Zoom 16: Tier 1b — landmarks + urgent pulsing pins
- * Zoom 15: landmarks + gradients, no pins
- * Zoom 14: just gradients, no landmarks
+ * ── Zoom tiers (4 zoom levels: 13–16) ──
+ * Zoom 16 (most zoomed in): Tier 1 — all pins, no landmarks
+ * Zoom 15: Tier 1b — landmarks + urgent pulsing pins
+ * Zoom 14: landmarks + gradients, no pins
  * Zoom 13 (most zoomed out): just gradients, no landmarks
  */
 type ZoomTier = 'all-pins' | 'landmarks-urgent' | 'landmarks-gradient' | 'gradient-only';
 function getZoomTier(zoom: number): ZoomTier {
-  if (zoom >= 17) return 'all-pins';
-  if (zoom >= 16) return 'landmarks-urgent';
-  if (zoom >= 15) return 'landmarks-gradient';
+  if (zoom >= 16) return 'all-pins';
+  if (zoom >= 15) return 'landmarks-urgent';
+  if (zoom >= 14) return 'landmarks-gradient';
   return 'gradient-only';
 }
 
