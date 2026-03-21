@@ -28,8 +28,8 @@ const MAX_BOUNDS = L.latLngBounds(
   [40.5700, -74.0800],
   [40.9000, -73.7500],
 );
-const MIN_ZOOM = 12;
-const MAX_ZOOM = 15;
+const MIN_ZOOM = 13;
+const MAX_ZOOM = 16;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
@@ -102,17 +102,17 @@ function createYouIcon() {
 }
 
 /*
- * ── Zoom tiers (4 zoom levels: 12–15) ──
- * Zoom 15 (most zoomed in): Tier 1 — all pins, no landmarks
- * Zoom 14: Tier 1b — landmarks + urgent pulsing pins
- * Zoom 13: landmarks + gradients, no pins
- * Zoom 12 (most zoomed out): just gradients, no landmarks
+ * ── Zoom tiers (4 zoom levels: 13–16) ──
+ * Zoom 16 (most zoomed in): Tier 1 — all pins, no landmarks
+ * Zoom 15: Tier 1b — landmarks + urgent pulsing pins
+ * Zoom 14: landmarks + gradients, no pins
+ * Zoom 13 (most zoomed out): just gradients, no landmarks
  */
 type ZoomTier = 'all-pins' | 'landmarks-urgent' | 'landmarks-gradient' | 'gradient-only';
 function getZoomTier(zoom: number): ZoomTier {
-  if (zoom >= 15) return 'all-pins';
-  if (zoom >= 14) return 'landmarks-urgent';
-  if (zoom >= 13) return 'landmarks-gradient';
+  if (zoom >= 16) return 'all-pins';
+  if (zoom >= 15) return 'landmarks-urgent';
+  if (zoom >= 14) return 'landmarks-gradient';
   return 'gradient-only';
 }
 
@@ -207,6 +207,10 @@ function MapEvents({
     map.setMaxBounds(MAX_BOUNDS.pad(0.15));
     map.setMinZoom(MIN_ZOOM);
     map.setMaxZoom(MAX_ZOOM);
+    map.options.bounceAtZoomLimits = false;
+    map.options.zoomAnimation = false;
+    map.options.markerZoomAnimation = false;
+    map.options.fadeAnimation = false;
 
     const handleDragEnd = () => {
       const center = map.getCenter();
@@ -214,8 +218,18 @@ function MapEvents({
         map.panInsideBounds(MAX_BOUNDS, { animate: true, duration: 0.5 });
       }
     };
+
+    const stopQueuedZoom = () => {
+      map.stop();
+    };
+
     map.on('dragend', handleDragEnd);
-    return () => { map.off('dragend', handleDragEnd); };
+    map.on('zoomstart', stopQueuedZoom);
+
+    return () => {
+      map.off('dragend', handleDragEnd);
+      map.off('zoomstart', stopQueuedZoom);
+    };
   }, [map]);
 
   useMapEvents({
@@ -259,16 +273,18 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
 
   const handleZoomIn = () => {
     if (atMaxZoom) return;
-    if (map.getZoom() < MAX_ZOOM) map.zoomIn();
+    map.stop();
+    map.setZoom(Math.min(map.getZoom() + 1, MAX_ZOOM), { animate: false });
   };
   const handleZoomOut = () => {
     if (atMinZoom) {
       onRequestCity();
       return;
     }
-    map.zoomOut();
+    map.stop();
+    map.setZoom(Math.max(map.getZoom() - 1, MIN_ZOOM), { animate: false });
   };
-  const handleLocate = () => map.flyTo(YOU_LOCATION, 15, { duration: 0.8 });
+  const handleLocate = () => map.flyTo(YOU_LOCATION, 16, { duration: 0.8 });
 
   const btnBase: React.CSSProperties = {
     background: 'hsla(15,16%,17%,0.92)',
@@ -306,7 +322,7 @@ function FlyToHandler({ target }: { target: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
     if (target) {
-      map.flyTo(target, 15, { duration: 1.2 });
+      map.flyTo(target, 16, { duration: 1.2 });
     }
   }, [target, map]);
   return null;
@@ -316,12 +332,12 @@ export default function StreetMapView({
   pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange,
 }: StreetMapViewProps) {
   const navigate = useNavigate();
-  const [zoom, setZoomLocal] = useState(12);
+  const [zoom, setZoomLocal] = useState(13);
   const setZoom = useCallback((z: number) => {
     setZoomLocal(z);
     onZoomChange?.(z);
   }, [onZoomChange]);
-  const [atMinZoom, setAtMinZoom] = useState(false);
+  const [atMinZoom, setAtMinZoom] = useState(true);
   const [atMaxZoom, setAtMaxZoom] = useState(false);
   const [showRequestCity, setShowRequestCity] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
@@ -339,9 +355,9 @@ export default function StreetMapView({
   const visiblePins = useMemo(() => {
     if (tier === 'gradient-only' || tier === 'landmarks-gradient') return [];
     if (tier === 'landmarks-urgent') {
-      return pins.filter(p => pinUrgency(p) >= 2);
+      return pins.filter((p) => pinUrgency(p) >= 2);
     }
-    return pins; // all-pins
+    return pins;
   }, [pins, tier]);
 
   const showLandmarks = tier === 'landmarks-gradient' || tier === 'landmarks-urgent';
@@ -363,14 +379,19 @@ export default function StreetMapView({
     <div className="w-full h-full" style={{ zIndex: 0 }}>
       <MapContainer
         center={CENTER}
-        zoom={12}
+        zoom={13}
         style={{ width: '100%', height: '100%', zIndex: 0 }}
         zoomControl={false}
         attributionControl={false}
         zoomSnap={1}
         zoomDelta={1}
         maxBoundsViscosity={0.8}
-        wheelDebounceTime={80}
+        bounceAtZoomLimits={false}
+        zoomAnimation={false}
+        markerZoomAnimation={false}
+        fadeAnimation={false}
+        wheelDebounceTime={240}
+        wheelPxPerZoomLevel={160}
       >
         {onMapMove && (
           <MapEvents
@@ -398,21 +419,27 @@ export default function StreetMapView({
 
         {showHeatmap && <HeatmapLayer pins={pins} />}
 
-        {/* "You" marker — always visible */}
         <Marker position={YOU_LOCATION} icon={createYouIcon()} />
 
         {visiblePins.map((pin) => {
           const isDim = tier === 'all-pins' && pinUrgency(pin) <= 1;
           return (
-            <Marker key={pin.id} position={pinLatLng(pin)} icon={createPinIcon(pin.category, isDim)}
-              eventHandlers={{ click: () => onPinClick(pin) }} />
+            <Marker
+              key={pin.id}
+              position={pinLatLng(pin)}
+              icon={createPinIcon(pin.category, isDim)}
+              eventHandlers={{ click: () => onPinClick(pin) }}
+            />
           );
         })}
 
         {showLandmarks && landmarks.map((lm) => (
-          <Marker key={lm.id} position={[lm.lat, lm.lng]}
+          <Marker
+            key={lm.id}
+            position={[lm.lat, lm.lng]}
             icon={createLandmarkIcon(lm.icon, lm.pins.length)}
-            eventHandlers={{ click: () => handleLandmarkClick(lm) }} />
+            eventHandlers={{ click: () => handleLandmarkClick(lm) }}
+          />
         ))}
 
         <MapControls
