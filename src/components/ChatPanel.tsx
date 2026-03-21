@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Pin, categoryConfig } from '@/data/pins';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Send } from 'lucide-react';
@@ -7,6 +7,7 @@ import PinIcon from './PinIcon';
 interface ChatPanelProps {
   pin: Pin | null;
   onClose: () => void;
+  onBackToPin?: (pin: Pin) => void;
 }
 
 interface Message {
@@ -15,17 +16,60 @@ interface Message {
   sender: 'you' | 'them';
 }
 
-export default function ChatPanel({ pin, onClose }: ChatPanelProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: `Interested in "${pin?.title}"`, sender: 'you' },
-    { id: 2, text: 'Yes! The trail is marked with blue stones.', sender: 'them' },
-  ]);
+// Generate contextual opening messages based on the pin
+function getContextualMessages(pin: Pin): Message[] {
+  const cat = pin.category;
+  const title = pin.title;
+  const poster = pin.postedBy;
+
+  if (cat === 'offer') {
+    return [
+      { id: 1, text: `Hi! I saw your listing for "${title}" — is this still available?`, sender: 'you' },
+      { id: 2, text: `Yes, it is! When works for you to pick it up?`, sender: 'them' },
+    ];
+  }
+  if (cat === 'request') {
+    return [
+      { id: 1, text: `Hey ${poster}, I can help with "${title}". What do you need exactly?`, sender: 'you' },
+      { id: 2, text: `Thank you so much! Can you come by this weekend? I'll send the details.`, sender: 'them' },
+    ];
+  }
+  if (cat === 'observation') {
+    return [
+      { id: 1, text: `I saw your signal about "${title}" — I noticed the same thing near me.`, sender: 'you' },
+      { id: 2, text: `Good to know it's not just here. Should we log it with the community group?`, sender: 'them' },
+    ];
+  }
+  // event / gathering
+  return [
+    { id: 1, text: `Hi! I'd love to join "${title}". Is there still room?`, sender: 'you' },
+    { id: 2, text: `Absolutely! Everyone is welcome. See you there 🌿`, sender: 'them' },
+  ];
+}
+
+export default function ChatPanel({ pin, onClose, onBackToPin }: ChatPanelProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
+
+  // Reset messages when pin changes
+  useEffect(() => {
+    if (pin) {
+      setMessages(getContextualMessages(pin));
+    }
+  }, [pin?.id]);
 
   const send = () => {
     if (!input.trim()) return;
     setMessages((m) => [...m, { id: Date.now(), text: input, sender: 'you' }]);
     setInput('');
+  };
+
+  const handleClose = () => {
+    if (pin && onBackToPin) {
+      onBackToPin(pin);
+    } else {
+      onClose();
+    }
   };
 
   return (
@@ -39,12 +83,16 @@ export default function ChatPanel({ pin, onClose }: ChatPanelProps) {
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <div className="earth-panel flex-1 flex flex-col bg-background">
+            {/* Header with pin title */}
             <div className="flex items-center gap-3 p-4 border-b border-border/30">
-              <button onClick={onClose} className="p-1 text-foreground hover:bg-muted/30 rounded-full">
+              <button onClick={handleClose} className="p-1 text-foreground hover:bg-muted/30 rounded-full">
                 <ArrowLeft size={20} />
               </button>
               <PinIcon category={pin.category} size={20} animate={false} />
-              <p className="font-display font-semibold text-sm text-foreground">{pin.postedBy}</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-display font-semibold text-sm text-foreground truncate">{pin.title}</p>
+                <p className="text-xs text-muted-foreground truncate">with {pin.postedBy}</p>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
