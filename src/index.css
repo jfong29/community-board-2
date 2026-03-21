@@ -162,3 +162,14 @@
 .leaflet-zoom-anim .leaflet-tile-container {
   will-change: transform;
 }
+
+/* Dark filter for OSM tiles */
+.dark-tiles .leaflet-tile,
+.dark-tiles img.leaflet-tile {
+  filter: invert(1) hue-rotate(180deg) brightness(0.55) contrast(1.1) saturate(0.3);
+}
+
+/* Extra small text uses Public Sans */
+.text-xs, .text-\[10px\], .text-\[11px\] {
+  font-family: var(--font-small);
+}

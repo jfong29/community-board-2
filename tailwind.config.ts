@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         display: ["Labrada", "serif"],
         body: ["Labrada", "serif"],
+        small: ["Public Sans", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
