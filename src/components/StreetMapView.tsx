@@ -43,7 +43,7 @@ const categoryGlow: Record<string, string> = {
 /* ── Pin SVG builder using actual icon shapes ── */
 function pinSvg(category: string, size: number, dim = false): string {
   const color = categoryColor[category] || '#888';
-  const opacity = dim ? 0.2 : 1;
+  const opacity = dim ? 0.6 : 1;
 
   switch (category) {
     case 'offer':
@@ -68,13 +68,14 @@ function pinSvg(category: string, size: number, dim = false): string {
   }
 }
 
-function createPinIcon(category: string, dim = false) {
+function createPinIcon(category: string, dim = false, urgent = false) {
   const isAd = category === 'offer' || category === 'request';
   const size = isAd ? 44 : category === 'event' ? 40 : 32;
   const glow = categoryGlow[category] || 'rgba(0,0,0,0.3)';
   const glowStr = dim ? 'none' : `drop-shadow(0 0 12px ${glow})`;
+  const pulseClass = urgent ? 'pin-urgent-pulse' : '';
   return L.divIcon({
-    html: `<div style="filter:${glowStr};cursor:pointer;">${pinSvg(category, size, dim)}</div>`,
+    html: `<div class="${pulseClass}" style="filter:${glowStr};cursor:pointer;">${pinSvg(category, size, dim)}</div>`,
     className: '',
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
@@ -451,11 +452,12 @@ export default function StreetMapView({
 
         {visiblePins.map((pin) => {
           const isDim = tier === 'all-pins' && pinUrgency(pin) <= 1;
+          const isUrgent = pinUrgency(pin) >= 2;
           return (
             <Marker
               key={pin.id}
               position={pinLatLng(pin)}
-              icon={createPinIcon(pin.category, isDim)}
+              icon={createPinIcon(pin.category, isDim, isUrgent)}
               eventHandlers={{ click: () => onPinClick(pin) }}
             />
           );
