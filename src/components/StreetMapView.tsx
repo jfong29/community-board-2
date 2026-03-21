@@ -192,45 +192,30 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
   return null;
 }
 
-/* ── Smooth zoom handler — Apple Maps style ── */
+/* ── Smooth zoom handler — uses flyTo for animated zoom like Apple Maps ── */
 function SmoothZoomHandler() {
   const map = useMap();
 
   useEffect(() => {
-    // Throttle wheel zoom to prevent rapid-fire white-flash zooms
-    let lastZoomTime = 0;
-    const ZOOM_COOLDOWN = 600; // ms between zoom steps
-    let pendingZoom: ReturnType<typeof setTimeout> | null = null;
+    let isZooming = false;
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       e.stopPropagation();
 
-      const now = Date.now();
-      const elapsed = now - lastZoomTime;
+      if (isZooming) return;
 
-      if (elapsed < ZOOM_COOLDOWN) {
-        // Queue the zoom for after cooldown
-        if (!pendingZoom) {
-          pendingZoom = setTimeout(() => {
-            pendingZoom = null;
-            const delta = e.deltaY > 0 ? -1 : 1;
-            const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, map.getZoom() + delta));
-            if (newZoom !== map.getZoom()) {
-              lastZoomTime = Date.now();
-              map.setZoom(newZoom, { animate: true });
-            }
-          }, ZOOM_COOLDOWN - elapsed);
-        }
-        return;
-      }
-
-      lastZoomTime = now;
       const delta = e.deltaY > 0 ? -1 : 1;
-      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, map.getZoom() + delta));
-      if (newZoom !== map.getZoom()) {
-        map.setZoom(newZoom, { animate: true });
-      }
+      const currentZoom = map.getZoom();
+      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, currentZoom + delta));
+      if (newZoom === currentZoom) return;
+
+      isZooming = true;
+      map.flyTo(map.getCenter(), newZoom, { duration: 0.4 });
+
+      map.once('zoomend', () => {
+        isZooming = false;
+      });
     };
 
     const container = map.getContainer();
@@ -238,7 +223,6 @@ function SmoothZoomHandler() {
 
     return () => {
       container.removeEventListener('wheel', handleWheel);
-      if (pendingZoom) clearTimeout(pendingZoom);
     };
   }, [map]);
 
@@ -317,14 +301,14 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
 
   const handleZoomIn = () => {
     if (atMaxZoom) return;
-    map.setZoom(Math.min(map.getZoom() + 1, MAX_ZOOM), { animate: true });
+    map.flyTo(map.getCenter(), Math.min(map.getZoom() + 1, MAX_ZOOM), { duration: 0.4 });
   };
   const handleZoomOut = () => {
     if (atMinZoom) {
       onRequestCity();
       return;
     }
-    map.setZoom(Math.max(map.getZoom() - 1, MIN_ZOOM), { animate: true });
+    map.flyTo(map.getCenter(), Math.max(map.getZoom() - 1, MIN_ZOOM), { duration: 0.4 });
   };
   const handleLocate = () => map.flyTo(YOU_LOCATION, 16, { duration: 0.8 });
 
