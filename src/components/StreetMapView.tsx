@@ -43,7 +43,7 @@ const categoryGlow: Record<string, string> = {
 /* ── Pin SVG builder using actual icon shapes ── */
 function pinSvg(category: string, size: number, dim = false): string {
   const color = categoryColor[category] || '#888';
-  const opacity = dim ? 0.2 : 1;
+  const opacity = dim ? 0.6 : 1;
 
   switch (category) {
     case 'offer':
