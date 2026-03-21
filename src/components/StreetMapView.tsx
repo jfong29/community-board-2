@@ -301,14 +301,14 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
 
   const handleZoomIn = () => {
     if (atMaxZoom) return;
-    map.setZoom(Math.min(map.getZoom() + 1, MAX_ZOOM), { animate: true });
+    map.flyTo(map.getCenter(), Math.min(map.getZoom() + 1, MAX_ZOOM), { duration: 0.4 });
   };
   const handleZoomOut = () => {
     if (atMinZoom) {
       onRequestCity();
       return;
     }
-    map.setZoom(Math.max(map.getZoom() - 1, MIN_ZOOM), { animate: true });
+    map.flyTo(map.getCenter(), Math.max(map.getZoom() - 1, MIN_ZOOM), { duration: 0.4 });
   };
   const handleLocate = () => map.flyTo(YOU_LOCATION, 16, { duration: 0.8 });
 
