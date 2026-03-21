@@ -460,7 +460,7 @@ export default function StreetMapView({
         <TileLayer
           url="https://d17l30qqe4mnqp.cloudfront.net/overlays/1609Sat/tiles_60k_new/{z}/{x}/{y}.png"
           opacity={welikiaOpacity}
-          maxZoom={17}
+          maxZoom={16}
           minZoom={8}
           keepBuffer={6}
         />
