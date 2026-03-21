@@ -121,7 +121,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
         </div>
       </motion.div>
 
-      <SeasonalIndicators open={showSeasonal} onClose={() => setShowSeasonal(false)} />
+      <CalendarPanel open={showSeasonal} onClose={() => setShowSeasonal(false)} onPinSelect={onPinSelect} />
     </>
   );
 }
