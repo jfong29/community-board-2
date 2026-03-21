@@ -2,13 +2,23 @@ import { Landmark, LandmarkPin } from '@/data/landmarks';
 import { Pin } from '@/data/pins';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import PinIcon from './PinIcon';
+import offerIcon from '@/assets/offer.svg';
+import requestIcon from '@/assets/request.svg';
+import observationIcon from '@/assets/observation.svg';
+import gatheringIcon from '@/assets/gathering.svg';
 
 const categoryLabels: Record<string, string> = {
   offer: 'Offer',
   request: 'Request',
-  observation: 'Observation',
+  observation: 'Signal',
   event: 'Gathering',
+};
+
+const categoryIcons: Record<string, string> = {
+  offer: offerIcon,
+  request: requestIcon,
+  observation: observationIcon,
+  event: gatheringIcon,
 };
 
 interface LandmarkSheetProps {
@@ -57,12 +67,12 @@ export default function LandmarkSheet({ landmark, onClose, onPinSelect }: Landma
 
             {/* Description */}
             {landmark.description && (
-              <p className="text-sm text-foreground/80 leading-relaxed">
+              <p className="text-foreground/80 leading-relaxed">
                 {landmark.description}
               </p>
             )}
             {landmark.source && (
-              <p className="text-xs text-muted-foreground italic">
+              <p className="text-muted-foreground italic" style={{ fontSize: '13px' }}>
                 Source: {landmark.source}
               </p>
             )}
@@ -78,19 +88,19 @@ export default function LandmarkSheet({ landmark, onClose, onPinSelect }: Landma
                   transition={{ delay: i * 0.08 }}
                   onClick={() => handleItemClick(pin)}
                 >
-                  <PinIcon category={pin.category} size={20} animate={false} />
+                  <img src={categoryIcons[pin.category]} alt={categoryLabels[pin.category]} className="w-5 h-4 mt-1" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground">
+                      <span className="font-display font-bold uppercase tracking-wider text-muted-foreground" style={{ fontSize: '11px' }}>
                         {categoryLabels[pin.category]}
                       </span>
-                      <span className="text-xs text-muted-foreground/60">·</span>
-                      <span className="text-xs text-muted-foreground/60">{pin.subcategory}</span>
+                      <span className="text-muted-foreground/60" style={{ fontSize: '11px' }}>·</span>
+                      <span className="text-muted-foreground/60" style={{ fontSize: '11px' }}>{pin.subcategory}</span>
                     </div>
-                    <p className="font-display text-sm font-semibold text-foreground mt-0.5">{pin.title}</p>
-                    <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{pin.description}</p>
+                    <p className="font-display font-semibold text-foreground mt-0.5">{pin.title}</p>
+                    <p className="text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{pin.description}</p>
                   </div>
-                  <span className="text-muted-foreground/40 text-sm mt-1">→</span>
+                  <span className="text-muted-foreground/40 mt-1">→</span>
                 </motion.button>
               ))}
             </div>
