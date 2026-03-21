@@ -449,12 +449,20 @@ export default function StreetMapView({
         <SmoothZoomHandler />
         <FlyToHandler target={flyTarget} zoom={flyZoom} />
 
+        {/* Road lines only – no POI icons */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://stamen.com">Stamen</a>'
+          url="https://tiles.stadiamaps.com/tiles/stamen_toner_background/{z}/{x}/{y}{r}.png"
           opacity={streetOpacity}
           keepBuffer={6}
-          className="dark-tiles"
+          className="dark-tiles-bg"
+        />
+        {/* Street names only – no icons */}
+        <TileLayer
+          url="https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png"
+          opacity={streetOpacity}
+          keepBuffer={6}
+          className="dark-tiles-labels"
         />
 
         <TileLayer
