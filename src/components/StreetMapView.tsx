@@ -29,7 +29,7 @@ const MAX_BOUNDS = L.latLngBounds(
   [40.9000, -73.7500],
 );
 const MIN_ZOOM = 13;
-const MAX_ZOOM = 17;
+const MAX_ZOOM = 16;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
