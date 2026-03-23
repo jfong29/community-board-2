@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HelpCircle, Battery } from 'lucide-react';
 import SearchBar from './SearchBar';
 import CalendarPanel from './CalendarPanel';
 import CategoryFilters from './CategoryFilters';
@@ -10,6 +9,7 @@ import logoIcon from '@/assets/logo.svg';
 import profileIcon from '@/assets/profile.svg';
 import savedIcon from '@/assets/saved.svg';
 import moonIcon from '@/assets/moon.svg';
+import helpIcon from '@/assets/help-icon.svg';
 import weatherSunny from '@/assets/weather-sunny.svg';
 import weatherCloudy from '@/assets/weather-cloudy.svg';
 
