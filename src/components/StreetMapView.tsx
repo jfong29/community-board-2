@@ -347,7 +347,7 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
     : btnBase;
 
   return (
-    <div className="leaflet-control" style={{ position: 'absolute', right: 'var(--grid-gap, 16px)', top: 'calc(var(--grid-gap, 16px) * 2 + 64px + 48px)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="leaflet-control" style={{ position: 'absolute', right: 30, top: 'calc(30px * 2 + 64px + 48px)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
       <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
         style={dimInStyle} title={atMaxZoom ? 'Maximum zoom reached' : 'Zoom in'}>
