@@ -655,7 +655,7 @@ export default function StreetMapView({
                 border: '1px solid hsla(15,12%,30%,0.5)',
               }}
             >
-              <img src={locatorIcon} alt="" style={{ width: '32px', height: '32px', flexShrink: 0 }} />
+              <img src={recenterIcon} alt="" style={{ width: '32px', height: '32px', flexShrink: 0 }} />
               <div className="flex-1 min-w-0">
                 <p style={{ fontFamily: 'Labrada, serif', fontWeight: 600, fontSize: '18px', color: '#F4EDE8' }}>
                   {activeRoute.durationMin} min walk
