@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Pin } from '@/data/pins';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink } from 'lucide-react';
-import offerIcon from '@/assets/offer.svg';
-import requestIcon from '@/assets/request.svg';
+import offerNoOutline from '@/assets/offer-no-outline.svg';
+import requestNoOutline from '@/assets/request-no-outline.svg';
 import requestUrgentIcon from '@/assets/request-urgent.svg';
-import observationIcon from '@/assets/observation.svg';
-import gatheringIcon from '@/assets/gathering.svg';
+import observationNoOutline from '@/assets/signal-no-outline.svg';
+import gatheringNoOutline from '@/assets/gathering.svg';
 import nameIcon from '@/assets/name-icon.svg';
 import clockIcon from '@/assets/clock.svg';
 import locatorIcon from '@/assets/locator.svg';
@@ -38,10 +38,10 @@ const categoryLabels: Record<string, string> = {
 };
 
 const categoryIcons: Record<string, string> = {
-  offer: offerIcon,
-  request: requestIcon,
-  observation: observationIcon,
-  event: gatheringIcon,
+  offer: offerNoOutline,
+  request: requestNoOutline,
+  observation: observationNoOutline,
+  event: gatheringNoOutline,
 };
 
 // Known NYC organizations (groups vs individuals)
@@ -306,7 +306,9 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
               {!locationField && (
                 <div className="flex items-center gap-3" style={{ opacity: 0.8 }}>
                   <img src={locatorIcon} alt="" style={{ width: '18px', height: '18px' }} />
-                  <span className="text-foreground italic" style={{ fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400 }}>{pin.distance}</span>
+                  <span style={{ fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400 }}>
+                    <span className="underline" style={{ color: '#DAE16B' }}>{pin.distance}</span>
+                  </span>
                 </div>
               )}
             </div>
@@ -376,7 +378,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
                     padding: '4px 14px',
                   }}
                 >
-                  <img src={gatheringIcon} alt="" style={{ width: '6px', height: '10px' }} />
+                  <img src={gatheringNoOutline} alt="" style={{ width: '6px', height: '10px' }} />
                   {pin.connectedEvent}
                 </span>
                 {/* Save to calendar */}
@@ -412,8 +414,8 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
                     style={{
                       width: '20px',
                       height: '23px',
-                      opacity: saved ? 1 : 0.6,
-                      filter: saved ? 'none' : 'brightness(0.8)',
+                      opacity: saved ? 1 : 0.7,
+                      filter: 'none',
                     }}
                   />
                 </button>

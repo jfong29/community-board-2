@@ -1,7 +1,7 @@
 import { PinCategory } from '@/data/pins';
-import offerIcon from '@/assets/offer.svg';
-import requestIcon from '@/assets/request.svg';
-import observationIcon from '@/assets/observation.svg';
+import offerNoOutline from '@/assets/offer-no-outline.svg';
+import requestNoOutline from '@/assets/request-no-outline.svg';
+import observationNoOutline from '@/assets/signal-no-outline.svg';
 import gatheringIcon from '@/assets/gathering.svg';
 
 interface CategoryFiltersProps {
@@ -10,14 +10,14 @@ interface CategoryFiltersProps {
 }
 
 const categories: { key: PinCategory; label: string; icon: string }[] = [
-  { key: 'offer', label: 'Offer', icon: offerIcon },
-  { key: 'request', label: 'Request', icon: requestIcon },
-  { key: 'observation', label: 'Observation', icon: observationIcon },
+  { key: 'offer', label: 'Offer', icon: offerNoOutline },
+  { key: 'request', label: 'Request', icon: requestNoOutline },
+  { key: 'observation', label: 'Observation', icon: observationNoOutline },
   { key: 'event', label: 'Gathering', icon: gatheringIcon },
 ];
 
 export default function CategoryFilters({ activeFilters, onToggle }: CategoryFiltersProps) {
-  const allActive = activeFilters.size === 0; // no filter = show all
+  const allActive = activeFilters.size === 0;
 
   return (
     <div className="flex items-center gap-1">

@@ -3,8 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { samplePins, PinCategory, Pin } from '@/data/pins';
 import { landmarks } from '@/data/landmarks';
-import PinIcon from './PinIcon';
 import searchIconSvg from '@/assets/search-icon.svg';
+import offerNoOutline from '@/assets/offer-no-outline.svg';
+import requestNoOutline from '@/assets/request-no-outline.svg';
+import observationNoOutline from '@/assets/signal-no-outline.svg';
+import gatheringNoOutline from '@/assets/gathering.svg';
 
 /* ── colour map ── */
 const categoryColors: Record<PinCategory, string> = {
@@ -19,6 +22,13 @@ const categoryLabels: Record<PinCategory, string> = {
   request: 'Request',
   observation: 'Observation',
   event: 'Gathering',
+};
+
+const categoryNoOutlineIcons: Record<PinCategory, string> = {
+  offer: offerNoOutline,
+  request: requestNoOutline,
+  observation: observationNoOutline,
+  event: gatheringNoOutline,
 };
 
 /* ── tags derived from subcategories across data ── */
@@ -86,17 +96,14 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
   const results = useMemo(() => {
     const q = query.toLowerCase().trim();
 
-    // combine query + selected tags into search terms
     const tagTerms = Array.from(selectedTags).map(t => t.toLowerCase());
     const searchTerms = q ? [q, ...tagTerms] : tagTerms;
 
     if (searchTerms.length === 0 && selectedCategories.size === 0) return [];
 
     let filtered = allItems.filter((item) => {
-      // category filter
       if (selectedCategories.size > 0 && !selectedCategories.has(item.category)) return false;
 
-      // text/tag match
       if (searchTerms.length > 0) {
         const haystack = `${item.title} ${item.description} ${item.subcategory} ${item.category}`.toLowerCase();
         return searchTerms.some(term => haystack.includes(term));
@@ -104,23 +111,19 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
       return true;
     });
 
-    // smart sort
     const primaryTag = tagTerms[0] || q;
 
     filtered.sort((a, b) => {
-      // 1. urgent requests first
       const aUrgent = a.category === 'request' && (a.urgency === 'critical' || a.urgency === 'high') ? 1 : 0;
       const bUrgent = b.category === 'request' && (b.urgency === 'critical' || b.urgency === 'high') ? 1 : 0;
       if (bUrgent !== aUrgent) return bUrgent - aUrgent;
 
-      // 2. relevance: if searching "water", pins about actual drinking water > watershed assembly
       if (primaryTag) {
         const aRelevance = computeRelevance(a, primaryTag);
         const bRelevance = computeRelevance(b, primaryTag);
         if (bRelevance !== aRelevance) return bRelevance - aRelevance;
       }
 
-      // 3. requests and offers before observations and events
       const catPriority: Record<string, number> = { request: 3, offer: 2, event: 1, observation: 0 };
       return (catPriority[b.category] || 0) - (catPriority[a.category] || 0);
     });
@@ -236,7 +239,7 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
                         border: active ? 'none' : '1.2px solid hsla(25, 15%, 55%, 0.3)',
                       }}
                     >
-                      <PinIcon category={cat} size={12} animate={false} />
+                      <img src={categoryNoOutlineIcons[cat]} alt="" className="w-3 h-3" />
                       {categoryLabels[cat]}
                     </button>
                   );
@@ -262,7 +265,7 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
                       onClick={() => { onPinSelect(item); setFocused(false); }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left hover:bg-muted/30 transition-colors"
                     >
-                      <PinIcon category={item.category} size={16} animate={false} />
+                      <img src={categoryNoOutlineIcons[item.category]} alt="" className="w-4 h-3 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-xs font-semibold text-foreground truncate" style={{ fontFamily: "'Public Sans', sans-serif" }}>
@@ -314,18 +317,13 @@ function computeRelevance(pin: Pin, tag: string): number {
   const text = `${pin.title} ${pin.description}`.toLowerCase();
   let score = 0;
 
-  // title match is strongest
   if (pin.title.toLowerCase().includes(tag)) score += 3;
-  // subcategory match
   if (pin.subcategory.toLowerCase().includes(tag)) score += 2;
-  // description match
   if (pin.description.toLowerCase().includes(tag)) score += 1;
 
-  // for "water" specifically, boost pins about actual drinking/consumable water
   if (tag === 'water') {
     const isConsumable = WATER_DRINKING_KEYWORDS.some(kw => text.includes(kw));
     if (isConsumable) score += 5;
-    // penalise assembly/ceremony/watershed-style pins
     if (text.includes('assembly') || text.includes('ceremony') || text.includes('watershed')) score -= 2;
   }
 
