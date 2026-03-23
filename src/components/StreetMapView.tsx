@@ -333,17 +333,17 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
       <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
         style={dimInStyle} title={atMaxZoom ? 'Maximum zoom reached' : 'Zoom in'}>
-        <Plus size={16} color={atMaxZoom ? 'rgba(244,237,232,0.3)' : '#F4EDE8'} />
+        <img src={zoomInIcon} alt="Zoom in" className="w-4 h-4" style={atMaxZoom ? { opacity: 0.3 } : {}} />
       </button>
       <button onClick={handleZoomOut}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
         style={dimOutStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
-        <Minus size={16} color={atMinZoom ? 'rgba(244,237,232,0.3)' : '#F4EDE8'} />
+        <img src={zoomOutIcon} alt="Zoom out" className="w-4 h-auto" style={atMinZoom ? { opacity: 0.3 } : {}} />
       </button>
       <button onClick={handleLocate}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
         style={btnBase} title="Go to your location">
-        <Locate size={16} color="#DAE16B" />
+        <img src={recenterIcon} alt="Recenter" className="w-5 h-5" />
       </button>
     </div>
   );
