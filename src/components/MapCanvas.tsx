@@ -20,6 +20,7 @@ import connectionsIcon from '@/assets/connections.svg';
 import humanIcon from '@/assets/human.svg';
 import bothIcon from '@/assets/both.svg';
 import welikiaLayerIcon from '@/assets/welikia-icon.svg';
+import eyeIcon from '@/assets/eye.svg';
 
 const layerOptions: { value: MapLayer; icon: string; label: string }[] = [
   { value: 'streets', icon: humanIcon, label: 'Human' },
@@ -57,7 +58,7 @@ export default function MapCanvas() {
   const [currentZoom, setCurrentZoom] = useState(12);
   const [layerMenuOpen, setLayerMenuOpen] = useState(false);
   const [showConnections, setShowConnections] = useState(false);
-
+  const [hidePins, setHidePins] = useState(false);
   // Layer-based pin filtering: streets = human only, trees = nonhuman only, both = all
   const layerFilteredPins = useMemo(() => {
     if (mapLayer === 'streets') return allPins.filter(p => !isNonhumanPin(p));
@@ -203,9 +204,9 @@ export default function MapCanvas() {
         )}
       </AnimatePresence>
 
-      {/* Connections icon - top left aligned with zoom controls */}
+      {/* Left controls - Connections + Eye toggle */}
       <motion.div
-        className="fixed z-40"
+        className="fixed z-40 flex flex-col gap-1.5"
         style={{ top: 'calc(30px * 2 + 64px)', left: '30px' }}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -213,11 +214,23 @@ export default function MapCanvas() {
       >
         <button
           onClick={() => setShowConnections(true)}
-          className="w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
+          className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
           title="Connecting posts"
           style={{ background: 'hsla(15,16%,17%,0.92)', border: '1px solid hsla(15,12%,30%,0.5)' }}
         >
           <img src={connectionsIcon} alt="Connections" className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => setHidePins(!hidePins)}
+          className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
+          title={hidePins ? 'Show pins' : 'Hide pins'}
+          style={{
+            background: 'hsla(15,16%,17%,0.92)',
+            border: '1px solid hsla(15,12%,30%,0.5)',
+            opacity: hidePins ? 0.5 : 1,
+          }}
+        >
+          <img src={eyeIcon} alt="Toggle pins" className="w-5 h-auto" />
         </button>
       </motion.div>
 
@@ -278,6 +291,7 @@ export default function MapCanvas() {
         onMapMove={handleMapMove}
         onZoomChange={setCurrentZoom}
         highlightedPinId={highlightedPinId}
+        hidePins={hidePins}
       />
 
       <FloatingDock onAdd={() => setShowAdd(true)} />
