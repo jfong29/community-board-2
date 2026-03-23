@@ -500,7 +500,7 @@ export default function StreetMapView({
           keepBuffer={6}
         />
 
-        {showHeatmap && <HeatmapLayer pins={pins} />}
+        {showHeatmap && <HeatmapLayer pins={pins} zoom={zoom} />}
 
         <Marker position={YOU_LOCATION} icon={createYouIcon()} />
 

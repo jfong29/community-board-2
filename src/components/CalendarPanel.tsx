@@ -87,7 +87,7 @@ const FILTER_OPTIONS: { value: CalendarFilter; label: string; icon?: string }[] 
   { value: 'saved', label: 'Saved' },
   { value: 'offer', label: 'Offers', icon: offerIcon },
   { value: 'request', label: 'Requests', icon: requestIcon },
-  { value: 'observation', label: 'Signals', icon: observationIcon },
+  { value: 'observation', label: 'Observations', icon: observationIcon },
   { value: 'event', label: 'Gatherings', icon: gatheringIcon },
 ];
 

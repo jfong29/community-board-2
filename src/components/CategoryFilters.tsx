@@ -12,7 +12,7 @@ interface CategoryFiltersProps {
 const categories: { key: PinCategory; label: string; icon: string }[] = [
   { key: 'offer', label: 'Offer', icon: offerIcon },
   { key: 'request', label: 'Request', icon: requestIcon },
-  { key: 'observation', label: 'Signal', icon: observationIcon },
+  { key: 'observation', label: 'Observation', icon: observationIcon },
   { key: 'event', label: 'Gathering', icon: gatheringIcon },
 ];
 

@@ -24,7 +24,7 @@ const categoryColorMap: Record<string, string> = {
 const categoryLabels: Record<string, string> = {
   offer: 'Offer',
   request: 'Request',
-  observation: 'Signal',
+  observation: 'Observation',
   event: 'Gathering',
 };
 
