@@ -38,10 +38,10 @@
     --grid-gap: 16px;
 
     /* Category colors */
-    --offer: 139 52% 62%;
-    --request: 22 100% 42%;
-    --observation: 191 65% 53%;
-    --event: 326 92% 75%;
+    --offer: 91 81% 53%;
+    --request: 326 100% 64%;
+    --observation: 18 100% 59%;
+    --event: 272 100% 60%;
 
     /* Lime action color */
     --lime: 64 67% 65%;
@@ -51,10 +51,10 @@
     --panel-border: hsla(15, 12%, 30%, 0.4);
 
     /* Glow effects */
-    --glow-offer: 0 0 12px hsla(184, 100%, 27%, 0.5);
-    --glow-request: 0 0 12px hsla(22, 100%, 42%, 0.5);
-    --glow-observation: 0 0 12px hsla(141, 65%, 32%, 0.5);
-    --glow-event: 0 0 12px hsla(268, 42%, 65%, 0.5);
+    --glow-offer: 0 0 12px hsla(91, 81%, 53%, 0.5);
+    --glow-request: 0 0 12px hsla(326, 100%, 64%, 0.5);
+    --glow-observation: 0 0 12px hsla(18, 100%, 59%, 0.5);
+    --glow-event: 0 0 12px hsla(272, 100%, 60%, 0.5);
 
     --font-display: 'Labrada', serif;
     --font-body: 'Labrada', serif;

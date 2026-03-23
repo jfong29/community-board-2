@@ -33,7 +33,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
     <>
       <motion.div
         className="fixed top-0 left-0 right-0 z-50 earth-panel border-b border-border/30"
-        style={{ padding: '0 var(--grid-gap)' }}
+        style={{ padding: '0 30px' }}
         initial={{ y: -40 }}
         animate={{ y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}

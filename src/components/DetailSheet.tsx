@@ -15,10 +15,10 @@ interface DetailSheetProps {
 }
 
 const categoryColorMap: Record<string, string> = {
-  offer: '#68D07F',
-  request: '#D54E00',
-  observation: '#39BBD6',
-  event: '#F984CA',
+  offer: '#79E824',
+  request: '#FF48B5',
+  observation: '#FF6C2F',
+  event: '#B036FF',
 };
 
 const categoryLabels: Record<string, string> = {
