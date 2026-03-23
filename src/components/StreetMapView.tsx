@@ -451,7 +451,7 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity, pins, highlightedPin
         {loading ? (
           <div className="w-4 h-4 border-2 border-lime/60 border-t-transparent rounded-full animate-spin" />
         ) : (
-          <img src={locatorIcon} alt="Locate" className="w-6 h-6" />
+          <img src={recenterIcon} alt="Locate" className="w-6 h-6" />
         )}
       </button>
     </div>
