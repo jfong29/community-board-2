@@ -10,7 +10,7 @@ import { Landmark } from '@/data/landmarks';
 import { useNavigate } from 'react-router-dom';
 import zoomInIcon from '@/assets/zoom-in.svg';
 import zoomOutIcon from '@/assets/zoom-out.svg';
-import locatorIcon from '@/assets/locator.svg';
+import recenterIcon from '@/assets/recenter.svg';
 import { motion, AnimatePresence } from 'framer-motion';
 import RequestCityModal from './RequestCityModal';
 import savedIcon from '@/assets/saved.svg';
