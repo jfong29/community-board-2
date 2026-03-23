@@ -8,7 +8,9 @@ import 'leaflet/dist/leaflet.css';
 import { Pin, xyToLatLng } from '@/data/pins';
 import { Landmark } from '@/data/landmarks';
 import { useNavigate } from 'react-router-dom';
-import { Locate, Plus, Minus } from 'lucide-react';
+import zoomInIcon from '@/assets/zoom-in.svg';
+import zoomOutIcon from '@/assets/zoom-out.svg';
+import recenterIcon from '@/assets/recenter.svg';
 import { motion, AnimatePresence } from 'framer-motion';
 import RequestCityModal from './RequestCityModal';
 
