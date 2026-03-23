@@ -81,7 +81,7 @@ function urgentRequestSvg(size: number): string {
 }
 
 function createPinIcon(category: string, dim = false, urgent = false, highlighted = false) {
-  const baseSize = category === 'offer' || category === 'request' ? 44 : category === 'event' ? 40 : 32;
+  const baseSize = category === 'offer' || category === 'request' ? 44 : category === 'event' ? 42 : Math.round(32 * 0.9);
   const size = highlighted ? Math.round(baseSize * 1.6) : baseSize;
   const glow = categoryGlow[category] || 'rgba(0,0,0,0.3)';
   const glowStr = dim ? 'none' : `drop-shadow(0 0 ${highlighted ? '20' : '12'}px ${glow})`;
