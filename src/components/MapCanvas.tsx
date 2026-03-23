@@ -20,6 +20,7 @@ import connectionsIcon from '@/assets/connections.svg';
 import humanIcon from '@/assets/human.svg';
 import bothIcon from '@/assets/both.svg';
 import welikiaLayerIcon from '@/assets/welikia-icon.svg';
+import eyeIcon from '@/assets/eye.svg';
 
 const layerOptions: { value: MapLayer; icon: string; label: string }[] = [
   { value: 'streets', icon: humanIcon, label: 'Human' },
