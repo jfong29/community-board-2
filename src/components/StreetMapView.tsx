@@ -10,7 +10,7 @@ import { Landmark } from '@/data/landmarks';
 import { useNavigate } from 'react-router-dom';
 import zoomInIcon from '@/assets/zoom-in.svg';
 import zoomOutIcon from '@/assets/zoom-out.svg';
-import locatorIcon from '@/assets/locator.svg';
+import recenterIcon from '@/assets/recenter.svg';
 import { motion, AnimatePresence } from 'framer-motion';
 import RequestCityModal from './RequestCityModal';
 import savedIcon from '@/assets/saved.svg';
@@ -451,7 +451,7 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity, pins, highlightedPin
         {loading ? (
           <div className="w-4 h-4 border-2 border-lime/60 border-t-transparent rounded-full animate-spin" />
         ) : (
-          <img src={locatorIcon} alt="Locate" className="w-6 h-6" />
+          <img src={recenterIcon} alt="Locate" className="w-6 h-6" />
         )}
       </button>
     </div>
@@ -655,7 +655,7 @@ export default function StreetMapView({
                 border: '1px solid hsla(15,12%,30%,0.5)',
               }}
             >
-              <img src={locatorIcon} alt="" style={{ width: '32px', height: '32px', flexShrink: 0 }} />
+              <img src={recenterIcon} alt="" style={{ width: '32px', height: '32px', flexShrink: 0 }} />
               <div className="flex-1 min-w-0">
                 <p style={{ fontFamily: 'Labrada, serif', fontWeight: 600, fontSize: '18px', color: '#F4EDE8' }}>
                   {activeRoute.durationMin} min walk

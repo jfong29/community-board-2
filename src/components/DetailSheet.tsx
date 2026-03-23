@@ -9,7 +9,7 @@ import observationNoOutline from '@/assets/signal-no-outline.svg';
 import gatheringNoOutline from '@/assets/gathering.svg';
 import nameIcon from '@/assets/name-icon.svg';
 import clockIcon from '@/assets/clock.svg';
-import locatorIcon from '@/assets/locator.svg';
+import locatorIcon from '@/assets/recenter.svg';
 import savedIcon from '@/assets/saved.svg';
 import sendIcon from '@/assets/send-icon.svg';
 import chatBubble from '@/assets/chat-bubble.svg';
