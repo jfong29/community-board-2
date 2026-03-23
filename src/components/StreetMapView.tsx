@@ -509,7 +509,7 @@ export default function StreetMapView({
 
         {visiblePins.map((pin) => {
           const isDim = tier === 'all-pins' && pinUrgency(pin) <= 1;
-          const isUrgent = pinUrgency(pin) >= 2;
+          const isUrgent = pin.category === 'request' && pinUrgency(pin) >= 2;
           const isHighlighted = pin.id === highlightedPinId;
           return (
             <Marker
