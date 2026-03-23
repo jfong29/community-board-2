@@ -520,8 +520,8 @@ export default function StreetMapView({
 
       {/* Map source attribution */}
       <div
-        className="fixed z-30 font-display text-muted-foreground/60"
-        style={{ bottom: 'var(--grid-gap)', left: 'var(--grid-gap)', fontSize: '10px' }}
+        className="fixed z-30 text-muted-foreground/60"
+        style={{ bottom: 30, left: 30, fontSize: '10px', fontFamily: "'Public Sans', sans-serif" }}
       >
         {streetOpacity > 0.2 && <span>Streets: <a href="https://carto.com" target="_blank" rel="noopener" className="underline hover:text-foreground/60">CARTO</a> / <a href="https://www.openstreetmap.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">OSM</a></span>}
         {streetOpacity > 0.2 && welikiaOpacity > 0 && <span className="mx-1">·</span>}
