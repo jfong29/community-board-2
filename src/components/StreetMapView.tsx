@@ -436,7 +436,7 @@ export default function StreetMapView({
   const visiblePins = useMemo(() => {
     if (tier === 'gradient-only' || tier === 'landmarks-gradient') return [];
     if (tier === 'landmarks-urgent') {
-      return pins.filter((p) => pinUrgency(p) >= 2);
+      return pins.filter((p) => p.category === 'request' && pinUrgency(p) >= 2);
     }
     return pins;
   }, [pins, tier]);
