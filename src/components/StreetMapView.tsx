@@ -145,7 +145,7 @@ function pinUrgency(pin: Pin): number {
 }
 
 /* ── Heatmap layer ── */
-function HeatmapLayer({ pins }: { pins: Pin[] }) {
+function HeatmapLayer({ pins, zoom }: { pins: Pin[]; zoom: number }) {
   const map = useMap();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
