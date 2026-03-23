@@ -100,9 +100,42 @@ export default function MapCanvas() {
     setActiveSubcategory(null);
   }, []);
 
-  const handleTagClick = (subcategory: string) => { setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(subcategory); };
-  const handleLandmarkPinSelect = (pin: Pin) => { setSelectedLandmark(null); handlePinSelect(pin); };
-  const handleSubcategoryPinSelect = (pin: Pin) => { setActiveSubcategory(null); handlePinSelect(pin); };
+  // Navigate to next/prev nearest pin
+  const getSortedNearbyPins = useCallback(() => {
+    if (!selectedPin) return [];
+    const pinLat = selectedPin.lat ?? 0;
+    const pinLng = selectedPin.lng ?? 0;
+    return [...filteredPins]
+      .filter(p => p.id !== selectedPin.id)
+      .sort((a, b) => {
+        const distA = Math.hypot((a.lat ?? 0) - pinLat, (a.lng ?? 0) - pinLng);
+        const distB = Math.hypot((b.lat ?? 0) - pinLat, (b.lng ?? 0) - pinLng);
+        return distA - distB;
+      });
+  }, [selectedPin, filteredPins]);
+
+  const currentPinIndex = useMemo(() => {
+    return filteredPins.findIndex(p => p.id === selectedPin?.id);
+  }, [filteredPins, selectedPin]);
+
+  const handleNextPin = useCallback(() => {
+    const nearby = getSortedNearbyPins();
+    if (nearby.length > 0) {
+      // Find the next pin in the sorted-by-distance list
+      const currentIdx = nearby.findIndex(p => p.id === selectedPin?.id);
+      const next = nearby[(currentIdx + 1) % nearby.length] || nearby[0];
+      handlePinSelect(next);
+    }
+  }, [getSortedNearbyPins, selectedPin, handlePinSelect]);
+
+  const handlePrevPin = useCallback(() => {
+    const nearby = getSortedNearbyPins();
+    if (nearby.length > 0) {
+      const currentIdx = nearby.findIndex(p => p.id === selectedPin?.id);
+      const prev = nearby[currentIdx - 1] || nearby[nearby.length - 1];
+      handlePinSelect(prev);
+    }
+  }, [getSortedNearbyPins, selectedPin, handlePinSelect]);
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
