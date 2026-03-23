@@ -378,7 +378,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
                     padding: '4px 14px',
                   }}
                 >
-                  <img src={gatheringIcon} alt="" style={{ width: '6px', height: '10px' }} />
+                  <img src={gatheringNoOutline} alt="" style={{ width: '6px', height: '10px' }} />
                   {pin.connectedEvent}
                 </span>
                 {/* Save to calendar */}

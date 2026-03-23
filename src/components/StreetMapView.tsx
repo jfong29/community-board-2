@@ -115,12 +115,18 @@ function createLandmarkIcon(emoji: string, count: number) {
 
 function createYouIcon() {
   return L.divIcon({
-    html: `<div style="width:30px;height:30px;border-radius:50%;background:#DAE16B;border:3px solid #F4EDE8;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(218,225,107,0.6);cursor:pointer;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#322924" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    html: `<div style="width:40px;height:39px;display:flex;align-items:center;justify-content:center;cursor:pointer;filter:drop-shadow(0 0 10px rgba(218,225,107,0.5));">
+      <svg width="40" height="39" viewBox="0 0 40 39" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30.9964 25.9984C26.9939 33.4963 16.642 32.4416 11.9948 29.5006C7.34771 26.5596 6.50144 18.4024 8.99625 12.9963C11.9985 6.49079 20.928 4.9528 26.4964 8.49629C31.9964 11.9963 34.8255 18.825 30.9964 25.9984Z" stroke="#F4EDE8" stroke-width="3"/>
+        <path d="M20.4949 0L20.4949 6" stroke="#F4EDE8" stroke-width="3"/>
+        <path d="M20.4949 32L20.4949 39" stroke="#F4EDE8" stroke-width="3"/>
+        <path d="M39.9998 19.4688H33.9998" stroke="#F4EDE8" stroke-width="3"/>
+        <path d="M7 19.5234L-3.57628e-07 19.5234" stroke="#F4EDE8" stroke-width="3"/>
+      </svg>
     </div>`,
     className: '',
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
+    iconSize: [40, 39],
+    iconAnchor: [20, 19],
   });
 }
 
