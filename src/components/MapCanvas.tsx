@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Pin, PinCategory, samplePins, latLngToXY } from '@/data/pins';
 import { landmarks, Landmark } from '@/data/landmarks';

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Pin, samplePins } from '@/data/pins';
+import { Pin } from '@/data/pins';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 import offerNoOutline from '@/assets/offer-no-outline.svg';
