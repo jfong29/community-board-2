@@ -174,6 +174,9 @@ function HeatmapLayer({ pins, zoom }: { pins: Pin[]; zoom: number }) {
       ctx.clearRect(0, 0, size.x, size.y);
       ctx.globalCompositeOperation = 'screen';
 
+      // Radius based on zoom: smaller at higher zooms so gradients don't overlap
+      const r = zoom <= 13 ? 100 : 55;
+
       // Group pins by category for fluid merging
       const byCategory: Record<string, { x: number; y: number }[]> = {};
       pins.forEach(pin => {
