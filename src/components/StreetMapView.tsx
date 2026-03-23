@@ -142,6 +142,7 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
     canvas.style.position = 'absolute';
     canvas.style.pointerEvents = 'none';
     canvas.style.zIndex = '200';
+    canvas.style.mixBlendMode = 'screen';
     pane.appendChild(canvas);
     canvasRef.current = canvas;
 
@@ -155,21 +156,36 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
       ctx.clearRect(0, 0, size.x, size.y);
+      ctx.globalCompositeOperation = 'screen';
 
+      // Group pins by category for fluid merging
+      const byCategory: Record<string, { x: number; y: number }[]> = {};
       pins.forEach(pin => {
         const ll = pin.lat != null && pin.lng != null
           ? L.latLng(pin.lat, pin.lng)
           : L.latLng(xyToLatLng(pin.x, pin.y).lat, xyToLatLng(pin.x, pin.y).lng);
         const pt = map.latLngToContainerPoint(ll);
-        const r = 80;
-        const gradient = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
-        const c = categoryColor[pin.category] || '#888';
-        gradient.addColorStop(0, c + 'CC');
-        gradient.addColorStop(0.3, c + '88');
-        gradient.addColorStop(0.6, c + '33');
-        gradient.addColorStop(1, c + '00');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(pt.x - r, pt.y - r, r * 2, r * 2);
+        const cat = pin.category;
+        if (!byCategory[cat]) byCategory[cat] = [];
+        byCategory[cat].push({ x: pt.x, y: pt.y });
+      });
+
+      // Draw each category as a merged layer
+      Object.entries(byCategory).forEach(([cat, points]) => {
+        const c = categoryColor[cat] || '#888';
+        const r = 120;
+        points.forEach(pt => {
+          const gradient = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
+          gradient.addColorStop(0, c + 'AA');
+          gradient.addColorStop(0.2, c + '77');
+          gradient.addColorStop(0.5, c + '33');
+          gradient.addColorStop(0.8, c + '11');
+          gradient.addColorStop(1, c + '00');
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+          ctx.fill();
+        });
       });
     }
 
