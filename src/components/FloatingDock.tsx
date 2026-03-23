@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
-import { Plus, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import votesIcon from '@/assets/votes.svg';
+import dataIcon from '@/assets/data.svg';
+import chatsIcon from '@/assets/chats.svg';
+import addPostIcon from '@/assets/add-post.svg';
 
 interface FloatingDockProps {
   onAdd: () => void;
@@ -9,33 +12,34 @@ interface FloatingDockProps {
 export default function FloatingDock({ onAdd }: FloatingDockProps) {
   const navigate = useNavigate();
 
+  const items = [
+    { icon: votesIcon, alt: 'Votes', onClick: () => navigate('/observations'), size: 'h-7' },
+    { icon: dataIcon, alt: 'Data', onClick: () => navigate('/observations'), size: 'h-7' },
+    { icon: chatsIcon, alt: 'Chats', onClick: () => {}, size: 'h-7' },
+    { icon: addPostIcon, alt: 'Add Post', onClick: onAdd, size: 'h-9' },
+  ];
+
   return (
     <motion.div
-      className="fixed left-1/2 -translate-x-1/2 z-40"
-      style={{ bottom: 'var(--grid-gap)' }}
+      className="fixed bottom-0 left-0 right-0 z-40"
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.3 }}
     >
-      <div className="earth-panel rounded-full px-3 py-2 flex items-center gap-2">
-        {/* Observations dashboard */}
-        <button
-          onClick={() => navigate('/observations')}
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-observation/20 text-observation hover:scale-110 active:scale-95 transition-transform"
-          title="Observations"
-        >
-          <BarChart3 size={18} />
-        </button>
-
-        {/* Add button */}
-        <button
-          onClick={onAdd}
-          className="flex items-center justify-center w-10 h-10 rounded-full hover:scale-110 active:scale-95 transition-transform"
-          style={{ backgroundColor: '#DAE16B', color: '#322924' }}
-          title="Add"
-        >
-          <Plus size={20} />
-        </button>
+      <div
+        className="w-full flex items-center justify-center gap-6 px-6 py-4"
+        style={{ background: 'hsla(15, 16%, 12%, 0.92)' }}
+      >
+        {items.map((item) => (
+          <button
+            key={item.alt}
+            onClick={item.onClick}
+            className="flex items-center justify-center p-2 hover:opacity-80 active:scale-95 transition-all"
+            title={item.alt}
+          >
+            <img src={item.icon} alt={item.alt} className={`${item.size} w-auto`} />
+          </button>
+        ))}
       </div>
     </motion.div>
   );
