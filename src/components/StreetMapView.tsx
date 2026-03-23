@@ -475,6 +475,8 @@ export default function StreetMapView({
   const [showRequestCity, setShowRequestCity] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
   const [flyZoom, setFlyZoom] = useState<number | undefined>(undefined);
+  const [activeRoute, setActiveRoute] = useState<RouteInfo | null>(null);
+  const [routeSaved, setRouteSaved] = useState(false);
   const tier = getZoomTier(zoom);
 
   const pinLatLng = useCallback((pin: Pin): [number, number] => {
@@ -483,7 +485,7 @@ export default function StreetMapView({
     return [lat, lng];
   }, []);
 
-  // When highlightedPinId changes, fly to that pin
+  // When highlightedPinId changes, fly to that pin and clear route
   useEffect(() => {
     if (highlightedPinId) {
       const pin = pins.find(p => p.id === highlightedPinId);
@@ -492,8 +494,15 @@ export default function StreetMapView({
         setFlyTarget(ll);
         setFlyZoom(MAX_ZOOM);
       }
+      setActiveRoute(null);
+      setRouteSaved(false);
     }
   }, [highlightedPinId, pins, pinLatLng]);
+
+  const handleShowRoute = useCallback((route: RouteInfo, _pinPos: [number, number]) => {
+    setActiveRoute(route);
+    setRouteSaved(false);
+  }, []);
 
   const streetOpacity = layer === 'streets' ? 1 : layer === 'both' ? 1 : 0.15;
   const welikiaOpacity = layer === 'trees' ? 0.9 : layer === 'both' ? 0.55 : 0;
@@ -570,6 +579,20 @@ export default function StreetMapView({
 
         {showHeatmap && <HeatmapLayer pins={pins} zoom={zoom} />}
 
+        {/* Walking route polyline */}
+        {activeRoute && (
+          <Polyline
+            positions={activeRoute.coordinates}
+            pathOptions={{
+              color: '#DAE16B',
+              weight: 4,
+              opacity: 0.9,
+              dashArray: '8, 12',
+              lineCap: 'round',
+            }}
+          />
+        )}
+
         <Marker position={YOU_LOCATION} icon={createYouIcon()} />
 
         {visiblePins.map((pin) => {
@@ -599,8 +622,66 @@ export default function StreetMapView({
           atMinZoom={atMinZoom}
           atMaxZoom={atMaxZoom}
           onRequestCity={() => setShowRequestCity(true)}
+          pins={pins}
+          highlightedPinId={highlightedPinId}
+          onShowRoute={handleShowRoute}
         />
       </MapContainer>
+
+      {/* Route info overlay */}
+      <AnimatePresence>
+        {activeRoute && (
+          <motion.div
+            className="fixed z-50 left-0 right-0 flex justify-center"
+            style={{ top: 'calc(30px * 2 + 64px)', padding: '0 30px' }}
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div
+              className="flex items-center gap-4 max-w-md w-full"
+              style={{
+                background: 'hsla(15, 18%, 16%, 0.94)',
+                borderRadius: '12px',
+                padding: '14px 20px',
+                border: '1px solid hsla(15,12%,30%,0.5)',
+              }}
+            >
+              <img src={locatorIcon} alt="" style={{ width: '32px', height: '32px', flexShrink: 0 }} />
+              <div className="flex-1 min-w-0">
+                <p style={{ fontFamily: 'Labrada, serif', fontWeight: 600, fontSize: '18px', color: '#F4EDE8' }}>
+                  {activeRoute.durationMin} min walk
+                </p>
+                <p style={{ fontFamily: "'Public Sans', sans-serif", fontSize: '13px', color: '#F4EDE8', opacity: 0.7 }}>
+                  {activeRoute.distanceKm} km · {activeRoute.steps.length} steps
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { setRouteSaved(!routeSaved); }}
+                  className="flex items-center justify-center transition-all active:scale-90"
+                  style={{ width: '28px', height: '28px' }}
+                  title={routeSaved ? 'Route saved' : 'Save route'}
+                >
+                  <img
+                    src={savedIcon}
+                    alt="Save"
+                    style={{ width: '20px', height: '23px', opacity: routeSaved ? 1 : 0.5 }}
+                  />
+                </button>
+                <button
+                  onClick={() => setActiveRoute(null)}
+                  className="text-muted-foreground hover:text-foreground text-lg leading-none transition-colors"
+                  style={{ width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Map source attribution */}
       <div
