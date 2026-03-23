@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { samplePins, categoryConfig, Pin } from '@/data/pins';
 import { landmarks } from '@/data/landmarks';
 import PinIcon from './PinIcon';
+import searchIconSvg from '@/assets/search-icon.svg';
 
 const quickSuggestions = ['Water', 'Food', 'Shelter', 'Materials', 'Parks', 'Assembly'];
 
@@ -25,7 +26,6 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
   const [typingDone, setTypingDone] = useState(!initialQuery);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Typing animation for initial query
   useEffect(() => {
     if (!initialQuery) return;
     setQuery('');
@@ -42,7 +42,6 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
     return () => clearInterval(interval);
   }, [initialQuery]);
 
-  // Gather all searchable items
   const allItems: Pin[] = [
     ...samplePins,
     ...landmarks.flatMap((lm) =>
@@ -71,29 +70,34 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
       )
     : [];
 
-  const showDropdown = focused && (q.length > 0 || !typingDone || true);
-
   return (
-    <div className="relative flex-1 max-w-xs">
-      <div className="relative">
-        <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+    <div className="relative flex-1 max-w-md">
+      <div className="relative flex items-center">
         <input
           ref={inputRef}
           value={query}
           onChange={(e) => { setQuery(e.target.value); setTypingDone(true); }}
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 200)}
-          placeholder="Search..."
-          className="w-full h-7 pl-8 pr-7 rounded-lg bg-muted/40 border border-border/40 text-xs font-display text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
+          placeholder="water: requests, offers"
+          className="w-full h-9 pl-4 pr-12 rounded-full bg-muted/30 border border-border/40 text-sm font-display text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-lime/50 transition-all"
         />
         {query && (
           <button
             onClick={() => { setQuery(''); inputRef.current?.focus(); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-11 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
-            <X size={12} />
+            <X size={14} />
           </button>
         )}
+        <button
+          onClick={() => inputRef.current?.focus()}
+          className="absolute right-0 top-0 h-9 w-9 rounded-full flex items-center justify-center transition-transform active:scale-95"
+          style={{ backgroundColor: '#DAE16B' }}
+          title="Search"
+        >
+          <img src={searchIconSvg} alt="Search" className="w-4 h-4" />
+        </button>
       </div>
 
       <AnimatePresence>
@@ -107,7 +111,7 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
           >
             {q.length === 0 && (
               <div className="p-2">
-                <p className="text-[10px] font-display text-muted-foreground uppercase tracking-wider px-2 py-1">Quick search</p>
+                <p className="text-[10px] font-small text-muted-foreground uppercase tracking-wider px-2 py-1">Quick search</p>
                 <div className="flex flex-wrap gap-1 px-1">
                   {quickSuggestions.map((s) => (
                     <button
@@ -125,7 +129,7 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
 
             {results.length > 0 && (
               <div className="p-1">
-                {results.slice(0, 8).map((item, i) => (
+                {results.slice(0, 8).map((item) => (
                   <button
                     key={item.id}
                     onMouseDown={(e) => e.preventDefault()}
@@ -138,9 +142,9 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
                     <PinIcon category={item.category} size={16} animate={false} />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-display font-semibold text-foreground truncate">{item.title}</p>
-                      <p className="text-[10px] text-muted-foreground">{categoryLabels[item.category]} · {item.subcategory}</p>
+                      <p className="text-[10px] font-small text-muted-foreground">{categoryLabels[item.category]} · {item.subcategory}</p>
                     </div>
-                    <span className="text-[10px] text-muted-foreground">{item.distance}</span>
+                    <span className="text-[10px] font-small text-muted-foreground">{item.distance}</span>
                   </button>
                 ))}
               </div>
