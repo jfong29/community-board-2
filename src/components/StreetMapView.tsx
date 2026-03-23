@@ -35,11 +35,11 @@ const MAX_ZOOM = 16;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
-  offer: '#68D07F', request: '#D54E00', observation: '#39BBD6', event: '#F984CA',
+  offer: '#79E824', request: '#FF48B5', observation: '#FF6C2F', event: '#B036FF',
 };
 const categoryGlow: Record<string, string> = {
-  offer: 'rgba(104,208,127,0.6)', request: 'rgba(213,78,0,0.6)',
-  observation: 'rgba(57,187,214,0.5)', event: 'rgba(249,132,202,0.5)',
+  offer: 'rgba(121,232,36,0.6)', request: 'rgba(255,72,181,0.6)',
+  observation: 'rgba(255,108,47,0.5)', event: 'rgba(176,54,255,0.5)',
 };
 
 /* ── Pin SVG builder ── */
