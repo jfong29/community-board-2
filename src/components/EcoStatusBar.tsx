@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HelpCircle, Battery } from 'lucide-react';
 import SearchBar from './SearchBar';
 import CalendarPanel from './CalendarPanel';
 import CategoryFilters from './CategoryFilters';
@@ -10,6 +9,7 @@ import logoIcon from '@/assets/logo.svg';
 import profileIcon from '@/assets/profile.svg';
 import savedIcon from '@/assets/saved.svg';
 import moonIcon from '@/assets/moon.svg';
+import helpIcon from '@/assets/help-icon.svg';
 import weatherSunny from '@/assets/weather-sunny.svg';
 import weatherCloudy from '@/assets/weather-cloudy.svg';
 
@@ -88,7 +88,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               className="hover:opacity-80 transition-opacity active:scale-95"
               title="Help"
             >
-              <HelpCircle size={20} strokeWidth={1.5} color="#F4EDE8" style={{ opacity: 0.7 }} />
+              <img src={helpIcon} alt="Help" style={{ width: '14px', height: '25px', opacity: 0.7 }} />
             </button>
             <button
               onClick={() => navigate('/profile')}
@@ -104,9 +104,12 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             >
               <img src={savedIcon} alt="Saved" className="h-5 w-auto" />
             </button>
-            <div className="ml-1" title="Battery">
-              <Battery size={18} strokeWidth={1.5} color="#F4EDE8" style={{ opacity: 0.6 }} />
-            </div>
+            <button
+              className="ml-1 hover:opacity-80 transition-opacity"
+              title="Weather"
+            >
+              <img src={weatherIcon} alt="Weather" style={{ width: '28px', height: 'auto', opacity: 0.8 }} />
+            </button>
           </div>
         </div>
 
