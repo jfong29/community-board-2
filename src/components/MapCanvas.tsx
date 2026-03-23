@@ -56,6 +56,7 @@ export default function MapCanvas() {
   const [showNeighborhoodInfo, setShowNeighborhoodInfo] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(12);
   const [layerMenuOpen, setLayerMenuOpen] = useState(false);
+  const [showConnections, setShowConnections] = useState(false);
 
   // Layer-based pin filtering: streets = human only, trees = nonhuman only, both = all
   const layerFilteredPins = useMemo(() => {
