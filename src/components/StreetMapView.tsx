@@ -592,7 +592,7 @@ export default function StreetMapView({
           keepBuffer={6}
         />
 
-        {showHeatmap && <HeatmapLayer pins={pins} zoom={zoom} />}
+        {!hidePins && showHeatmap && <HeatmapLayer pins={pins} zoom={zoom} />}
 
         {/* Walking route polyline */}
         {activeRoute && (
@@ -608,9 +608,9 @@ export default function StreetMapView({
           />
         )}
 
-        <Marker position={YOU_LOCATION} icon={createYouIcon()} />
+        {!hidePins && <Marker position={YOU_LOCATION} icon={createYouIcon()} />}
 
-        {visiblePins.map((pin) => {
+        {!hidePins && visiblePins.map((pin) => {
           const isDim = tier === 'all-pins' && pinUrgency(pin) <= 1;
           const isUrgent = pin.category === 'request' && pinUrgency(pin) >= 2;
           const isHighlighted = pin.id === highlightedPinId;
@@ -624,7 +624,7 @@ export default function StreetMapView({
           );
         })}
 
-        {showLandmarks && landmarks.map((lm) => (
+        {!hidePins && showLandmarks && landmarks.map((lm) => (
           <Marker
             key={lm.id}
             position={[lm.lat, lm.lng]}
