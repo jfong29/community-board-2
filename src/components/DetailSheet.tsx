@@ -9,7 +9,7 @@ import observationIcon from '@/assets/observation.svg';
 import gatheringIcon from '@/assets/gathering.svg';
 import nameIcon from '@/assets/name-icon.svg';
 import clockIcon from '@/assets/clock.svg';
-import pinIcon from '@/assets/pin-icon.svg';
+import locatorIcon from '@/assets/locator.svg';
 import savedIcon from '@/assets/saved.svg';
 import sendIcon from '@/assets/send-icon.svg';
 import chatBubble from '@/assets/chat-bubble.svg';
@@ -284,7 +284,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
               {/* Location: "Drop off at 39 W 13th St  0 blocks away" */}
               {locationField && (
                 <div className="flex items-center gap-3" style={{ opacity: 0.8 }}>
-                  <img src={pinIcon} alt="" style={{ width: '15px', height: '19px' }} />
+                  <img src={locatorIcon} alt="" style={{ width: '18px', height: '18px' }} />
                   <span style={{ fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400 }}>
                     <span className="text-foreground">Drop off at </span>
                     <span className="underline" style={{ color: limeColor }}>{locationField.value}</span>
@@ -305,7 +305,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
               {/* Distance fallback */}
               {!locationField && (
                 <div className="flex items-center gap-3" style={{ opacity: 0.8 }}>
-                  <img src={pinIcon} alt="" style={{ width: '15px', height: '19px' }} />
+                  <img src={locatorIcon} alt="" style={{ width: '18px', height: '18px' }} />
                   <span className="text-foreground italic" style={{ fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400 }}>{pin.distance}</span>
                 </div>
               )}

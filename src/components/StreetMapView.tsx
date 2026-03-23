@@ -10,9 +10,10 @@ import { Landmark } from '@/data/landmarks';
 import { useNavigate } from 'react-router-dom';
 import zoomInIcon from '@/assets/zoom-in.svg';
 import zoomOutIcon from '@/assets/zoom-out.svg';
-import recenterIcon from '@/assets/recenter.svg';
+import locatorIcon from '@/assets/locator.svg';
 import { motion, AnimatePresence } from 'framer-motion';
 import RequestCityModal from './RequestCityModal';
+import savedIcon from '@/assets/saved.svg';
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -320,6 +321,37 @@ function MapEvents({
   return null;
 }
 
+/* ── Route fetching (OSRM) ── */
+interface RouteInfo {
+  coordinates: [number, number][];
+  durationMin: number;
+  distanceKm: number;
+  steps: { instruction: string; distance: number }[];
+}
+
+async function fetchWalkingRoute(from: [number, number], to: [number, number]): Promise<RouteInfo | null> {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/foot/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson&steps=true`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.code !== 'Ok' || !data.routes?.length) return null;
+    const route = data.routes[0];
+    const coords = route.geometry.coordinates.map((c: number[]) => [c[1], c[0]] as [number, number]);
+    const steps = route.legs[0]?.steps?.map((s: any) => ({
+      instruction: s.maneuver?.type || 'continue',
+      distance: Math.round(s.distance),
+    })) || [];
+    return {
+      coordinates: coords,
+      durationMin: Math.round(route.duration / 60),
+      distanceKm: +(route.distance / 1000).toFixed(1),
+      steps,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /* ── Main component ── */
 export type MapLayer = 'streets' | 'both' | 'trees';
 
@@ -334,12 +366,22 @@ interface StreetMapViewProps {
   highlightedPinId?: string | null;
 }
 
-function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
+function MapControls({ atMinZoom, atMaxZoom, onRequestCity, pins, highlightedPinId, onShowRoute }: {
   atMinZoom: boolean;
   atMaxZoom: boolean;
   onRequestCity: () => void;
+  pins: Pin[];
+  highlightedPinId?: string | null;
+  onShowRoute: (route: RouteInfo, pinPos: [number, number]) => void;
 }) {
   const map = useMap();
+  const [loading, setLoading] = useState(false);
+
+  const pinLatLng = useCallback((pin: Pin): [number, number] => {
+    if (pin.lat != null && pin.lng != null) return [pin.lat, pin.lng];
+    const { lat, lng } = xyToLatLng(pin.x, pin.y);
+    return [lat, lng];
+  }, []);
 
   const handleZoomIn = () => {
     if (atMaxZoom) return;
@@ -352,7 +394,26 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
     }
     map.flyTo(map.getCenter(), Math.max(map.getZoom() - 1, MIN_ZOOM), { duration: 0.4 });
   };
-  const handleLocate = () => map.flyTo(YOU_LOCATION, 17, { duration: 0.8 });
+  const handleLocate = async () => {
+    // If a pin is selected, show walking route from pin to user location
+    if (highlightedPinId) {
+      const pin = pins.find(p => p.id === highlightedPinId);
+      if (pin) {
+        setLoading(true);
+        const pinPos = pinLatLng(pin);
+        const route = await fetchWalkingRoute(YOU_LOCATION, pinPos);
+        setLoading(false);
+        if (route) {
+          onShowRoute(route, pinPos);
+          // Fit bounds to show the full route
+          const bounds = L.latLngBounds(route.coordinates.map(c => L.latLng(c[0], c[1])));
+          map.fitBounds(bounds.pad(0.15), { duration: 1, maxZoom: 16 });
+          return;
+        }
+      }
+    }
+    map.flyTo(YOU_LOCATION, 16, { duration: 0.8 });
+  };
 
   const btnBase: React.CSSProperties = {
     background: 'hsla(15,16%,17%,0.92)',
@@ -379,8 +440,12 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
       </button>
       <button onClick={handleLocate}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={btnBase} title="Go to your location">
-        <img src={recenterIcon} alt="Recenter" className="w-5 h-5" />
+        style={btnBase} title={highlightedPinId ? 'Show route to pin' : 'Go to your location'}>
+        {loading ? (
+          <div className="w-4 h-4 border-2 border-lime/60 border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <img src={locatorIcon} alt="Locate" className="w-6 h-6" />
+        )}
       </button>
     </div>
   );
@@ -410,6 +475,8 @@ export default function StreetMapView({
   const [showRequestCity, setShowRequestCity] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
   const [flyZoom, setFlyZoom] = useState<number | undefined>(undefined);
+  const [activeRoute, setActiveRoute] = useState<RouteInfo | null>(null);
+  const [routeSaved, setRouteSaved] = useState(false);
   const tier = getZoomTier(zoom);
 
   const pinLatLng = useCallback((pin: Pin): [number, number] => {
@@ -418,7 +485,7 @@ export default function StreetMapView({
     return [lat, lng];
   }, []);
 
-  // When highlightedPinId changes, fly to that pin
+  // When highlightedPinId changes, fly to that pin and clear route
   useEffect(() => {
     if (highlightedPinId) {
       const pin = pins.find(p => p.id === highlightedPinId);
@@ -427,8 +494,15 @@ export default function StreetMapView({
         setFlyTarget(ll);
         setFlyZoom(MAX_ZOOM);
       }
+      setActiveRoute(null);
+      setRouteSaved(false);
     }
   }, [highlightedPinId, pins, pinLatLng]);
+
+  const handleShowRoute = useCallback((route: RouteInfo, _pinPos: [number, number]) => {
+    setActiveRoute(route);
+    setRouteSaved(false);
+  }, []);
 
   const streetOpacity = layer === 'streets' ? 1 : layer === 'both' ? 1 : 0.15;
   const welikiaOpacity = layer === 'trees' ? 0.9 : layer === 'both' ? 0.55 : 0;
@@ -505,6 +579,20 @@ export default function StreetMapView({
 
         {showHeatmap && <HeatmapLayer pins={pins} zoom={zoom} />}
 
+        {/* Walking route polyline */}
+        {activeRoute && (
+          <Polyline
+            positions={activeRoute.coordinates}
+            pathOptions={{
+              color: '#DAE16B',
+              weight: 4,
+              opacity: 0.9,
+              dashArray: '8, 12',
+              lineCap: 'round',
+            }}
+          />
+        )}
+
         <Marker position={YOU_LOCATION} icon={createYouIcon()} />
 
         {visiblePins.map((pin) => {
@@ -534,8 +622,66 @@ export default function StreetMapView({
           atMinZoom={atMinZoom}
           atMaxZoom={atMaxZoom}
           onRequestCity={() => setShowRequestCity(true)}
+          pins={pins}
+          highlightedPinId={highlightedPinId}
+          onShowRoute={handleShowRoute}
         />
       </MapContainer>
+
+      {/* Route info overlay */}
+      <AnimatePresence>
+        {activeRoute && (
+          <motion.div
+            className="fixed z-50 left-0 right-0 flex justify-center"
+            style={{ top: 'calc(30px * 2 + 64px)', padding: '0 30px' }}
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div
+              className="flex items-center gap-4 max-w-md w-full"
+              style={{
+                background: 'hsla(15, 18%, 16%, 0.94)',
+                borderRadius: '12px',
+                padding: '14px 20px',
+                border: '1px solid hsla(15,12%,30%,0.5)',
+              }}
+            >
+              <img src={locatorIcon} alt="" style={{ width: '32px', height: '32px', flexShrink: 0 }} />
+              <div className="flex-1 min-w-0">
+                <p style={{ fontFamily: 'Labrada, serif', fontWeight: 600, fontSize: '18px', color: '#F4EDE8' }}>
+                  {activeRoute.durationMin} min walk
+                </p>
+                <p style={{ fontFamily: "'Public Sans', sans-serif", fontSize: '13px', color: '#F4EDE8', opacity: 0.7 }}>
+                  {activeRoute.distanceKm} km · {activeRoute.steps.length} steps
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { setRouteSaved(!routeSaved); }}
+                  className="flex items-center justify-center transition-all active:scale-90"
+                  style={{ width: '28px', height: '28px' }}
+                  title={routeSaved ? 'Route saved' : 'Save route'}
+                >
+                  <img
+                    src={savedIcon}
+                    alt="Save"
+                    style={{ width: '20px', height: '23px', opacity: routeSaved ? 1 : 0.5 }}
+                  />
+                </button>
+                <button
+                  onClick={() => setActiveRoute(null)}
+                  className="text-muted-foreground hover:text-foreground text-lg leading-none transition-colors"
+                  style={{ width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Map source attribution */}
       <div
