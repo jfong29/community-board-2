@@ -116,18 +116,25 @@ function createLandmarkIcon(emoji: string, count: number) {
 
 function createYouIcon() {
   return L.divIcon({
-    html: `<div style="width:40px;height:39px;display:flex;align-items:center;justify-content:center;cursor:pointer;filter:drop-shadow(0 0 10px rgba(218,225,107,0.5));">
-      <svg width="40" height="39" viewBox="0 0 40 39" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M30.9964 25.9984C26.9939 33.4963 16.642 32.4416 11.9948 29.5006C7.34771 26.5596 6.50144 18.4024 8.99625 12.9963C11.9985 6.49079 20.928 4.9528 26.4964 8.49629C31.9964 11.9963 34.8255 18.825 30.9964 25.9984Z" stroke="#F4EDE8" stroke-width="3"/>
-        <path d="M20.4949 0L20.4949 6" stroke="#F4EDE8" stroke-width="3"/>
-        <path d="M20.4949 32L20.4949 39" stroke="#F4EDE8" stroke-width="3"/>
-        <path d="M39.9998 19.4688H33.9998" stroke="#F4EDE8" stroke-width="3"/>
-        <path d="M7 19.5234L-3.57628e-07 19.5234" stroke="#F4EDE8" stroke-width="3"/>
+    html: `<div style="width:80px;height:77px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="80" height="77" viewBox="0 0 115 111" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#filter0_f_you)" style="mix-blend-mode:lighten">
+          <path d="M34.1635 28.5573C46.9802 18.9878 68.8649 15.4869 84.5139 29.4254C100.163 43.3639 93.6682 72.6424 83.5983 81.6116C73.5285 90.5808 44.3195 95.5501 28.6705 81.6116C13.0215 67.6731 21.3467 38.1267 34.1635 28.5573Z" fill="#322924" fill-opacity="0.1"/>
+          <path d="M33.5176 27.6924C46.621 17.909 69.0947 14.2465 85.2314 28.6191C93.4083 35.9023 95.7186 47.1098 94.7754 57.4795C93.8346 67.8216 89.6276 77.6873 84.3164 82.418C79.0352 87.1218 68.9454 90.65 58.29 91.2793C47.6134 91.9099 36.0706 89.6479 27.9531 82.418C19.7466 75.1084 17.9168 63.7938 19.6777 53.2676C21.4366 42.7543 26.8252 32.6892 33.5176 27.6924Z" stroke="#DAE16B" stroke-width="2.15853"/>
+        </g>
+        <path d="M68.9129 74.0025C68.9115 69.7905 68.0137 46.2044 68.9131 34.5391C58.1204 39.7512 36.5351 62.8336 36.5351 62.8336C36.5351 62.8336 54.5229 58.3661 56.3216 59.8553C58.1204 61.3444 68.9133 75.4917 68.9129 74.0025Z" fill="#DAE16B" stroke="black" stroke-width="3"/>
+        <defs>
+          <filter id="filter0_f_you" x="0" y="0" width="114" height="110.5" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="9" result="effect1_foregroundBlur"/>
+          </filter>
+        </defs>
       </svg>
     </div>`,
     className: '',
-    iconSize: [40, 39],
-    iconAnchor: [20, 19],
+    iconSize: [80, 77],
+    iconAnchor: [40, 38],
   });
 }
 
