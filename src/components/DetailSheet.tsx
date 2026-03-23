@@ -414,8 +414,8 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
                     style={{
                       width: '20px',
                       height: '23px',
-                      opacity: saved ? 1 : 0.6,
-                      filter: saved ? 'none' : 'brightness(0.8)',
+                      opacity: saved ? 1 : 0.7,
+                      filter: 'none',
                     }}
                   />
                 </button>
