@@ -321,6 +321,37 @@ function MapEvents({
   return null;
 }
 
+/* ── Route fetching (OSRM) ── */
+interface RouteInfo {
+  coordinates: [number, number][];
+  durationMin: number;
+  distanceKm: number;
+  steps: { instruction: string; distance: number }[];
+}
+
+async function fetchWalkingRoute(from: [number, number], to: [number, number]): Promise<RouteInfo | null> {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/foot/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson&steps=true`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.code !== 'Ok' || !data.routes?.length) return null;
+    const route = data.routes[0];
+    const coords = route.geometry.coordinates.map((c: number[]) => [c[1], c[0]] as [number, number]);
+    const steps = route.legs[0]?.steps?.map((s: any) => ({
+      instruction: s.maneuver?.type || 'continue',
+      distance: Math.round(s.distance),
+    })) || [];
+    return {
+      coordinates: coords,
+      durationMin: Math.round(route.duration / 60),
+      distanceKm: +(route.distance / 1000).toFixed(1),
+      steps,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /* ── Main component ── */
 export type MapLayer = 'streets' | 'both' | 'trees';
 
@@ -335,12 +366,22 @@ interface StreetMapViewProps {
   highlightedPinId?: string | null;
 }
 
-function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
+function MapControls({ atMinZoom, atMaxZoom, onRequestCity, pins, highlightedPinId, onShowRoute }: {
   atMinZoom: boolean;
   atMaxZoom: boolean;
   onRequestCity: () => void;
+  pins: Pin[];
+  highlightedPinId?: string | null;
+  onShowRoute: (route: RouteInfo, pinPos: [number, number]) => void;
 }) {
   const map = useMap();
+  const [loading, setLoading] = useState(false);
+
+  const pinLatLng = useCallback((pin: Pin): [number, number] => {
+    if (pin.lat != null && pin.lng != null) return [pin.lat, pin.lng];
+    const { lat, lng } = xyToLatLng(pin.x, pin.y);
+    return [lat, lng];
+  }, []);
 
   const handleZoomIn = () => {
     if (atMaxZoom) return;
@@ -353,7 +394,26 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
     }
     map.flyTo(map.getCenter(), Math.max(map.getZoom() - 1, MIN_ZOOM), { duration: 0.4 });
   };
-  const handleLocate = () => map.flyTo(YOU_LOCATION, 17, { duration: 0.8 });
+  const handleLocate = async () => {
+    // If a pin is selected, show walking route from pin to user location
+    if (highlightedPinId) {
+      const pin = pins.find(p => p.id === highlightedPinId);
+      if (pin) {
+        setLoading(true);
+        const pinPos = pinLatLng(pin);
+        const route = await fetchWalkingRoute(YOU_LOCATION, pinPos);
+        setLoading(false);
+        if (route) {
+          onShowRoute(route, pinPos);
+          // Fit bounds to show the full route
+          const bounds = L.latLngBounds(route.coordinates.map(c => L.latLng(c[0], c[1])));
+          map.fitBounds(bounds.pad(0.15), { duration: 1, maxZoom: 16 });
+          return;
+        }
+      }
+    }
+    map.flyTo(YOU_LOCATION, 16, { duration: 0.8 });
+  };
 
   const btnBase: React.CSSProperties = {
     background: 'hsla(15,16%,17%,0.92)',
@@ -380,8 +440,12 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
       </button>
       <button onClick={handleLocate}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={btnBase} title="Go to your location">
-        <img src={recenterIcon} alt="Recenter" className="w-5 h-5" />
+        style={btnBase} title={highlightedPinId ? 'Show route to pin' : 'Go to your location'}>
+        {loading ? (
+          <div className="w-4 h-4 border-2 border-lime/60 border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <img src={locatorIcon} alt="Locate" className="w-6 h-6" />
+        )}
       </button>
     </div>
   );
