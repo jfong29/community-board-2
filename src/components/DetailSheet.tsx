@@ -429,12 +429,11 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                     style={{ width: '22px', height: '26px' }}
                   >
                     <img
-                      src={savedIcon}
-                      alt="Save"
+                      src={saved ? savedFullIcon : addToSavedIcon}
+                      alt={saved ? 'Saved' : 'Save'}
                       style={{
                         width: '22px',
                         height: '26px',
-                        opacity: saved ? 1 : 0.7,
                       }}
                     />
                   </button>
