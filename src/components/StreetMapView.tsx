@@ -378,6 +378,7 @@ interface StreetMapViewProps {
   onMapMove?: (lat: number, lng: number) => void;
   onZoomChange?: (zoom: number) => void;
   highlightedPinId?: string | null;
+  hidePins?: boolean;
 }
 
 function MapControls({ atMinZoom, atMaxZoom, onRequestCity, pins, highlightedPinId, onShowRoute }: {
