@@ -131,6 +131,15 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
   const categoryLabel = isUrgent ? 'URGENT REQUEST' : categoryLabels[pin.category]?.toUpperCase();
   const categoryIconSrc = isUrgent ? requestUrgentIcon : categoryIcons[pin.category];
 
+  // Extract specific fields
+  const timeframeField = fields.find(f => f.label === 'Timeframe');
+  const locationField = fields.find(f => f.label === 'Location');
+  const quantityField = fields.find(f => f.label === 'Quantity');
+  const contactField = fields.find(f => f.label === 'Contact');
+
+  // Lime accent for interactive elements
+  const limeColor = '#DAE16B';
+
   return (
     <AnimatePresence>
       {pin && (
@@ -143,94 +152,156 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <div
-            className="rounded-xl overflow-hidden max-w-md mx-auto"
-            style={{ background: 'hsla(15, 16%, 14%, 0.95)', border: '1px solid hsla(15, 12%, 25%, 0.5)' }}
+            className="overflow-hidden max-w-md mx-auto"
+            style={{
+              background: 'hsla(15, 18%, 16%, 0.90)',
+              borderRadius: '10px',
+            }}
           >
-            {/* Category header + subcategory + close */}
-            <div className="flex items-center justify-between px-5 pt-4 pb-1">
+            {/* Row 1: Category icon + label + subcategory tag ... close button */}
+            <div className="flex items-center justify-between" style={{ padding: '20px 28px 0 28px' }}>
               <div className="flex items-center gap-2">
-                {isUrgent && <span className="text-sm">❗</span>}
-                <img src={categoryIconSrc} alt="" className="w-4 h-4" />
+                {isUrgent && (
+                  <img src={requestUrgentIcon} alt="" className="w-4 h-4" />
+                )}
+                {!isUrgent && (
+                  <img src={categoryIconSrc} alt="" className="w-4 h-4" />
+                )}
                 <span
-                  className="font-display font-bold uppercase tracking-wider"
-                  style={{ color: accentColor, fontSize: '12px', fontFamily: "'Public Sans', sans-serif" }}
+                  className="font-semibold uppercase"
+                  style={{
+                    color: accentColor,
+                    fontSize: '16px',
+                    fontFamily: "'Public Sans', sans-serif",
+                    lineHeight: '19.2px',
+                  }}
                 >
                   {categoryLabel}
                 </span>
-                {/* Subcategory tag */}
+
+                {/* Subcategory pill */}
                 <button
                   onClick={() => onTagClick?.(pin.subcategory)}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-display font-semibold transition-all hover:scale-105 active:scale-95 border"
+                  className="inline-flex items-center gap-1 rounded-full font-semibold transition-all hover:scale-105 active:scale-95"
                   style={{
-                    borderColor: accentColor,
+                    border: `1.2px solid ${accentColor}`,
                     color: accentColor,
-                    backgroundColor: `${accentColor}15`,
-                    fontSize: '11px',
+                    backgroundColor: `${accentColor}18`,
+                    fontSize: '12px',
+                    fontFamily: "'Public Sans', sans-serif",
+                    padding: '4px 12px',
+                    lineHeight: '14.4px',
                   }}
                 >
                   {pin.subcategory.toUpperCase()}
-                  <span className="opacity-60">›</span>
+                  <span style={{ fontSize: '10px', opacity: 0.7 }}>›</span>
                 </button>
               </div>
+
               <button
                 onClick={onClose}
-                className="p-1 rounded-full hover:bg-muted/30 transition-colors text-foreground"
+                className="p-1 rounded-full hover:bg-muted/30 transition-colors"
+                style={{ color: '#7D726C' }}
               >
-                <X size={16} />
+                <X size={20} />
               </button>
             </div>
 
-            {/* Title */}
-            <h2 className="font-display text-xl font-bold text-foreground leading-tight px-5 pt-1 pb-1">
+            {/* Row 2: Title — Labrada */}
+            <h2
+              className="font-display font-semibold text-foreground"
+              style={{
+                fontSize: '34px',
+                lineHeight: '41px',
+                padding: '8px 28px 0 28px',
+              }}
+            >
               {pin.title}
             </h2>
 
-            {/* Description */}
+            {/* Row 3: Description — Public Sans */}
             {mainDesc && (
-              <p className="text-muted-foreground leading-relaxed px-5 pb-2" style={{ fontSize: '14px' }}>
+              <p
+                className="text-foreground"
+                style={{
+                  fontSize: '16px',
+                  fontFamily: "'Public Sans', sans-serif",
+                  fontWeight: 600,
+                  lineHeight: '22px',
+                  padding: '12px 28px 0 28px',
+                }}
+              >
                 {mainDesc}
               </p>
             )}
 
-            {/* Metadata rows */}
-            <div className="px-5 pb-3 space-y-1.5">
+            {/* Row 4: Metadata — icon + value rows */}
+            <div style={{ padding: '16px 28px 0 28px' }} className="space-y-3">
               {/* Posted by */}
-              <div className="flex items-center gap-2" style={{ fontSize: '13px' }}>
-                <span className="text-muted-foreground">
-                  {isOrg ? <Users size={13} className="inline" /> : <User size={13} className="inline" />}
+              <div className="flex items-center gap-3" style={{ opacity: 0.8 }}>
+                <span className="text-foreground">
+                  {isOrg ? <Users size={15} /> : <User size={15} />}
                 </span>
                 <button
                   onClick={() => setShowSourceProfile(!showSourceProfile)}
-                  className="font-display font-medium underline underline-offset-2 decoration-dotted hover:text-foreground transition-colors"
-                  style={{ color: accentColor }}
+                  className="underline underline-offset-2 transition-colors hover:opacity-100"
+                  style={{
+                    color: limeColor,
+                    fontSize: '16px',
+                    fontFamily: "'Public Sans', sans-serif",
+                    fontWeight: 400,
+                  }}
                 >
                   {pin.postedBy}
                 </button>
               </div>
 
-              {/* Structured fields: timeframe, location, quantity */}
-              {fields.filter(f => f.label !== 'Fulfillment').map((field, i) => (
-                <div key={i} className="flex items-center gap-2 text-muted-foreground" style={{ fontSize: '13px' }}>
-                  <span className="w-4 text-center">{field.icon === '#' ? '📦' : field.icon}</span>
+              {/* Timeframe */}
+              {timeframeField && (
+                <div className="flex items-center gap-3" style={{ opacity: 0.8, fontSize: '16px', fontFamily: "'Public Sans', sans-serif" }}>
+                  <span className="text-foreground" style={{ fontSize: '14px' }}>🕐</span>
                   <span>
-                    <span className="font-display font-medium text-foreground/70">{field.label === 'Quantity' ? 'Qty' : field.label}:</span>
-                    {' '}{field.value}
+                    <span className="text-foreground" style={{ fontWeight: 400 }}>By </span>
+                    <span className="underline" style={{ color: limeColor, fontWeight: 400 }}>{timeframeField.value}</span>
                   </span>
                 </div>
-              ))}
+              )}
 
-              {/* Distance */}
-              <div className="flex items-center gap-2 text-muted-foreground" style={{ fontSize: '13px' }}>
-                <MapPin size={13} />
-                <span>{pin.distance}</span>
-              </div>
+              {/* Location */}
+              {locationField && (
+                <div className="flex items-center gap-3" style={{ opacity: 0.8, fontSize: '16px', fontFamily: "'Public Sans', sans-serif" }}>
+                  <MapPin size={15} className="text-foreground" />
+                  <span>
+                    <span className="text-foreground" style={{ fontWeight: 400 }}>Drop off at </span>
+                    <span className="underline" style={{ color: limeColor, fontWeight: 400 }}>{locationField.value}</span>
+                    {'  '}
+                    <span className="text-foreground italic" style={{ fontWeight: 400 }}>{pin.distance}</span>
+                  </span>
+                </div>
+              )}
+
+              {/* Quantity */}
+              {quantityField && (
+                <div className="flex items-center gap-3" style={{ opacity: 0.8, fontSize: '16px', fontFamily: "'Public Sans', sans-serif" }}>
+                  <span className="text-foreground" style={{ fontSize: '14px' }}>📦</span>
+                  <span className="text-foreground" style={{ fontWeight: 400 }}>{quantityField.value}</span>
+                </div>
+              )}
+
+              {/* Distance fallback if no location field */}
+              {!locationField && (
+                <div className="flex items-center gap-3" style={{ opacity: 0.8, fontSize: '16px', fontFamily: "'Public Sans', sans-serif" }}>
+                  <MapPin size={15} className="text-foreground" />
+                  <span className="text-foreground italic" style={{ fontWeight: 400 }}>{pin.distance}</span>
+                </div>
+              )}
             </div>
 
             {/* Source profile popup */}
             <AnimatePresence>
               {showSourceProfile && (
                 <motion.div
-                  className="mx-5 mb-3 rounded-xl border border-border/40 p-3 space-y-2"
+                  className="mx-7 mt-3 rounded-xl border border-border/40 p-3 space-y-2"
                   style={{ background: 'hsla(15, 16%, 18%, 0.9)' }}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -238,11 +309,13 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
                   transition={{ duration: 0.15 }}
                 >
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-display font-semibold bg-muted/40 text-muted-foreground">
-                      Auto-generated
-                    </span>
+                    {isAutoGenerated && (
+                      <span className="px-2 py-0.5 rounded-full bg-muted/40 text-muted-foreground" style={{ fontSize: '10px', fontFamily: "'Public Sans', sans-serif", fontWeight: 600 }}>
+                        Auto-generated
+                      </span>
+                    )}
                     {isOrg && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-display font-semibold" style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
+                      <span className="px-2 py-0.5 rounded-full" style={{ backgroundColor: `${accentColor}20`, color: accentColor, fontSize: '10px', fontFamily: "'Public Sans', sans-serif", fontWeight: 600 }}>
                         Organization
                       </span>
                     )}
@@ -250,17 +323,19 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
                   <p className="font-display font-semibold text-foreground" style={{ fontSize: '14px' }}>
                     {pin.sourceOrg || pin.postedBy}
                   </p>
-                  {!isOrg && <p className="text-muted-foreground text-xs">Community member</p>}
-                  <p className="text-muted-foreground text-xs">
-                    This listing was automatically imported.
-                  </p>
+                  {!isOrg && <p className="text-muted-foreground" style={{ fontSize: '12px', fontFamily: "'Public Sans', sans-serif" }}>Community member</p>}
+                  {isAutoGenerated && (
+                    <p className="text-muted-foreground" style={{ fontSize: '12px', fontFamily: "'Public Sans', sans-serif" }}>
+                      This listing was automatically imported.
+                    </p>
+                  )}
                   {hasExternalLink && (
                     <a
                       href={pin.sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-display font-semibold transition-all hover:scale-105 active:scale-95"
-                      style={{ color: accentColor, fontSize: '13px' }}
+                      className="inline-flex items-center gap-1.5 font-semibold transition-all hover:scale-105 active:scale-95"
+                      style={{ color: accentColor, fontSize: '13px', fontFamily: "'Public Sans', sans-serif" }}
                     >
                       <ExternalLink size={13} />
                       Volunteer / Learn More
@@ -270,10 +345,44 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
               )}
             </AnimatePresence>
 
+            {/* Connected Event row (if pin has a connected event tag) */}
+            {pin.connectedEvent && (
+              <div className="flex items-center gap-2" style={{ padding: '16px 28px 0 28px' }}>
+                <span className="text-foreground" style={{ opacity: 0.8, fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400, textTransform: 'capitalize' }}>
+                  Connected Event:
+                </span>
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full"
+                  style={{
+                    backgroundColor: `${limeColor}CC`,
+                    color: '#322924',
+                    fontSize: '12px',
+                    fontFamily: "'Public Sans', sans-serif",
+                    fontWeight: 700,
+                    padding: '4px 14px',
+                  }}
+                >
+                  {pin.connectedEvent}
+                </span>
+                {/* Save to calendar */}
+                <button
+                  className="flex items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95"
+                  style={{
+                    width: '23px',
+                    height: '23px',
+                    border: `1.2px solid ${limeColor}`,
+                    backgroundColor: `${limeColor}18`,
+                  }}
+                >
+                  <span style={{ color: limeColor, fontSize: '15px', fontFamily: "'Public Sans', sans-serif", fontWeight: 500, lineHeight: 1 }}>+</span>
+                </button>
+              </div>
+            )}
+
             {/* Bottom action bar */}
             <div
-              className="flex items-center justify-between px-5 py-3"
-              style={{ borderTop: '1px solid hsla(15, 12%, 25%, 0.4)' }}
+              className="flex items-center justify-between"
+              style={{ padding: '16px 28px 16px 28px', marginTop: '12px' }}
             >
               <div className="flex items-center gap-3">
                 <button
@@ -281,7 +390,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
                   className="p-1.5 rounded-lg hover:bg-muted/30 transition-colors"
                   title={saved ? 'Unsave' : 'Save'}
                 >
-                  <Bookmark size={18} className={saved ? 'text-lime fill-lime' : 'text-muted-foreground'} />
+                  <Bookmark size={20} style={{ color: saved ? limeColor : limeColor, fill: saved ? limeColor : 'none' }} />
                 </button>
                 {!hasExternalLink && (
                   <button
@@ -289,7 +398,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
                     className="p-1.5 rounded-lg hover:bg-muted/30 transition-colors"
                     title="Send a message"
                   >
-                    <Send size={18} className="text-muted-foreground" />
+                    <Send size={20} style={{ color: limeColor }} />
                   </button>
                 )}
               </div>
@@ -299,8 +408,15 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
                   href={pin.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 rounded-full font-display font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{ backgroundColor: accentColor, color: '#322924', fontSize: '13px' }}
+                  className="flex items-center gap-2 rounded-full font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    backgroundColor: limeColor,
+                    color: '#2D2520',
+                    fontSize: '12px',
+                    fontFamily: "'Public Sans', sans-serif",
+                    padding: '6px 16px',
+                    lineHeight: '14.4px',
+                  }}
                 >
                   <ExternalLink size={14} />
                   Learn More
@@ -308,11 +424,18 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
               ) : (
                 <button
                   onClick={() => onChat(pin)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full font-display font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{ backgroundColor: `${accentColor}25`, color: accentColor, fontSize: '13px' }}
+                  className="flex items-center gap-2 rounded-full font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    backgroundColor: limeColor,
+                    color: '#2D2520',
+                    fontSize: '12px',
+                    fontFamily: "'Public Sans', sans-serif",
+                    padding: '6px 16px',
+                    lineHeight: '14.4px',
+                  }}
                 >
                   {pin.category === 'request' ? 'Respond' : pin.category === 'offer' ? 'Claim' : 'Chat'}
-                  <span style={{ fontSize: '11px', opacity: 0.7 }}>›</span>
+                  <span style={{ fontSize: '10px' }}>›</span>
                 </button>
               )}
             </div>
