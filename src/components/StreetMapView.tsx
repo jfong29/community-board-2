@@ -35,11 +35,11 @@ const MAX_ZOOM = 16;
 
 /* ── Category visuals ── */
 const categoryColor: Record<string, string> = {
-  offer: '#68D07F', request: '#D54E00', observation: '#39BBD6', event: '#F984CA',
+  offer: '#79E824', request: '#FF48B5', observation: '#FF6C2F', event: '#B036FF',
 };
 const categoryGlow: Record<string, string> = {
-  offer: 'rgba(104,208,127,0.6)', request: 'rgba(213,78,0,0.6)',
-  observation: 'rgba(57,187,214,0.5)', event: 'rgba(249,132,202,0.5)',
+  offer: 'rgba(121,232,36,0.6)', request: 'rgba(255,72,181,0.6)',
+  observation: 'rgba(255,108,47,0.5)', event: 'rgba(176,54,255,0.5)',
 };
 
 /* ── Pin SVG builder ── */
@@ -49,21 +49,21 @@ function pinSvg(category: string, size: number, dim = false): string {
 
   switch (category) {
     case 'offer':
-      return `<svg width="${size}" height="${size}" viewBox="0 0 21 18" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
-        <path d="M5.15488 8.79268C8.16928 4.39553 10.2204 0 10.5971 0C11.3509 0 15.4886 6.68996 16.8074 8.79268C18.705 11.8181 20.9429 16.9746 20.6651 17.3974C20.3873 17.8203 4.64486 17.3974 0.0458554 17.3974C-0.330963 17.3974 1.63608 13.9256 5.15488 8.79268Z" fill="${color}"/>
+      return `<svg width="${size}" height="${Math.round(size * 33/37)}" viewBox="0 0 37 33" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
+        <path d="M9.97159 16.5C14.9255 8.99862 17 1.5 18.9155 1.5C21.5 1.5 26.9541 12.9128 29.1215 16.5C32.24 21.6613 35.9179 30.458 35.4614 31.1794C35.0048 31.9008 9.13342 31.1794 1.57536 31.1794C0.95609 31.1794 4.18876 25.2565 9.97159 16.5Z" fill="${color}" stroke="black" stroke-width="3"/>
       </svg>`;
     case 'request':
-      return `<svg width="${size}" height="${size}" viewBox="0 0 21 19" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
-        <path d="M15.937 10.2477C13.4362 15.1371 10.9826 18.56 10.223 18.5625C9.46328 18.565 6.5407 13.0567 5.20421 10.8611C3.28123 7.70192 -0.263081 0.836818 0.0154676 0.393478C0.294015 -0.0498635 16.2437 -0.178414 20.7978 0.325091C21.1753 0.366827 18.8678 4.51793 15.937 10.2477Z" fill="${color}"/>
+      return `<svg width="${size}" height="${Math.round(size * 26/32)}" viewBox="0 0 32 26" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
+        <path d="M24.4635 14.1795C20.6214 20.948 16.8528 25.6868 15.6864 25.6907C14.5201 25.6945 10.0357 18.072 7.98491 15.0338C5.03411 10.6622 -0.404111 1.16213 0.0237687 0.548366C0.451647 -0.065392 24.9395 -0.251254 31.9312 0.44337C32.5107 0.500949 28.9659 6.24756 24.4635 14.1795Z" fill="${color}" stroke="black" stroke-width="3"/>
       </svg>`;
     case 'observation':
-      return `<svg width="${size}" height="${Math.round(size * 0.62)}" viewBox="0 0 34 21" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
-        <path d="M16.5088 0.0206971C19.8265 -0.108465 21.9836 0.288067 26.9024 3.49238C31.6451 6.58203 32.4625 8.84754 33.0313 9.55878C33.0664 9.56406 33.0892 9.56999 33.0996 9.57636C33.1291 9.59484 33.1327 9.6326 33.1143 9.68769C33.1425 9.7519 33.1282 9.78648 33.0655 9.7912C32.4817 10.803 28.109 15.4025 25.4258 17.4211C23.3535 18.9801 21.0308 20.5385 17.0752 20.673C12.7498 20.8201 11.05 19.885 6.95902 16.7219C2.95795 13.6283 0.738805 11.6629 0.109406 10.9328C0.0754985 10.9274 0.0530707 10.9211 0.0430002 10.9143C0.00857911 10.8908 -0.00205135 10.8459 0.00686737 10.7814C-0.00533738 10.7475 -0.00156893 10.7232 0.0205392 10.7102C0.28807 9.79675 3.36599 6.28794 6.03909 4.11249C8.10592 2.43045 10.6048 0.250616 16.5088 0.0206971ZM16.4278 2.80683C12.7199 2.95472 11.1571 4.57246 9.86429 5.81953C8.19227 7.43256 6.27122 10.0387 6.10648 10.7189C6.09256 10.7286 6.08992 10.7463 6.09769 10.7717C6.09229 10.8198 6.09941 10.8536 6.12113 10.8713C6.12757 10.8763 6.14127 10.8809 6.16214 10.885C6.5596 11.4322 7.32122 12.8731 9.84476 15.1984C12.4246 17.5756 14.1342 18.3152 16.8506 18.2228C19.3346 18.1384 21.4339 16.711 22.7305 15.5559C22.7305 15.5559 26.9591 10.7358 26.96 10.3107C26.9606 9.88522 25.9564 7.7643 22.9678 5.43964C19.8678 3.02831 18.5113 2.72378 16.4278 2.80683Z" fill="${color}"/>
-        <path d="M22.0382 9.76578C21.458 7.60359 19.1372 5.44141 16.8164 5.44141C12.1748 5.98195 12.1748 9.11712 12.1748 10.8469C12.1748 13.0091 15.0758 15.7118 17.3966 15.1712C19.7174 14.6307 22.6184 11.928 22.0382 9.76578Z" fill="${color}"/>
+      return `<svg width="${size}" height="${size}" viewBox="0 0 33 33" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
+        <path d="M16.1543 1.5C19.6253 1.49998 23.0776 1.62452 25.7686 1.86914C27.1181 1.99183 28.2425 2.14144 29.0693 2.3125C29.4843 2.39835 29.7898 2.48326 29.9971 2.55859C30.0249 2.56871 30.0484 2.58045 30.0693 2.58887C30.0791 2.61257 30.0933 2.63922 30.1055 2.67188C30.1847 2.88529 30.2741 3.19868 30.3662 3.62109C30.5496 4.46255 30.7165 5.60586 30.8584 6.97461C31.1414 9.70445 31.3119 13.203 31.3428 16.7012C31.3736 20.2018 31.2642 23.6587 30.998 26.3115C30.8643 27.6442 30.696 28.7262 30.501 29.4932C30.411 29.847 30.3239 30.0915 30.2539 30.2471C30.2065 30.2608 30.1469 30.2809 30.0713 30.2988C29.8068 30.3614 29.4477 30.424 28.9922 30.4844C28.083 30.6048 26.8834 30.7021 25.4756 30.7754C22.6652 30.9217 19.1195 30.9686 15.6055 30.9375C12.0926 30.9064 8.6357 30.7978 6.00488 30.6357C4.68582 30.5545 3.59694 30.4615 2.82031 30.3613C2.63999 30.3381 2.48354 30.3139 2.34961 30.292C2.32464 30.1513 2.29768 29.986 2.27051 29.7949C2.15814 29.0047 2.0478 27.8974 1.94727 26.5596C1.7467 23.8906 1.5914 20.3885 1.5293 16.8486C1.46713 13.3054 1.49942 9.75469 1.66797 6.98145C1.75252 5.59032 1.86937 4.43079 2.01758 3.5791C2.09196 3.15174 2.16757 2.83889 2.2373 2.62891C2.24294 2.61194 2.2498 2.59634 2.25488 2.58203C2.27202 2.57531 2.29038 2.56629 2.31152 2.55859C2.51869 2.48327 2.82517 2.39837 3.24023 2.3125C4.06689 2.1415 5.19078 1.99182 6.54004 1.86914C9.23086 1.6245 12.6832 1.50003 16.1543 1.5Z" fill="${color}" stroke="black" stroke-width="3"/>
       </svg>`;
     case 'event':
-      return `<svg width="${size}" height="${Math.round(size * 0.63)}" viewBox="0 0 30 19" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
-        <path d="M0.273336 0.0361198C0.308554 -0.303863 3.44773 1.80074 7.78017 4.4746C11.4785 6.75716 14.1737 9.28239 14.1737 9.62108C14.1703 9.96181 9.88401 13.0049 8.21767 14.2099C5.81904 15.9445 0.608562 19.1377 0.273336 18.8838C-0.0616529 18.6221 -0.119428 4.16358 0.273336 0.0361198ZM21.4726 3.54491C24.0705 1.81161 28.498 -0.232225 28.8612 0.0214714C29.2243 0.27524 28.8612 14.6552 28.8612 18.8564C28.8612 19.2006 25.8802 17.4038 21.4726 14.1894C17.6967 11.4359 14.1737 9.92125 14.1737 9.57714C14.1755 9.23177 19.6672 4.74942 21.4726 3.54491Z" fill="${color}"/>
+      return `<svg width="${size}" height="${Math.round(size * 39/57)}" viewBox="0 0 57 39" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}">
+        <path d="M25.1576 5.35345C22.6179 7.10569 21.0595 10.4598 21.0595 14.8234C21.0595 19.1869 25.1576 22.3663 25.1576 22.3663C25.1576 22.3663 17.9603 26.4878 17.1008 27.3121C16.2413 28.1364 13.3643 36.9978 13.9881 37.8909L42.3725 38.9212C42.3064 37.818 41.5069 29.9921 40.3216 28.4809C39.1363 26.9696 33.3893 22.9158 33.3893 22.9158C33.3893 22.9158 38.0447 20.6218 38.4842 14.8234C38.9237 9.0249 35.6616 5.92712 33.3893 4.81104C31.117 3.69496 27.6973 3.60122 25.1576 5.35345Z" fill="${color}"/>
+        <path d="M38.6534 1.35317C41.2894 -0.399018 44.8387 -0.30482 47.1973 0.811178C49.5559 1.92729 52.9425 5.02461 52.4864 10.8229C52.03 16.6211 47.1973 18.9157 47.1973 18.9157C47.2251 18.9324 51.9931 21.8053 53.2198 23.3122C54.45 24.8245 56.4535 33.816 56.5225 34.9206L45.0459 34.5182C45.0063 34.2418 44.9656 33.9622 44.9219 33.6823C44.7369 32.4968 44.5063 31.2332 44.2295 30.1344C44.0915 29.5864 43.9284 29.028 43.7364 28.5163C43.5635 28.0559 43.2846 27.4053 42.834 26.8307C42.308 26.1601 41.4846 25.431 40.792 24.8493C40.0903 24.2599 39.2907 23.6354 38.5352 23.0592C39.9936 21.3462 41.4076 18.8197 41.668 15.3844C42.1255 9.34717 39.3529 5.43315 36.5664 3.3561C37.1592 2.5542 37.8596 1.8808 38.6534 1.35317Z" fill="${color}"/>
       </svg>`;
     default:
       return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" opacity="${opacity}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 2}" fill="${color}" fill-opacity="0.7"/></svg>`;
@@ -142,6 +142,7 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
     canvas.style.position = 'absolute';
     canvas.style.pointerEvents = 'none';
     canvas.style.zIndex = '200';
+    canvas.style.mixBlendMode = 'screen';
     pane.appendChild(canvas);
     canvasRef.current = canvas;
 
@@ -155,21 +156,36 @@ function HeatmapLayer({ pins }: { pins: Pin[] }) {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
       ctx.clearRect(0, 0, size.x, size.y);
+      ctx.globalCompositeOperation = 'screen';
 
+      // Group pins by category for fluid merging
+      const byCategory: Record<string, { x: number; y: number }[]> = {};
       pins.forEach(pin => {
         const ll = pin.lat != null && pin.lng != null
           ? L.latLng(pin.lat, pin.lng)
           : L.latLng(xyToLatLng(pin.x, pin.y).lat, xyToLatLng(pin.x, pin.y).lng);
         const pt = map.latLngToContainerPoint(ll);
-        const r = 80;
-        const gradient = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
-        const c = categoryColor[pin.category] || '#888';
-        gradient.addColorStop(0, c + 'CC');
-        gradient.addColorStop(0.3, c + '88');
-        gradient.addColorStop(0.6, c + '33');
-        gradient.addColorStop(1, c + '00');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(pt.x - r, pt.y - r, r * 2, r * 2);
+        const cat = pin.category;
+        if (!byCategory[cat]) byCategory[cat] = [];
+        byCategory[cat].push({ x: pt.x, y: pt.y });
+      });
+
+      // Draw each category as a merged layer
+      Object.entries(byCategory).forEach(([cat, points]) => {
+        const c = categoryColor[cat] || '#888';
+        const r = 120;
+        points.forEach(pt => {
+          const gradient = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
+          gradient.addColorStop(0, c + 'AA');
+          gradient.addColorStop(0.2, c + '77');
+          gradient.addColorStop(0.5, c + '33');
+          gradient.addColorStop(0.8, c + '11');
+          gradient.addColorStop(1, c + '00');
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+          ctx.fill();
+        });
       });
     }
 
@@ -331,7 +347,7 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity }: {
     : btnBase;
 
   return (
-    <div className="leaflet-control" style={{ position: 'absolute', right: 'var(--grid-gap, 16px)', top: 'calc(var(--grid-gap, 16px) * 2 + 64px + 48px)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="leaflet-control" style={{ position: 'absolute', right: 30, top: 'calc(30px * 2 + 64px + 48px)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
       <button onClick={handleZoomIn}
         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
         style={dimInStyle} title={atMaxZoom ? 'Maximum zoom reached' : 'Zoom in'}>
@@ -504,8 +520,8 @@ export default function StreetMapView({
 
       {/* Map source attribution */}
       <div
-        className="fixed z-30 font-display text-muted-foreground/60"
-        style={{ bottom: 'var(--grid-gap)', left: 'var(--grid-gap)', fontSize: '10px' }}
+        className="fixed z-30 text-muted-foreground/60"
+        style={{ bottom: 30, left: 30, fontSize: '10px', fontFamily: "'Public Sans', sans-serif" }}
       >
         {streetOpacity > 0.2 && <span>Streets: <a href="https://carto.com" target="_blank" rel="noopener" className="underline hover:text-foreground/60">CARTO</a> / <a href="https://www.openstreetmap.org" target="_blank" rel="noopener" className="underline hover:text-foreground/60">OSM</a></span>}
         {streetOpacity > 0.2 && welikiaOpacity > 0 && <span className="mx-1">·</span>}

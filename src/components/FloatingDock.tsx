@@ -27,8 +27,8 @@ export default function FloatingDock({ onAdd }: FloatingDockProps) {
       transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.3 }}
     >
       <div
-        className="w-full flex items-center justify-center gap-6 px-6 py-4"
-        style={{ background: 'hsla(15, 16%, 12%, 0.92)' }}
+        className="w-full flex items-center justify-evenly py-4"
+        style={{ background: 'hsla(15, 16%, 12%, 0.92)', paddingLeft: 30, paddingRight: 30 }}
       >
         {items.map((item) => (
           <button
