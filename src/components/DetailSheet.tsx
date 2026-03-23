@@ -306,7 +306,9 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick }: Detail
               {!locationField && (
                 <div className="flex items-center gap-3" style={{ opacity: 0.8 }}>
                   <img src={locatorIcon} alt="" style={{ width: '18px', height: '18px' }} />
-                  <span className="text-foreground italic" style={{ fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400 }}>{pin.distance}</span>
+                  <span style={{ fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400 }}>
+                    <span className="underline" style={{ color: '#DAE16B' }}>{pin.distance}</span>
+                  </span>
                 </div>
               )}
             </div>
