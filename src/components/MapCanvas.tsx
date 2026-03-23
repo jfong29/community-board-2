@@ -12,9 +12,11 @@ import AddPinModal from './AddPinModal';
 import ChatPanel from './ChatPanel';
 import EcoStatusBar from './EcoStatusBar';
 import StreetMapView, { MapLayer } from './StreetMapView';
+import ConnectingPosts from './ConnectingPosts';
 import { usePosts } from '@/hooks/use-posts';
 import { useProfile } from '@/hooks/use-profile';
 import layersIcon from '@/assets/layers.svg';
+import connectionsIcon from '@/assets/connections.svg';
 import humanIcon from '@/assets/human.svg';
 import bothIcon from '@/assets/both.svg';
 import welikiaLayerIcon from '@/assets/welikia-icon.svg';
@@ -54,6 +56,7 @@ export default function MapCanvas() {
   const [showNeighborhoodInfo, setShowNeighborhoodInfo] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(12);
   const [layerMenuOpen, setLayerMenuOpen] = useState(false);
+  const [showConnections, setShowConnections] = useState(false);
 
   // Layer-based pin filtering: streets = human only, trees = nonhuman only, both = all
   const layerFilteredPins = useMemo(() => {
@@ -200,10 +203,28 @@ export default function MapCanvas() {
         )}
       </AnimatePresence>
 
-      {/* Layer toggle */}
+      {/* Connections icon - top left aligned with zoom controls */}
+      <motion.div
+        className="fixed z-40"
+        style={{ top: 'calc(30px * 2 + 64px)', left: '30px' }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <button
+          onClick={() => setShowConnections(true)}
+          className="w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
+          title="Connecting posts"
+          style={{ background: 'hsla(15,16%,17%,0.92)', border: '1px solid hsla(15,12%,30%,0.5)' }}
+        >
+          <img src={connectionsIcon} alt="Connections" className="w-5 h-5" />
+        </button>
+      </motion.div>
+
+      {/* Layer toggle - aligned with zoom controls (right side) */}
       <motion.div
         className="fixed z-40 flex items-center"
-        style={{ top: 'calc(var(--grid-gap) * 2 + 64px)', right: 'var(--grid-gap)' }}
+        style={{ top: 'calc(30px * 2 + 64px)', right: '30px' }}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
@@ -242,6 +263,7 @@ export default function MapCanvas() {
           onClick={() => setLayerMenuOpen(!layerMenuOpen)}
           className="w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
           title="Map layers"
+          style={{ background: 'hsla(15,16%,17%,0.92)', border: '1px solid hsla(15,12%,30%,0.5)' }}
         >
           <img src={layersIcon} alt="Layers" className="w-5 h-4" />
         </button>
@@ -265,6 +287,7 @@ export default function MapCanvas() {
       <SubcategorySheet subcategory={activeSubcategory} onClose={() => setActiveSubcategory(null)} onPinSelect={(pin) => { setActiveSubcategory(null); handlePinSelect(pin); }} />
       <AddPinModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddPin} />
       <ChatPanel pin={chatPin} onClose={() => setChatPin(null)} onBackToPin={(pin) => { setChatPin(null); handlePinSelect(pin); }} />
+      <ConnectingPosts open={showConnections} onClose={() => setShowConnections(false)} pins={allPins} />
     </div>
   );
 }

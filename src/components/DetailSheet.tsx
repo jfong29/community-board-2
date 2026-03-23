@@ -10,7 +10,8 @@ import gatheringNoOutline from '@/assets/gathering.svg';
 import nameIcon from '@/assets/name-icon.svg';
 import clockIcon from '@/assets/clock.svg';
 import locationIcon from '@/assets/location.svg';
-import savedIcon from '@/assets/add-to-saved.svg';
+import addToSavedIcon from '@/assets/add-to-saved.svg';
+import savedFullIcon from '@/assets/saved.svg';
 import sendIcon from '@/assets/send-icon.svg';
 import chatBubble from '@/assets/chat-bubble.svg';
 import arrowRight from '@/assets/arrow-right.svg';
@@ -428,12 +429,11 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                     style={{ width: '22px', height: '26px' }}
                   >
                     <img
-                      src={savedIcon}
-                      alt="Save"
+                      src={saved ? savedFullIcon : addToSavedIcon}
+                      alt={saved ? 'Saved' : 'Save'}
                       style={{
                         width: '22px',
                         height: '26px',
-                        opacity: saved ? 1 : 0.7,
                       }}
                     />
                   </button>
