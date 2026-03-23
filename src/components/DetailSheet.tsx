@@ -38,10 +38,10 @@ const categoryLabels: Record<string, string> = {
 };
 
 const categoryIcons: Record<string, string> = {
-  offer: offerIcon,
-  request: requestIcon,
-  observation: observationIcon,
-  event: gatheringIcon,
+  offer: offerNoOutline,
+  request: requestNoOutline,
+  observation: observationNoOutline,
+  event: gatheringNoOutline,
 };
 
 // Known NYC organizations (groups vs individuals)
