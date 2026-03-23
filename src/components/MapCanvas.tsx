@@ -58,7 +58,7 @@ export default function MapCanvas() {
   const [currentZoom, setCurrentZoom] = useState(12);
   const [layerMenuOpen, setLayerMenuOpen] = useState(false);
   const [showConnections, setShowConnections] = useState(false);
-
+  const [hidePins, setHidePins] = useState(false);
   // Layer-based pin filtering: streets = human only, trees = nonhuman only, both = all
   const layerFilteredPins = useMemo(() => {
     if (mapLayer === 'streets') return allPins.filter(p => !isNonhumanPin(p));
