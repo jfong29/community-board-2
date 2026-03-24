@@ -12,17 +12,7 @@ const languages = ['English', 'Lenape', 'Español', 'Français'];
 const timezones = ['EST (UTC-5)', 'CST (UTC-6)', 'MST (UTC-7)', 'PST (UTC-8)'];
 const pronounOptions = ['he/him', 'she/her', 'they/them', 'ze/zir', 'Custom'];
 
-const mockChats = [
-  { id: '1', with: 'River Keeper', lastMessage: 'The persimmons are ready!', time: '2h ago' },
-  { id: '2', with: 'Basket Weaver', lastMessage: 'I can bring cedar bark tomorrow', time: '5h ago' },
-  { id: '3', with: 'Council', lastMessage: 'Assembly moved to new moon', time: '1d ago' },
-];
-
-const mockVotes = [
-  { id: '1', title: 'Restrict Eastern Trail Access', voted: 'yes', total: 79 },
-  { id: '2', title: 'Expand Seed Library Hours', voted: 'yes', total: 45 },
-  { id: '3', title: 'New Composting Station Location', voted: 'no', total: 62 },
-];
+const pronounOptions = ['he/him', 'she/her', 'they/them', 'ze/zir', 'Custom'];
 
 const categoryColorMap: Record<string, string> = {
   offer: 'hsl(184, 100%, 27%)',
