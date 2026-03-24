@@ -306,6 +306,20 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
           </motion.div>
         </>
       )}
+
+      {/* Recommendation overlay for requests */}
+      <PostRecommendation
+        open={showRecommendation}
+        newPost={{ category, title, description, subcategory: subcategory || 'General' }}
+        onAccept={(pin) => {
+          // User accepted recommendation - still upload their post too
+          doSubmit();
+        }}
+        onSkip={() => {
+          // User skipped - proceed with upload
+          doSubmit();
+        }}
+      />
     </AnimatePresence>
   );
 }
