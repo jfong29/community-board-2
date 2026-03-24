@@ -60,30 +60,42 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-    onSubmit({
-      category,
-      title,
-      description: [
-        description,
-        quantity && `#${quantity}`,
-        location && `📍 ${location}`,
-        timeframe && `🕐 ${timeframe}`,
-        contact && `💬 ${contact}`,
-        fulfillment.length > 0 && (category === 'offer' || category === 'request') && `📦 ${fulfillment.join(', ')}`,
-      ].filter(Boolean).join('\n'),
-      subcategory: subcategory || 'General',
-      distance: 'Nearby',
-      postedBy: 'You',
-      lat: pinLat ?? undefined,
-      lng: pinLng ?? undefined,
-    });
+  const pendingSubmitData = () => ({
+    category,
+    title,
+    description: [
+      description,
+      quantity && `#${quantity}`,
+      location && `📍 ${location}`,
+      timeframe && `🕐 ${timeframe}`,
+      contact && `💬 ${contact}`,
+      fulfillment.length > 0 && (category === 'offer' || category === 'request') && `📦 ${fulfillment.join(', ')}`,
+    ].filter(Boolean).join('\n'),
+    subcategory: subcategory || 'General',
+    distance: 'Nearby',
+    postedBy: 'You',
+    lat: pinLat ?? undefined,
+    lng: pinLng ?? undefined,
+  });
+
+  const doSubmit = () => {
+    onSubmit(pendingSubmitData());
     setTitle(''); setDescription(''); setSubcategory(''); setContact('');
     setLocation(''); setFulfillment([]); setTimeframe(''); setQuantity('');
     setPinLat(null); setPinLng(null);
+    setShowRecommendation(false);
     onClose();
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    // For requests, show recommendation first
+    if (category === 'request') {
+      setShowRecommendation(true);
+    } else {
+      doSubmit();
+    }
   };
 
   const inputClass = "w-full bg-muted/30 border border-border/40 rounded-xl px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-lime font-body";
