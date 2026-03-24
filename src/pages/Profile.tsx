@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, MessageCircle, Vote, ScrollText, Settings, Check, MapPin, ChevronRight } from 'lucide-react';
+import { ArrowLeft, User, ScrollText, Settings, Check, ChevronRight } from 'lucide-react';
 import { useProfile } from '@/hooks/use-profile';
 import { usePosts } from '@/hooks/use-posts';
 import PinIcon from '@/components/PinIcon';
