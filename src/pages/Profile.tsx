@@ -1,28 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, MessageCircle, Vote, ScrollText, Settings, Check, MapPin, ChevronRight } from 'lucide-react';
+import { ArrowLeft, User, ScrollText, Settings, Check, ChevronRight } from 'lucide-react';
 import { useProfile } from '@/hooks/use-profile';
 import { usePosts } from '@/hooks/use-posts';
 import PinIcon from '@/components/PinIcon';
 
-type Tab = 'settings' | 'chats' | 'votes' | 'log';
+type Tab = 'settings' | 'log';
 
 const languages = ['English', 'Lenape', 'Español', 'Français'];
 const timezones = ['EST (UTC-5)', 'CST (UTC-6)', 'MST (UTC-7)', 'PST (UTC-8)'];
 const pronounOptions = ['he/him', 'she/her', 'they/them', 'ze/zir', 'Custom'];
-
-const mockChats = [
-  { id: '1', with: 'River Keeper', lastMessage: 'The persimmons are ready!', time: '2h ago' },
-  { id: '2', with: 'Basket Weaver', lastMessage: 'I can bring cedar bark tomorrow', time: '5h ago' },
-  { id: '3', with: 'Council', lastMessage: 'Assembly moved to new moon', time: '1d ago' },
-];
-
-const mockVotes = [
-  { id: '1', title: 'Restrict Eastern Trail Access', voted: 'yes', total: 79 },
-  { id: '2', title: 'Expand Seed Library Hours', voted: 'yes', total: 45 },
-  { id: '3', title: 'New Composting Station Location', voted: 'no', total: 62 },
-];
 
 const categoryColorMap: Record<string, string> = {
   offer: 'hsl(184, 100%, 27%)',
@@ -79,8 +67,6 @@ export default function Profile() {
   const tabs: { key: Tab; icon: React.ReactNode; label: string }[] = [
     { key: 'settings', icon: <Settings size={16} />, label: 'Settings' },
     { key: 'log', icon: <ScrollText size={16} />, label: 'Log' },
-    { key: 'chats', icon: <MessageCircle size={16} />, label: 'Chats' },
-    { key: 'votes', icon: <Vote size={16} />, label: 'Votes' },
   ];
 
   if (isLoading) {
@@ -265,40 +251,6 @@ export default function Profile() {
           </motion.div>
         )}
 
-        {tab === 'chats' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
-            {mockChats.map((chat) => (
-              <div key={chat.id} className="earth-panel rounded-xl p-3 flex items-center gap-3 hover:bg-muted/20 transition-colors cursor-pointer">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <User size={14} className="text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-display font-semibold text-foreground">{chat.with}</p>
-                  <p className="text-xs text-muted-foreground truncate">{chat.lastMessage}</p>
-                </div>
-                <span className="text-[10px] text-muted-foreground flex-shrink-0">{chat.time}</span>
-              </div>
-            ))}
-          </motion.div>
-        )}
-
-        {tab === 'votes' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
-            {mockVotes.map((vote) => (
-              <div key={vote.id} className="earth-panel rounded-xl p-3 space-y-2">
-                <p className="text-sm font-display font-semibold text-foreground">{vote.title}</p>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className={`px-2 py-0.5 rounded-full font-display font-medium ${
-                    vote.voted === 'yes' ? 'bg-observation/20 text-observation' : 'bg-destructive/20 text-destructive'
-                  }`}>
-                    You voted {vote.voted}
-                  </span>
-                  <span className="text-muted-foreground">{vote.total} total votes</span>
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        )}
       </div>
     </div>
   );

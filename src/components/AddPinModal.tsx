@@ -3,6 +3,7 @@ import { PinCategory, Pin } from '@/data/pins';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import LocationPicker from './LocationPicker';
+import PostRecommendation from './PostRecommendation';
 import offerIcon from '@/assets/offer.svg';
 import requestIcon from '@/assets/request.svg';
 import observationIcon from '@/assets/observation.svg';
@@ -34,6 +35,7 @@ const fulfillmentOptions: Record<string, string[]> = {
 };
 
 export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProps) {
+  const [showRecommendation, setShowRecommendation] = useState(false);
   const [category, setCategory] = useState<PinCategory>('offer');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -58,30 +60,42 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-    onSubmit({
-      category,
-      title,
-      description: [
-        description,
-        quantity && `#${quantity}`,
-        location && `📍 ${location}`,
-        timeframe && `🕐 ${timeframe}`,
-        contact && `💬 ${contact}`,
-        fulfillment.length > 0 && (category === 'offer' || category === 'request') && `📦 ${fulfillment.join(', ')}`,
-      ].filter(Boolean).join('\n'),
-      subcategory: subcategory || 'General',
-      distance: 'Nearby',
-      postedBy: 'You',
-      lat: pinLat ?? undefined,
-      lng: pinLng ?? undefined,
-    });
+  const pendingSubmitData = () => ({
+    category,
+    title,
+    description: [
+      description,
+      quantity && `#${quantity}`,
+      location && `📍 ${location}`,
+      timeframe && `🕐 ${timeframe}`,
+      contact && `💬 ${contact}`,
+      fulfillment.length > 0 && (category === 'offer' || category === 'request') && `📦 ${fulfillment.join(', ')}`,
+    ].filter(Boolean).join('\n'),
+    subcategory: subcategory || 'General',
+    distance: 'Nearby',
+    postedBy: 'You',
+    lat: pinLat ?? undefined,
+    lng: pinLng ?? undefined,
+  });
+
+  const doSubmit = () => {
+    onSubmit(pendingSubmitData());
     setTitle(''); setDescription(''); setSubcategory(''); setContact('');
     setLocation(''); setFulfillment([]); setTimeframe(''); setQuantity('');
     setPinLat(null); setPinLng(null);
+    setShowRecommendation(false);
     onClose();
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    // For requests, show recommendation first
+    if (category === 'request') {
+      setShowRecommendation(true);
+    } else {
+      doSubmit();
+    }
   };
 
   const inputClass = "w-full bg-muted/30 border border-border/40 rounded-xl px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-lime font-body";
@@ -292,6 +306,20 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
           </motion.div>
         </>
       )}
+
+      {/* Recommendation overlay for requests */}
+      <PostRecommendation
+        open={showRecommendation}
+        newPost={{ category, title, description, subcategory: subcategory || 'General' }}
+        onAccept={(pin) => {
+          // User accepted recommendation - still upload their post too
+          doSubmit();
+        }}
+        onSkip={() => {
+          // User skipped - proceed with upload
+          doSubmit();
+        }}
+      />
     </AnimatePresence>
   );
 }

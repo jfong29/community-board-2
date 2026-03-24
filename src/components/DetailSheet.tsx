@@ -100,10 +100,8 @@ function computeDaysAway(timeframeValue: string): string | null {
   return `${diffDays} days away`;
 }
 
-// Generate a plausible timeframe for pins that lack one
 function getTimeframe(pin: Pin): string | null {
   if (pin.category === 'observation') return null;
-  // Generate deterministic date from pin id
   const hash = pin.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
   const daysAhead = (hash % 14) + 1;
   const date = new Date();
@@ -124,7 +122,6 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
   const [showSourceProfile, setShowSourceProfile] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Compute blocks away (must be before early return for hooks rules)
   const blocksAway = useMemo(() => {
     if (!pin) return 0;
     const hash = pin.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -172,357 +169,378 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
   return (
     <AnimatePresence>
       {pin && (
-        <motion.div
-          className="fixed bottom-0 left-0 right-0 z-50"
-          style={{ padding: '0 30px 90px 30px' }}
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        >
-          <div className="flex items-center justify-center gap-2 max-w-md mx-auto">
-            {/* Left arrow - previous post */}
-            {onPrevPin && (
-              <button
-                onClick={onPrevPin}
-                className="flex-shrink-0 transition-all hover:scale-110 active:scale-95"
-                style={{ width: '17px', height: '26px', transform: 'scaleX(-1)' }}
-              >
-                <img src={nextPostArrow} alt="Previous" style={{ width: '17px', height: '26px' }} />
-              </button>
-            )}
+        <>
+          {/* Dark overlay for mobile - clicking outside closes */}
+          <motion.div
+            className="fixed inset-0 z-[49]"
+            style={{ background: 'rgba(0,0,0,0.50)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
 
-            {/* Main card */}
-            <div
-              className="overflow-hidden flex-1 max-w-md"
-              style={{
-                background: 'hsla(15, 18%, 16%, 0.90)',
-                borderRadius: '10px',
-              }}
-            >
-              {/* Row 1: Category icon + label + subcategory pill ... close X */}
-              <div className="flex items-center justify-between" style={{ padding: '20px 20px 0 28px' }}>
-                <div className="flex items-center gap-2">
-                  <img src={categoryIconSrc} alt="" style={{ width: '18px', height: '15px' }} />
-                  <span
-                    style={{
-                      color: accentColor,
-                      fontSize: '16px',
-                      fontFamily: "'Public Sans', sans-serif",
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      lineHeight: '19.2px',
-                    }}
-                  >
-                    {categoryLabel}
-                  </span>
-
-                  {/* Subcategory pill */}
-                  <button
-                    onClick={() => onTagClick?.(pin.subcategory)}
-                    className="inline-flex items-center rounded-full transition-all hover:scale-105 active:scale-95"
-                    style={{
-                      border: `1.2px solid ${accentColor}`,
-                      color: accentColor,
-                      backgroundColor: `${accentColor}18`,
-                      fontSize: '12px',
-                      fontFamily: "'Public Sans', sans-serif",
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      padding: '4px 10px',
-                      lineHeight: '14.4px',
-                      gap: '4px',
-                    }}
-                  >
-                    {pin.subcategory.toUpperCase()}
-                    <img src={arrowRight} alt="" style={{ width: '6px', height: '9px' }} />
-                  </button>
-                </div>
-
+          <motion.div
+            className="fixed bottom-0 left-0 right-0 z-50"
+            style={{ padding: '0 16px 90px 16px' }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          >
+            <div className="flex items-center justify-center gap-2 max-w-[360px] mx-auto">
+              {/* Left arrow */}
+              {onPrevPin && (
                 <button
-                  onClick={onClose}
-                  className="flex items-center justify-center hover:opacity-80 transition-opacity"
-                  style={{ width: '27px', height: '26px' }}
+                  onClick={onPrevPin}
+                  className="flex-shrink-0 transition-all hover:scale-110 active:scale-95"
+                  style={{ width: '17px', height: '26px', transform: 'scaleX(-1)' }}
                 >
-                  <img src={closeTab} alt="Close" style={{ width: '27px', height: '26px' }} />
+                  <img src={nextPostArrow} alt="Previous" style={{ width: '17px', height: '26px' }} />
                 </button>
-              </div>
-
-              {/* Row 2: Title */}
-              <h2
-                className="font-display text-foreground"
-                style={{
-                  fontSize: '35px',
-                  fontWeight: 600,
-                  lineHeight: '42px',
-                  padding: '8px 28px 0 28px',
-                }}
-              >
-                {pin.title}
-              </h2>
-
-              {/* Row 3: Description */}
-              {mainDesc && (
-                <p
-                  className="text-foreground"
-                  style={{
-                    fontSize: '16px',
-                    fontFamily: "'Public Sans', sans-serif",
-                    fontWeight: 600,
-                    lineHeight: '22px',
-                    padding: '12px 28px 0 28px',
-                  }}
-                >
-                  {mainDesc}
-                </p>
               )}
 
-              {/* Metadata rows — always 3 lines: Person, Time, Location */}
-              <div style={{ padding: '16px 28px 0 28px' }} className="space-y-2">
-                {/* 1. Posted by */}
-                <div className="flex items-center gap-3" style={{ opacity: 0.8 }}>
-                  <img src={nameIcon} alt="" style={{ width: '16px', height: '18px' }} />
-                  <button
-                    onClick={() => setShowSourceProfile(!showSourceProfile)}
-                    className="underline underline-offset-2 transition-colors hover:opacity-100"
+              {/* Main card - matches exact spec */}
+              <div
+                className="flex-1 relative"
+                style={{
+                  maxWidth: '360px',
+                  boxShadow: '1px 4px 24px 10px rgba(0, 0, 0, 0.55)',
+                }}
+              >
+                <div
+                  className="relative"
+                  style={{
+                    background: '#322924',
+                    opacity: 0.90,
+                    borderRadius: '7.8px',
+                    border: `1px solid ${accentColor}`,
+                    position: 'absolute',
+                    inset: 0,
+                  }}
+                />
+                <div
+                  className="relative"
+                  style={{
+                    padding: '17px 20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '7.5px',
+                  }}
+                >
+                  {/* Row 1: Category + subcategory + close */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-[5px]">
+                      <img src={categoryIconSrc} alt="" style={{ width: '15px', height: '13px' }} />
+                      <span
+                        style={{
+                          color: accentColor,
+                          fontSize: '12px',
+                          fontFamily: "'Public Sans', sans-serif",
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          lineHeight: '14.4px',
+                        }}
+                      >
+                        {categoryLabel}
+                      </span>
+
+                      <button
+                        onClick={() => onTagClick?.(pin.subcategory)}
+                        className="inline-flex items-center rounded-full transition-all hover:scale-105 active:scale-95"
+                        style={{
+                          border: `0.94px solid ${accentColor}`,
+                          backgroundColor: `${accentColor}18`,
+                          padding: '2px 8px',
+                        }}
+                      >
+                        <span
+                          style={{
+                            color: accentColor,
+                            fontSize: '10px',
+                            fontFamily: "'Public Sans', sans-serif",
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            lineHeight: '12px',
+                          }}
+                        >
+                          {pin.subcategory}
+                        </span>
+                        <img src={arrowRight} alt="" style={{ width: '3px', height: '5.5px', marginLeft: '4px' }} />
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={onClose}
+                      className="flex items-center justify-center hover:opacity-80 transition-opacity"
+                      style={{ width: '22px', height: '22px' }}
+                    >
+                      <img src={closeTab} alt="Close" style={{ width: '22px', height: '22px' }} />
+                    </button>
+                  </div>
+
+                  {/* Title */}
+                  <h2
                     style={{
-                      color: limeColor,
-                      fontSize: '16px',
-                      fontFamily: "'Public Sans', sans-serif",
-                      fontWeight: 400,
+                      color: '#F4EDE8',
+                      fontSize: '20px',
+                      fontFamily: "'Labrada', serif",
+                      fontWeight: 600,
+                      lineHeight: '24px',
                     }}
                   >
-                    {pin.postedBy}
-                  </button>
+                    {pin.title}
+                  </h2>
+
+                  {/* Description */}
+                  {mainDesc && (
+                    <p
+                      style={{
+                        color: '#F4EDE8',
+                        fontSize: '12px',
+                        fontFamily: "'Public Sans', sans-serif",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {mainDesc}
+                    </p>
+                  )}
+
+                  {/* Metadata: Person, Time, Location */}
+                  <div className="space-y-1" style={{ marginTop: '4px' }}>
+                    {/* Person */}
+                    <div className="flex items-center gap-2" style={{ opacity: 0.8 }}>
+                      <img src={nameIcon} alt="" style={{ width: '12px', height: '14px' }} />
+                      <button
+                        onClick={() => setShowSourceProfile(!showSourceProfile)}
+                        className="underline underline-offset-2 transition-colors hover:opacity-100"
+                        style={{
+                          color: limeColor,
+                          fontSize: '10px',
+                          fontFamily: "'Public Sans', sans-serif",
+                          fontWeight: 400,
+                          lineHeight: '12px',
+                        }}
+                      >
+                        {pin.postedBy}
+                      </button>
+                    </div>
+
+                    {/* Time */}
+                    {timeframeValue && (
+                      <div className="flex items-center gap-2" style={{ opacity: 0.8 }}>
+                        <img src={clockIcon} alt="" style={{ width: '14px', height: '14px' }} />
+                        <span style={{ fontSize: '10px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400, lineHeight: '12px' }}>
+                          <span style={{ color: '#F4EDE8' }}>By </span>
+                          <button
+                            onClick={handleDateClick}
+                            className="underline underline-offset-2 hover:opacity-80 transition-opacity"
+                            style={{ color: limeColor }}
+                          >
+                            {timeframeValue}
+                          </button>
+                          {daysAway && (
+                            <>
+                              {'  '}
+                              <span style={{ color: '#F4EDE8', fontStyle: 'italic' }}>{daysAway}</span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Location */}
+                    <div className="flex items-center gap-2" style={{ opacity: 0.8 }}>
+                      <img src={locationIcon} alt="" style={{ width: '11px', height: '14px' }} />
+                      <span style={{ fontSize: '10px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400, lineHeight: '12px' }}>
+                        {exchangeMethod && (
+                          <span style={{ color: '#F4EDE8' }}>{exchangeMethod} </span>
+                        )}
+                        <button
+                          onClick={handleLocationClick}
+                          className="underline underline-offset-2 hover:opacity-80 transition-opacity"
+                          style={{ color: limeColor }}
+                        >
+                          {locationField?.value || pin.distance || 'On site'}
+                        </button>
+                        {'  '}
+                        <span style={{ color: '#F4EDE8', fontStyle: 'italic' }}>{blocksAway} blocks away</span>
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* 2. Time — when is it available/needed/happening */}
-                {timeframeValue && (
-                  <div className="flex items-center gap-3" style={{ opacity: 0.8 }}>
-                    <img src={clockIcon} alt="" style={{ width: '21px', height: '21px' }} />
-                    <span style={{ fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400 }}>
-                      <span className="text-foreground">By </span>
-                      <button
-                        onClick={handleDateClick}
-                        className="underline underline-offset-2 hover:opacity-80 transition-opacity"
-                        style={{ color: limeColor }}
-                      >
-                        {timeframeValue}
-                      </button>
-                      {daysAway && (
-                        <>
-                          {'  '}
-                          <span className="text-foreground italic">{daysAway}</span>
-                        </>
+                {/* Source profile popup */}
+                <AnimatePresence>
+                  {showSourceProfile && (
+                    <motion.div
+                      className="mx-4 mb-3 rounded-xl border border-border/40 p-3 space-y-2 relative"
+                      style={{ background: 'hsla(15, 16%, 18%, 0.9)' }}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {isAutoGenerated && (
+                          <span className="px-2 py-0.5 rounded-full bg-muted/40 text-muted-foreground" style={{ fontSize: '10px', fontFamily: "'Public Sans', sans-serif", fontWeight: 600 }}>
+                            Auto-generated
+                          </span>
+                        )}
+                        {isOrg && (
+                          <span className="px-2 py-0.5 rounded-full" style={{ backgroundColor: `${accentColor}20`, color: accentColor, fontSize: '10px', fontFamily: "'Public Sans', sans-serif", fontWeight: 600 }}>
+                            Organization
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-display text-foreground" style={{ fontSize: '14px', fontWeight: 600 }}>
+                        {pin.sourceOrg || pin.postedBy}
+                      </p>
+                      {!isOrg && <p className="text-muted-foreground" style={{ fontSize: '12px', fontFamily: "'Public Sans', sans-serif" }}>Community member</p>}
+                      {hasExternalLink && (
+                        <a
+                          href={pin.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95"
+                          style={{ color: accentColor, fontSize: '13px', fontFamily: "'Public Sans', sans-serif", fontWeight: 600 }}
+                        >
+                          <ExternalLink size={13} />
+                          Volunteer / Learn More
+                        </a>
                       )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Connected Event */}
+                {pin.connectedEvent && (
+                  <div className="flex items-center gap-2 relative" style={{ padding: '0 20px 8px 20px' }}>
+                    <span style={{ opacity: 0.8, fontSize: '10px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400, color: '#F4EDE8' }}>
+                      Connected Event:
+                    </span>
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-full"
+                      style={{
+                        backgroundColor: `${limeColor}CC`,
+                        color: '#322924',
+                        fontSize: '10px',
+                        fontFamily: "'Public Sans', sans-serif",
+                        fontWeight: 700,
+                        padding: '2px 10px',
+                      }}
+                    >
+                      <img src={gatheringNoOutline} alt="" style={{ width: '6px', height: '10px' }} />
+                      {pin.connectedEvent}
                     </span>
                   </div>
                 )}
 
-                {/* 3. Location — with exchange method for offers/requests */}
-                <div className="flex items-center gap-3" style={{ opacity: 0.8 }}>
-                  <img src={locationIcon} alt="" style={{ width: '15px', height: '19px' }} />
-                  <span style={{ fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400 }}>
-                    {exchangeMethod && (
-                      <span className="text-foreground">{exchangeMethod} </span>
-                    )}
+                {/* Bottom action bar */}
+                <div
+                  className="flex items-center justify-between relative"
+                  style={{ padding: '8px 20px 12px 20px' }}
+                >
+                  <div className="flex items-center gap-3">
                     <button
-                      onClick={handleLocationClick}
-                      className="underline underline-offset-2 hover:opacity-80 transition-opacity"
-                      style={{ color: limeColor }}
+                      onClick={() => setSaved(!saved)}
+                      className="flex items-center justify-center transition-colors hover:opacity-80"
+                      title={saved ? 'Unsave' : 'Save'}
+                      style={{ width: '18px', height: '22px' }}
                     >
-                      {locationField?.value || pin.distance || 'On site'}
+                      <img
+                        src={saved ? savedFullIcon : addToSavedIcon}
+                        alt={saved ? 'Saved' : 'Save'}
+                        style={{ width: '18px', height: '22px' }}
+                      />
                     </button>
-                    {'  '}
-                    <span className="text-foreground italic">{blocksAway} blocks away</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Source profile popup */}
-              <AnimatePresence>
-                {showSourceProfile && (
-                  <motion.div
-                    className="mx-7 mt-3 rounded-xl border border-border/40 p-3 space-y-2"
-                    style={{ background: 'hsla(15, 16%, 18%, 0.9)' }}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {isAutoGenerated && (
-                        <span className="px-2 py-0.5 rounded-full bg-muted/40 text-muted-foreground" style={{ fontSize: '10px', fontFamily: "'Public Sans', sans-serif", fontWeight: 600 }}>
-                          Auto-generated
-                        </span>
-                      )}
-                      {isOrg && (
-                        <span className="px-2 py-0.5 rounded-full" style={{ backgroundColor: `${accentColor}20`, color: accentColor, fontSize: '10px', fontFamily: "'Public Sans', sans-serif", fontWeight: 600 }}>
-                          Organization
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-display text-foreground" style={{ fontSize: '14px', fontWeight: 600 }}>
-                      {pin.sourceOrg || pin.postedBy}
-                    </p>
-                    {!isOrg && <p className="text-muted-foreground" style={{ fontSize: '12px', fontFamily: "'Public Sans', sans-serif" }}>Community member</p>}
-                    {hasExternalLink && (
-                      <a
-                        href={pin.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95"
-                        style={{ color: accentColor, fontSize: '13px', fontFamily: "'Public Sans', sans-serif", fontWeight: 600 }}
+                    {!hasExternalLink && (
+                      <button
+                        onClick={() => onChat(pin)}
+                        className="flex items-center justify-center transition-colors hover:opacity-80"
+                        title="Send a message"
+                        style={{ width: '20px', height: '20px' }}
                       >
-                        <ExternalLink size={13} />
-                        Volunteer / Learn More
-                      </a>
+                        <img src={sendIcon} alt="Send" style={{ width: '20px', height: '20px' }} />
+                      </button>
                     )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
 
-              {/* Connected Event row */}
-              {pin.connectedEvent && (
-                <div className="flex items-center gap-2" style={{ padding: '16px 28px 0 28px' }}>
-                  <span className="text-foreground" style={{ opacity: 0.8, fontSize: '16px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400, textTransform: 'capitalize' }}>
-                    Connected Event:
-                  </span>
-                  <span
-                    className="inline-flex items-center gap-1.5 rounded-full"
-                    style={{
-                      backgroundColor: `${limeColor}CC`,
-                      color: '#322924',
-                      fontSize: '12px',
-                      fontFamily: "'Public Sans', sans-serif",
-                      fontWeight: 700,
-                      padding: '4px 14px',
-                    }}
-                  >
-                    <img src={gatheringNoOutline} alt="" style={{ width: '6px', height: '10px' }} />
-                    {pin.connectedEvent}
-                  </span>
-                  <button
-                    className="flex items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95"
-                    style={{
-                      width: '23px',
-                      height: '23px',
-                      border: `1.2px solid ${limeColor}`,
-                      backgroundColor: `${limeColor}18`,
-                    }}
-                  >
-                    <span style={{ color: limeColor, fontSize: '15px', fontFamily: "'Public Sans', sans-serif", fontWeight: 500, lineHeight: 1 }}>+</span>
-                  </button>
-                </div>
-              )}
-
-              {/* Bottom action bar */}
-              <div
-                className="flex items-center justify-between"
-                style={{ padding: '16px 28px 16px 28px', marginTop: '8px' }}
-              >
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setSaved(!saved)}
-                    className="flex items-center justify-center transition-colors hover:opacity-80"
-                    title={saved ? 'Unsave' : 'Save'}
-                    style={{ width: '22px', height: '26px' }}
-                  >
-                    <img
-                      src={saved ? savedFullIcon : addToSavedIcon}
-                      alt={saved ? 'Saved' : 'Save'}
-                      style={{
-                        width: '22px',
-                        height: '26px',
-                      }}
-                    />
-                  </button>
-                  {!hasExternalLink && (
+                  {hasExternalLink ? (
+                    <a
+                      href={pin.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      style={{ position: 'relative' }}
+                    >
+                      <img src={chatBubble} alt="" style={{ width: '100px', height: '28px' }} />
+                      <span
+                        style={{
+                          position: 'absolute',
+                          left: '50%',
+                          top: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          color: '#2D2520',
+                          fontSize: '10px',
+                          fontFamily: "'Public Sans', sans-serif",
+                          fontWeight: 700,
+                          lineHeight: '12px',
+                          whiteSpace: 'nowrap',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        <ExternalLink size={12} />
+                        Learn More
+                      </span>
+                    </a>
+                  ) : (
                     <button
                       onClick={() => onChat(pin)}
-                      className="flex items-center justify-center transition-colors hover:opacity-80"
-                      title="Send a message"
-                      style={{ width: '25px', height: '25px' }}
+                      className="inline-flex items-center transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      style={{ position: 'relative' }}
                     >
-                      <img src={sendIcon} alt="Send" style={{ width: '25px', height: '25px' }} />
+                      <img src={chatBubble} alt="" style={{ width: '100px', height: '28px' }} />
+                      <span
+                        style={{
+                          position: 'absolute',
+                          left: '50%',
+                          top: '48%',
+                          transform: 'translate(-50%, -50%)',
+                          color: '#2D2520',
+                          fontSize: '10px',
+                          fontFamily: "'Public Sans', sans-serif",
+                          fontWeight: 700,
+                          lineHeight: '12px',
+                          whiteSpace: 'nowrap',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        {pin.category === 'request' ? '2 active chatters' : pin.category === 'offer' ? 'Claim' : 'Chat'}
+                        <span style={{ fontSize: '9px' }}>›</span>
+                      </span>
                     </button>
                   )}
                 </div>
-
-                {hasExternalLink ? (
-                  <a
-                    href={pin.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    style={{ position: 'relative' }}
-                  >
-                    <img src={chatBubble} alt="" style={{ width: '123px', height: '33px' }} />
-                    <span
-                      style={{
-                        position: 'absolute',
-                        left: '50%',
-                        top: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        color: '#2D2520',
-                        fontSize: '12px',
-                        fontFamily: "'Public Sans', sans-serif",
-                        fontWeight: 700,
-                        lineHeight: '14.4px',
-                        whiteSpace: 'nowrap',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                      }}
-                    >
-                      <ExternalLink size={14} />
-                      Learn More
-                    </span>
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => onChat(pin)}
-                    className="inline-flex items-center transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    style={{ position: 'relative' }}
-                  >
-                    <img src={chatBubble} alt="" style={{ width: '123px', height: '33px' }} />
-                    <span
-                      style={{
-                        position: 'absolute',
-                        left: '50%',
-                        top: '48%',
-                        transform: 'translate(-50%, -50%)',
-                        color: '#2D2520',
-                        fontSize: '12px',
-                        fontFamily: "'Public Sans', sans-serif",
-                        fontWeight: 700,
-                        lineHeight: '14.4px',
-                        whiteSpace: 'nowrap',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                      }}
-                    >
-                      {pin.category === 'request' ? '2 active chatters' : pin.category === 'offer' ? 'Claim' : 'Chat'}
-                      <span style={{ fontSize: '10px' }}>›</span>
-                    </span>
-                  </button>
-                )}
               </div>
-            </div>
 
-            {/* Right arrow - next post */}
-            {onNextPin && (
-              <button
-                onClick={onNextPin}
-                className="flex-shrink-0 transition-all hover:scale-110 active:scale-95"
-                style={{ width: '17px', height: '26px' }}
-              >
-                <img src={nextPostArrow} alt="Next" style={{ width: '17px', height: '26px' }} />
-              </button>
-            )}
-          </div>
-        </motion.div>
+              {/* Right arrow */}
+              {onNextPin && (
+                <button
+                  onClick={onNextPin}
+                  className="flex-shrink-0 transition-all hover:scale-110 active:scale-95"
+                  style={{ width: '17px', height: '26px' }}
+                >
+                  <img src={nextPostArrow} alt="Next" style={{ width: '17px', height: '26px' }} />
+                </button>
+              )}
+            </div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
