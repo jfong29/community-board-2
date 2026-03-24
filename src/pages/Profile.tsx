@@ -6,7 +6,7 @@ import { useProfile } from '@/hooks/use-profile';
 import { usePosts } from '@/hooks/use-posts';
 import PinIcon from '@/components/PinIcon';
 
-type Tab = 'settings' | 'chats' | 'votes' | 'log';
+type Tab = 'settings' | 'log';
 
 const languages = ['English', 'Lenape', 'Español', 'Français'];
 const timezones = ['EST (UTC-5)', 'CST (UTC-6)', 'MST (UTC-7)', 'PST (UTC-8)'];
