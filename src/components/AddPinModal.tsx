@@ -35,6 +35,7 @@ const fulfillmentOptions: Record<string, string[]> = {
 };
 
 export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProps) {
+  const [showRecommendation, setShowRecommendation] = useState(false);
   const [category, setCategory] = useState<PinCategory>('offer');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
