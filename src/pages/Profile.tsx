@@ -69,8 +69,6 @@ export default function Profile() {
   const tabs: { key: Tab; icon: React.ReactNode; label: string }[] = [
     { key: 'settings', icon: <Settings size={16} />, label: 'Settings' },
     { key: 'log', icon: <ScrollText size={16} />, label: 'Log' },
-    { key: 'chats', icon: <MessageCircle size={16} />, label: 'Chats' },
-    { key: 'votes', icon: <Vote size={16} />, label: 'Votes' },
   ];
 
   if (isLoading) {
