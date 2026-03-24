@@ -253,40 +253,6 @@ export default function Profile() {
           </motion.div>
         )}
 
-        {tab === 'chats' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
-            {mockChats.map((chat) => (
-              <div key={chat.id} className="earth-panel rounded-xl p-3 flex items-center gap-3 hover:bg-muted/20 transition-colors cursor-pointer">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <User size={14} className="text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-display font-semibold text-foreground">{chat.with}</p>
-                  <p className="text-xs text-muted-foreground truncate">{chat.lastMessage}</p>
-                </div>
-                <span className="text-[10px] text-muted-foreground flex-shrink-0">{chat.time}</span>
-              </div>
-            ))}
-          </motion.div>
-        )}
-
-        {tab === 'votes' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
-            {mockVotes.map((vote) => (
-              <div key={vote.id} className="earth-panel rounded-xl p-3 space-y-2">
-                <p className="text-sm font-display font-semibold text-foreground">{vote.title}</p>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className={`px-2 py-0.5 rounded-full font-display font-medium ${
-                    vote.voted === 'yes' ? 'bg-observation/20 text-observation' : 'bg-destructive/20 text-destructive'
-                  }`}>
-                    You voted {vote.voted}
-                  </span>
-                  <span className="text-muted-foreground">{vote.total} total votes</span>
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        )}
       </div>
     </div>
   );
