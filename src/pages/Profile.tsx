@@ -12,8 +12,6 @@ const languages = ['English', 'Lenape', 'Español', 'Français'];
 const timezones = ['EST (UTC-5)', 'CST (UTC-6)', 'MST (UTC-7)', 'PST (UTC-8)'];
 const pronounOptions = ['he/him', 'she/her', 'they/them', 'ze/zir', 'Custom'];
 
-const pronounOptions = ['he/him', 'she/her', 'they/them', 'ze/zir', 'Custom'];
-
 const categoryColorMap: Record<string, string> = {
   offer: 'hsl(184, 100%, 27%)',
   request: 'hsl(22, 100%, 42%)',
