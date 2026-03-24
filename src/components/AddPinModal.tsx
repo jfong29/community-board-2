@@ -3,6 +3,7 @@ import { PinCategory, Pin } from '@/data/pins';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import LocationPicker from './LocationPicker';
+import PostRecommendation from './PostRecommendation';
 import offerIcon from '@/assets/offer.svg';
 import requestIcon from '@/assets/request.svg';
 import observationIcon from '@/assets/observation.svg';
