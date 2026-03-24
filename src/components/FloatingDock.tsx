@@ -1,21 +1,20 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import votesIcon from '@/assets/votes.svg';
 import dataIcon from '@/assets/data.svg';
 import chatsIcon from '@/assets/chats.svg';
 import addPostIcon from '@/assets/add-post.svg';
 
 interface FloatingDockProps {
   onAdd: () => void;
+  onChat?: () => void;
 }
 
-export default function FloatingDock({ onAdd }: FloatingDockProps) {
+export default function FloatingDock({ onAdd, onChat }: FloatingDockProps) {
   const navigate = useNavigate();
 
   const items = [
-    { icon: votesIcon, alt: 'Votes', onClick: () => navigate('/observations'), size: 'h-7' },
-    { icon: dataIcon, alt: 'Data', onClick: () => navigate('/observations'), size: 'h-7' },
-    { icon: chatsIcon, alt: 'Chats', onClick: () => {}, size: 'h-7' },
+    { icon: dataIcon, alt: 'Stats', onClick: () => navigate('/observations'), size: 'h-7' },
+    { icon: chatsIcon, alt: 'Chats', onClick: onChat || (() => {}), size: 'h-7' },
     { icon: addPostIcon, alt: 'Add Post', onClick: onAdd, size: 'h-9' },
   ];
 
