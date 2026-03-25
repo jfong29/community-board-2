@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { observationData, communityActions, ObservationData, CommunityAction } from '@/data/pins';
-import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Vote, Calendar, Check, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Vote, Calendar, Check, X, Globe, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import GlobalClimateView from '@/components/GlobalClimateView';
 
 function StatusRing({ data }: { data: ObservationData }) {
   const radius = 38;
@@ -93,7 +94,6 @@ function ActionCard({ action, onVote }: { action: CommunityAction & { userVote?:
             />
           </div>
 
-          {/* Vote buttons */}
           <div className="flex items-center gap-2 pt-1">
             <motion.button
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-display font-semibold transition-all ${
@@ -143,6 +143,7 @@ function ActionCard({ action, onVote }: { action: CommunityAction & { userVote?:
 
 export default function ObservationsDashboard() {
   const navigate = useNavigate();
+  const [view, setView] = useState<'local' | 'global'>('local');
   const [actions, setActions] = useState<(CommunityAction & { userVote?: 'yes' | 'no' })[]>(
     communityActions.map(a => ({ ...a }))
   );
@@ -150,23 +151,13 @@ export default function ObservationsDashboard() {
   const handleVote = (actionId: string, vote: 'yes' | 'no') => {
     setActions(prev => prev.map(a => {
       if (a.id !== actionId || a.type !== 'vote' || !a.votes) return a;
-
       const prevVote = a.userVote;
       const votes = { ...a.votes };
-
-      // Remove previous vote
       if (prevVote === 'yes') votes.yes--;
       if (prevVote === 'no') votes.no--;
-
-      // Toggle or switch
-      if (prevVote === vote) {
-        return { ...a, votes, userVote: undefined };
-      }
-
-      // Add new vote
+      if (prevVote === vote) return { ...a, votes, userVote: undefined };
       if (vote === 'yes') votes.yes++;
       if (vote === 'no') votes.no++;
-
       return { ...a, votes, userVote: vote };
     }));
   };
@@ -186,40 +177,86 @@ export default function ObservationsDashboard() {
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="font-display text-lg font-bold text-foreground">🌿</h1>
 
-          <div className="flex items-center gap-2 ml-auto">
-            <span className="status-bg-healthy px-2 py-1 rounded-full text-xs font-display status-healthy">{healthyCount}</span>
-            <span className="status-bg-declining px-2 py-1 rounded-full text-xs font-display status-declining">{decliningCount}</span>
-            {criticalCount > 0 && (
-              <span className="status-bg-critical px-2 py-1 rounded-full text-xs font-display status-critical">{criticalCount}</span>
-            )}
+          {/* Local / Global toggle */}
+          <div className="flex items-center bg-muted/30 rounded-full p-0.5 gap-0.5">
+            <button
+              onClick={() => setView('local')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-all ${
+                view === 'local' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+              }`}
+            >
+              <MapPin size={12} />
+              Local
+            </button>
+            <button
+              onClick={() => setView('global')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-all ${
+                view === 'global' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
+              }`}
+            >
+              <Globe size={12} />
+              Global
+            </button>
           </div>
+
+          {view === 'local' && (
+            <div className="flex items-center gap-2 ml-auto">
+              <span className="status-bg-healthy px-2 py-1 rounded-full text-xs font-display status-healthy">{healthyCount}</span>
+              <span className="status-bg-declining px-2 py-1 rounded-full text-xs font-display status-declining">{decliningCount}</span>
+              {criticalCount > 0 && (
+                <span className="status-bg-critical px-2 py-1 rounded-full text-xs font-display status-critical">{criticalCount}</span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-8">
-        <section>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {observationData.map((obs, i) => (
-              <motion.div key={obs.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                <StatusRing data={obs} />
-              </motion.div>
-            ))}
-          </div>
-        </section>
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        <AnimatePresence mode="wait">
+          {view === 'local' ? (
+            <motion.div
+              key="local"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-8"
+            >
+              <section>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {observationData.map((obs, i) => (
+                    <motion.div key={obs.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                      <StatusRing data={obs} />
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
 
-        <section className="space-y-3">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-lg">⟶</span>
-            <h2 className="font-display text-sm font-semibold text-foreground uppercase tracking-widest">Responses</h2>
-          </div>
-          {actions.map((action, i) => (
-            <motion.div key={action.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.1 }}>
-              <ActionCard action={action} onVote={handleVote} />
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-lg">⟶</span>
+                  <h2 className="font-display text-sm font-semibold text-foreground uppercase tracking-widest">Responses</h2>
+                </div>
+                {actions.map((action, i) => (
+                  <motion.div key={action.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.1 }}>
+                    <ActionCard action={action} onVote={handleVote} />
+                  </motion.div>
+                ))}
+              </section>
             </motion.div>
-          ))}
-        </section>
+          ) : (
+            <motion.div
+              key="global"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <GlobalClimateView />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
