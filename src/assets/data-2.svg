@@ -1,0 +1,21 @@
+<svg width="32" height="29" viewBox="0 0 32 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_i_1568_6818)">
+<path d="M11.093 24.1404C10.5328 24.2985 4.92773 24.2319 4.60323 24.1404C4.27873 24.0489 4.60287 14.0815 4.92772 13.9905C5.25257 13.8995 10.7685 13.8985 11.093 13.9905C11.4176 14.0825 11.6533 23.9823 11.093 24.1404Z" fill="#DAE16B"/>
+<path d="M1.92413 28.049C1.76139 28.483 0.13332 28.3002 0.0390619 28.049C-0.0551957 27.7978 0.0389572 0.438249 0.133315 0.188417C0.227674 -0.0614137 1.82986 -0.0641941 1.92413 0.188417C2.01841 0.441029 2.08688 27.615 1.92413 28.049Z" fill="#DAE16B"/>
+<path d="M0.288086 28.2274C-0.190159 28.0879 0.0112896 26.6924 0.288086 26.6116C0.564882 26.5308 30.7163 26.6115 30.9916 26.6924C31.2669 26.7733 31.27 28.1466 30.9916 28.2274C30.7132 28.3082 0.766331 28.3669 0.288086 28.2274Z" fill="#DAE16B"/>
+<path d="M19.568 24.0353C18.9531 24.3703 13.5661 24.2292 13.21 24.0353C12.8539 23.8414 13.2101 2.87893 13.5661 2.52874C13.9221 2.17856 19.2118 2.33374 19.568 2.52874C19.9241 2.72374 20.1828 23.7003 19.568 24.0353Z" fill="#DAE16B"/>
+<path d="M28.1637 24.0954C27.5488 24.3293 22.1618 24.2308 21.8057 24.0954C21.4496 23.9601 21.8058 9.32743 22.1618 9.08299C22.5178 8.83855 27.8075 8.94687 28.1637 9.08299C28.5198 9.21911 28.7785 23.8616 28.1637 24.0954Z" fill="#DAE16B"/>
+</g>
+<defs>
+<filter id="filter0_i_1568_6818" x="0" y="-4" width="31.1992" height="32.3125" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="-4"/>
+<feGaussianBlur stdDeviation="2"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="shape" result="effect1_innerShadow_1568_6818"/>
+</filter>
+</defs>
+</svg>
