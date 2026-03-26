@@ -10,6 +10,7 @@ import requestIcon from '@/assets/request-no-outline.svg';
 import offerIcon from '@/assets/offer-no-outline.svg';
 import observationIcon from '@/assets/observation.svg';
 import checkmarkIcon from '@/assets/checkmark.svg';
+import NestedPinTag, { ConnectedPinTags } from '@/components/NestedPinTag';
 
 const categoryIcons: Record<string, React.ReactNode> = {
   diet: <Utensils size={14} />,
@@ -246,21 +247,22 @@ function PolicyCard({ policy, onVote }: {
         </motion.button>
       </div>
 
-      {/* Connected pins */}
+      {/* Connected pins as nested tags */}
       {policy.connectedPins && policy.connectedPins.length > 0 && (
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
           <span className="text-[13px] text-white/80 capitalize shrink-0" style={{ fontFamily: 'Public Sans' }}>
             Connected Pins:
           </span>
-          {policy.connectedPins.map(pin => (
-            <span key={pin}
-              className="shrink-0 px-2 py-1 rounded-full text-[11.66px] font-bold text-[#322924] flex items-center gap-1"
-              style={{ fontFamily: 'Public Sans', background: 'hsl(var(--offer))' }}>
-              <img src={offerIcon} alt="" className="w-3 h-2.5" style={{ filter: 'brightness(0.3)' }} />
-              {pin}
-              <img src={arrowRight} alt="" className="w-1.5 h-1.5 opacity-60" style={{ filter: 'brightness(0.3)' }} />
-            </span>
-          ))}
+          <ConnectedPinTags
+            parentCategory="request"
+            parentLabel={policy.title.length > 20 ? policy.title.slice(0, 20) + '…' : policy.title}
+            children={policy.connectedPins.map(pin => ({
+              category: 'offer' as const,
+              label: pin,
+              onClick: () => {},
+            }))}
+            compact
+          />
         </div>
       )}
 
@@ -374,30 +376,20 @@ export default function GlobalClimateView() {
         )}
       </AnimatePresence>
 
-      {/* ─── Climate Crisis Tag ─── */}
+      {/* ─── Climate Crisis Tag (Nested) ─── */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className="px-3 py-1.5 rounded-full text-base italic font-medium text-[#D9D9D9]"
           style={{ fontFamily: 'Labrada', background: '#362D26' }}>
           Global
         </span>
-        <div className="px-2.5 py-1.5 rounded-[15px] flex flex-col gap-1.5"
-          style={{ background: 'linear-gradient(180deg, hsla(64, 60%, 65%, 0.8) 0%, hsla(36, 65%, 62%, 0.8) 88%, hsla(64, 32%, 39%, 0.8) 100%)' }}>
-          <div className="flex items-center gap-1.5">
-            <img src={observationIcon} alt="" className="w-3.5 h-3" style={{ filter: 'brightness(0.2)' }} />
-            <span className="text-xs font-bold uppercase text-[#322924]" style={{ fontFamily: 'Public Sans' }}>
-              Climate Crisis
-            </span>
-          </div>
-          <div className="px-2.5 py-1 rounded-full flex items-center gap-1"
-            style={{
-              background: 'linear-gradient(180deg, hsla(18, 100%, 59%, 0.9) 0%, hsla(18, 70%, 45%, 0.9) 100%)',
-              boxShadow: '0px 1px 4px rgba(0,0,0,0.25)'
-            }}>
-            <span className="text-[11.66px] font-bold uppercase text-[#322924]" style={{ fontFamily: 'Public Sans' }}>
-              Greenhouse Gas Emissions
-            </span>
-          </div>
-        </div>
+        <NestedPinTag tag={{
+          category: 'climate',
+          label: 'Climate Crisis',
+          children: [{
+            category: 'observation',
+            label: 'Greenhouse Gas Emissions',
+          }],
+        }} />
       </div>
 
       {/* ─── Hero Data Section ─── */}
