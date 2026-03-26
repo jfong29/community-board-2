@@ -6,9 +6,12 @@ import {
   ClimateIndicator, ClimatePolicy, PersonalAction,
   PolicyScope, EmissionsProjection,
 } from '@/data/climate-global';
-import { Check, X, Leaf, Mail, Bike, ShoppingBag, Zap, Utensils, ExternalLink, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { Leaf, Mail, Bike, ShoppingBag, Zap, Utensils, ExternalLink } from 'lucide-react';
 import requestIcon from '@/assets/request-no-outline.svg';
 import checkmarkIcon from '@/assets/checkmark.svg';
+import arrowSvg from '@/assets/arrow.svg';
+import leftArrow from '@/assets/left-arrow.svg';
+import rightArrow from '@/assets/right-arrow.svg';
 import NestedPinTag, { ConnectedPinTags } from '@/components/NestedPinTag';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -46,7 +49,7 @@ interface GhostLine {
   id: string;
   path: string;
   opacity: number;
-  timeoutId?: ReturnType<typeof setTimeout>;
+  solid: boolean; // true = voted yes, draw solid
 }
 
 function daysUntil(dateStr: string): number {
@@ -60,10 +63,12 @@ function EmissionsChart({
   scope,
   activePolicy,
   ghostLines,
+  supportedPolicyIds,
 }: {
   scope: Exclude<PolicyScope, 'personal'>;
-  activePolicy?: ClimatePolicy;
+  activePolicy?: ClimatePolicy & { userVote?: 'yes' | 'no' };
   ghostLines: GhostLine[];
+  supportedPolicyIds: Set<string>;
 }) {
   const data = emissionsDataByScope[scope];
   const width = 280;
@@ -85,8 +90,9 @@ function EmissionsChart({
   const currentPath = makePath(data.map(d => ({ year: d.year, value: d.currentPolicy })));
   const goalsPath = makePath(data.map(d => ({ year: d.year, value: d.withGoals })));
 
-  // Policy-adjusted line
+  // Active policy line (dashed if not voted, solid if voted yes)
   let policyPath: string | null = null;
+  const isActiveSupported = activePolicy?.userVote === 'yes';
   if (activePolicy) {
     const ghgDelta = activePolicy.impact.find(i => i.indicatorId === 'ghg')?.delta || 0;
     policyPath = makePath(data.map(d => {
@@ -116,7 +122,8 @@ function EmissionsChart({
         {/* Ghost lines from previously supported policies */}
         {ghostLines.map(ghost => (
           <motion.path key={ghost.id} d={ghost.path} fill="none" stroke="hsl(var(--request))"
-            strokeWidth="1.5" strokeDasharray="3,2"
+            strokeWidth={ghost.solid ? '2' : '1.5'}
+            strokeDasharray={ghost.solid ? 'none' : '4,3'}
             initial={{ opacity: 0.4 }}
             animate={{ opacity: ghost.opacity }}
             transition={{ duration: 2 }} />
@@ -126,16 +133,24 @@ function EmissionsChart({
         <motion.path d={currentPath} fill="none" stroke="hsl(var(--observation))" strokeWidth="2"
           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2 }} />
 
-        {/* With-goals baseline */}
-        <motion.path d={goalsPath} fill="none" stroke="hsl(var(--request))" strokeWidth="1.5" strokeDasharray="4,3" opacity={0.5}
+        {/* With-goals baseline (always dashed) */}
+        <motion.path d={goalsPath} fill="none" stroke="hsl(var(--request))" strokeWidth="1.5"
+          strokeDasharray="4,3" opacity={0.35}
           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, delay: 0.2 }} />
 
-        {/* Active policy line */}
+        {/* Active policy line — dashed if not voted, solid if yes */}
         {policyPath && (
-          <motion.path d={policyPath} fill="none" stroke="hsl(var(--request))" strokeWidth="2.5"
-            initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }}
+          <motion.path
+            d={policyPath}
+            fill="none"
+            stroke="hsl(var(--request))"
+            strokeWidth={isActiveSupported ? '2.5' : '2'}
+            strokeDasharray={isActiveSupported ? 'none' : '6,4'}
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
             transition={{ duration: 0.8 }}
-            key={activePolicy?.id} />
+            key={`${activePolicy?.id}-${isActiveSupported}`}
+          />
         )}
 
         {/* End dots */}
@@ -152,14 +167,31 @@ function EmissionsChart({
 
         {/* Annotations */}
         <text x={xScale(lastData.year) - 5} y={yScale(lastData.currentPolicy) - 8} fill="hsl(var(--observation))"
-          fontSize="7" fontFamily="Public Sans" fontWeight="600" textAnchor="end">Current</text>
+          fontSize="7" fontFamily="Public Sans" fontWeight="600" textAnchor="end">Current Action</text>
         {policyPath && activePolicy && (
-          <text x={xScale(lastData.year) - 5} y={yScale(lastData.currentPolicy + (activePolicy.impact.find(i => i.indicatorId === 'ghg')?.delta || 0)) + 14}
+          <text x={xScale(lastData.year) - 5}
+            y={yScale(lastData.currentPolicy + (activePolicy.impact.find(i => i.indicatorId === 'ghg')?.delta || 0)) + 14}
             fill="hsl(var(--request))" fontSize="7" fontFamily="Public Sans" fontWeight="600" textAnchor="end">
-            {activePolicy.title.length > 18 ? activePolicy.title.slice(0, 18) + '…' : activePolicy.title}
+            {isActiveSupported ? '✓ ' : ''}{activePolicy.title.length > 18 ? activePolicy.title.slice(0, 18) + '…' : activePolicy.title}
           </text>
         )}
       </svg>
+
+      {/* Legend */}
+      <div className="flex items-center gap-4 mt-2 text-[9px]" style={{ fontFamily: 'Public Sans' }}>
+        <div className="flex items-center gap-1.5">
+          <div className="w-5 h-[2px] bg-[hsl(var(--observation))]" />
+          <span className="text-[hsl(var(--observation))] font-semibold">Current Action</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-5 h-[2px] border-t-2 border-dashed border-[hsl(var(--request))]" />
+          <span className="text-[hsl(var(--request))] font-semibold">Proposed Policy</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-5 h-[2px] bg-[hsl(var(--request))]" />
+          <span className="text-[hsl(var(--request))] font-semibold">Supported</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -177,13 +209,12 @@ function PersonalTracker({
     .filter(a => committedActions.has(a.id))
     .reduce((sum, a) => sum + a.personalKgCO2e, 0);
 
-  const baseline = 16000; // 16 tCO2e US avg in kg
+  const baseline = 16000;
   const current = baseline - totalSaved;
   const pct = Math.round((totalSaved / baseline) * 100);
 
   return (
     <div className="space-y-5">
-      {/* Personal footprint summary */}
       <div className="earth-panel rounded-2xl p-5 space-y-3">
         <h3 className="text-lg italic font-medium text-foreground" style={{ fontFamily: 'Labrada' }}>
           Your Carbon Footprint
@@ -208,7 +239,6 @@ function PersonalTracker({
             </motion.div>
           )}
         </div>
-        {/* Progress bar */}
         <div className="h-2 rounded-full overflow-hidden" style={{ background: 'hsla(15, 10%, 20%, 0.8)' }}>
           <motion.div className="h-full rounded-full"
             style={{ background: 'linear-gradient(90deg, hsl(var(--offer)), hsl(var(--lime)))' }}
@@ -221,7 +251,6 @@ function PersonalTracker({
         </p>
       </div>
 
-      {/* Commitment cards */}
       {actions.map((action, i) => {
         const isCommitted = committedActions.has(action.id);
         return (
@@ -415,7 +444,6 @@ function PolicyCard({ policy, onVote }: {
           onClick={() => onVote(policy.id, 'no')}
           whileTap={{ scale: 0.95 }}
         >
-          <X size={14} />
           Oppose ({policy.votes.no.toLocaleString()})
         </motion.button>
       </div>
@@ -470,6 +498,7 @@ export default function GlobalClimateView() {
   const [scope, setScope] = useState<PolicyScope>('international');
   const [policyIndex, setPolicyIndex] = useState(0);
   const [ghostLines, setGhostLines] = useState<GhostLine[]>([]);
+  const [pressedArrow, setPressedArrow] = useState<'left' | 'right' | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const animKey = useRef(0);
 
@@ -482,13 +511,13 @@ export default function GlobalClimateView() {
     return () => observer.disconnect();
   }, []);
 
-  // Reset policy index when scope changes
   useEffect(() => {
     setPolicyIndex(0);
   }, [scope]);
 
   const scopePolicies = policies.filter(p => p.scope === scope);
   const currentPolicy = scopePolicies[policyIndex];
+  const supportedPolicyIds = new Set(policies.filter(p => p.userVote === 'yes').map(p => p.id));
 
   const applyDeltas = useCallback((deltas: { indicatorId: string; delta: number }[], multiply: number) => {
     const newAnims: DeltaAnimation[] = [];
@@ -504,7 +533,6 @@ export default function GlobalClimateView() {
     setTimeout(() => setDeltaAnims(prev => prev.filter(a => !newAnims.find(n => n.key === a.key))), 1500);
   }, []);
 
-  // Create ghost line path for a supported policy
   const createGhostPath = useCallback((policy: ClimatePolicy) => {
     if (scope === 'personal') return '';
     const chartScope = scope as Exclude<PolicyScope, 'personal'>;
@@ -544,12 +572,10 @@ export default function GlobalClimateView() {
       const ghostId = `ghost-${policyId}-${Date.now()}`;
       const path = createGhostPath(policy);
       if (path) {
-        setGhostLines(prev => [...prev, { id: ghostId, path, opacity: 0.4 }]);
-        // Fade to 10% after moving to next card
+        setGhostLines(prev => [...prev, { id: ghostId, path, opacity: 0.4, solid: true }]);
         setTimeout(() => {
           setGhostLines(prev => prev.map(g => g.id === ghostId ? { ...g, opacity: 0.1 } : g));
         }, 500);
-        // Remove after 30 seconds
         setTimeout(() => {
           setGhostLines(prev => prev.filter(g => g.id !== ghostId));
         }, 30000);
@@ -567,8 +593,10 @@ export default function GlobalClimateView() {
     applyDeltas(action.impact, isCommitted ? -1 : 1);
   };
 
-  const navPrev = () => setPolicyIndex(i => Math.max(0, i - 1));
-  const navNext = () => setPolicyIndex(i => Math.min(scopePolicies.length - 1, i + 1));
+  const canPrev = policyIndex > 0;
+  const canNext = policyIndex < scopePolicies.length - 1;
+  const navPrev = () => { if (canPrev) setPolicyIndex(i => i - 1); };
+  const navNext = () => { if (canNext) setPolicyIndex(i => i + 1); };
 
   const currentEmissions = indicators.find(i => i.id === 'ghg')?.value ?? 55;
   const projectedTemp = indicators.find(i => i.id === 'temp')?.value ?? 2.6;
@@ -618,7 +646,7 @@ export default function GlobalClimateView() {
           Greenhouse Gas{'\n'}Net Emissions Data
         </h1>
 
-        {/* Big numbers */}
+        {/* Big numbers with arrow between */}
         <div className="flex items-start justify-between px-4 md:px-8">
           <div className="flex flex-col">
             <motion.span className="text-[30px] font-semibold leading-9 text-[hsl(var(--observation))]"
@@ -643,7 +671,7 @@ export default function GlobalClimateView() {
             </AnimatePresence>
           </div>
 
-          <img src={requestIcon} alt="" className="w-5 h-3 mt-3 opacity-70" />
+          <img src={arrowSvg} alt="→" className="w-5 h-2.5 mt-4 shrink-0" />
 
           <div className="flex flex-col items-end">
             <span className="text-[30px] font-semibold leading-9 text-[hsl(var(--request))]"
@@ -656,12 +684,13 @@ export default function GlobalClimateView() {
           </div>
         </div>
 
-        {/* Emissions chart - only for non-personal scopes */}
+        {/* Emissions chart */}
         {!isPersonal && (
           <EmissionsChart
             scope={scope as Exclude<PolicyScope, 'personal'>}
             activePolicy={currentPolicy}
             ghostLines={ghostLines}
+            supportedPolicyIds={supportedPolicyIds}
           />
         )}
 
@@ -768,30 +797,54 @@ export default function GlobalClimateView() {
         {/* Policy Carousel (non-personal) */}
         {!isPersonal && scopePolicies.length > 0 && (
           <div className="relative">
-            {/* Arrow buttons */}
+            {/* Custom arrow buttons */}
             <div className="flex items-center justify-between mb-3">
               <button
                 onClick={navPrev}
-                disabled={policyIndex === 0}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-20"
-                style={{ background: '#362D26' }}
+                onPointerDown={() => setPressedArrow('left')}
+                onPointerUp={() => setPressedArrow(null)}
+                onPointerLeave={() => setPressedArrow(null)}
+                disabled={!canPrev}
+                className="p-2 transition-all active:scale-90"
               >
-                <ChevronLeft size={18} className="text-[#D9D9D9]" />
+                <img
+                  src={leftArrow}
+                  alt="Previous"
+                  className="h-4 w-auto transition-all"
+                  style={{
+                    opacity: canPrev ? 1 : 0.25,
+                    filter: pressedArrow === 'left'
+                      ? 'brightness(0.6)'
+                      : 'none',
+                  }}
+                />
               </button>
               <span className="text-[10px] text-foreground/50" style={{ fontFamily: 'Public Sans' }}>
                 {policyIndex + 1} / {scopePolicies.length}
               </span>
               <button
                 onClick={navNext}
-                disabled={policyIndex === scopePolicies.length - 1}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-20"
-                style={{ background: '#362D26' }}
+                onPointerDown={() => setPressedArrow('right')}
+                onPointerUp={() => setPressedArrow(null)}
+                onPointerLeave={() => setPressedArrow(null)}
+                disabled={!canNext}
+                className="p-2 transition-all active:scale-90"
               >
-                <ChevronRight size={18} className="text-[#D9D9D9]" />
+                <img
+                  src={rightArrow}
+                  alt="Next"
+                  className="h-4 w-auto transition-all"
+                  style={{
+                    opacity: canNext ? 1 : 0.25,
+                    filter: pressedArrow === 'right'
+                      ? 'brightness(0.6)'
+                      : 'none',
+                  }}
+                />
               </button>
             </div>
 
-            {/* Single policy card with AnimatePresence */}
+            {/* Single policy card */}
             <AnimatePresence mode="wait">
               {currentPolicy && (
                 <PolicyCard
