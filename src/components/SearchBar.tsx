@@ -159,7 +159,7 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
           onChange={(e) => { setQuery(e.target.value); setTypingDone(true); }}
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 250)}
-          placeholder="water: requests, offers"
+          placeholder="Search"
           className="w-full h-9 pl-4 pr-12 rounded-full bg-muted/30 border border-border/40 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-lime/50 transition-all"
           style={{ fontFamily: "'Public Sans', sans-serif" }}
         />
