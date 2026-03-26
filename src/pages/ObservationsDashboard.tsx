@@ -4,6 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Users, Vote, Calendar, Check, X, Globe, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import GlobalClimateView from '@/components/GlobalClimateView';
+import DataTopicsView from '@/components/DataTopicsView';
+import ClimateStatsOverview from '@/components/ClimateStatsOverview';
+import FloatingDock from '@/components/FloatingDock';
+
+type GlobalSubView = 'topics' | 'climate-overview' | 'climate-detail';
 
 function StatusRing({ data }: { data: ObservationData }) {
   const radius = 38;
@@ -143,7 +148,8 @@ function ActionCard({ action, onVote }: { action: CommunityAction & { userVote?:
 
 export default function ObservationsDashboard() {
   const navigate = useNavigate();
-  const [view, setView] = useState<'local' | 'global'>('local');
+  const [view, setView] = useState<'local' | 'global'>('global');
+  const [globalSubView, setGlobalSubView] = useState<GlobalSubView>('topics');
   const [actions, setActions] = useState<(CommunityAction & { userVote?: 'yes' | 'no' })[]>(
     communityActions.map(a => ({ ...a }))
   );
@@ -166,20 +172,39 @@ export default function ObservationsDashboard() {
   const decliningCount = observationData.filter(d => d.status === 'declining').length;
   const criticalCount = observationData.filter(d => d.status === 'critical').length;
 
+  const handleBack = () => {
+    if (view === 'global') {
+      if (globalSubView === 'climate-detail') setGlobalSubView('climate-overview');
+      else if (globalSubView === 'climate-overview') setGlobalSubView('topics');
+      else navigate('/');
+    } else {
+      navigate('/');
+    }
+  };
+
+  const headerTitle = view === 'local' ? 'Data' :
+    globalSubView === 'topics' ? 'Data' :
+    globalSubView === 'climate-overview' ? 'Climate Crisis' :
+    'Climate Policies';
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="sticky top-0 z-10 earth-panel border-b border-border/30">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
-            onClick={() => navigate('/')}
+            onClick={handleBack}
             className="p-1.5 rounded-full hover:bg-muted/30 text-foreground transition-colors"
           >
             <ArrowLeft size={20} />
           </button>
 
+          <span className="text-lg font-semibold text-foreground" style={{ fontFamily: 'Labrada' }}>
+            {headerTitle}
+          </span>
+
           {/* Local / Global toggle */}
-          <div className="flex items-center bg-muted/30 rounded-full p-0.5 gap-0.5">
+          <div className="flex items-center bg-muted/30 rounded-full p-0.5 gap-0.5 ml-auto">
             <button
               onClick={() => setView('local')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-all ${
@@ -190,7 +215,7 @@ export default function ObservationsDashboard() {
               Local
             </button>
             <button
-              onClick={() => setView('global')}
+              onClick={() => { setView('global'); }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-display font-semibold transition-all ${
                 view === 'global' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'
               }`}
@@ -201,7 +226,7 @@ export default function ObservationsDashboard() {
           </div>
 
           {view === 'local' && (
-            <div className="flex items-center gap-2 ml-auto">
+            <div className="flex items-center gap-2">
               <span className="status-bg-healthy px-2 py-1 rounded-full text-xs font-display status-healthy">{healthyCount}</span>
               <span className="status-bg-declining px-2 py-1 rounded-full text-xs font-display status-declining">{decliningCount}</span>
               {criticalCount > 0 && (
@@ -247,17 +272,30 @@ export default function ObservationsDashboard() {
             </motion.div>
           ) : (
             <motion.div
-              key="global"
+              key={`global-${globalSubView}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.2 }}
             >
-              <GlobalClimateView />
+              {globalSubView === 'topics' && (
+                <DataTopicsView onSelectTopic={(id) => {
+                  if (id === 'climate') setGlobalSubView('climate-overview');
+                }} />
+              )}
+              {globalSubView === 'climate-overview' && (
+                <ClimateStatsOverview onDrillIn={() => setGlobalSubView('climate-detail')} />
+              )}
+              {globalSubView === 'climate-detail' && (
+                <GlobalClimateView />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Footer dock */}
+      <FloatingDock onAdd={() => {}} activeTab="data" />
     </div>
   );
 }
