@@ -1,16 +1,18 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  climateIndicators, climatePolicies, personalActions, emissionsData,
-  ClimateIndicator, ClimatePolicy, PersonalAction
+  climateIndicators, climatePolicies, personalActions,
+  emissionsDataByScope, scopeEmissions,
+  ClimateIndicator, ClimatePolicy, PersonalAction,
+  PolicyScope, EmissionsProjection,
 } from '@/data/climate-global';
-import { Check, X, Leaf, Mail, Bike, ShoppingBag, Zap, Utensils, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
-import arrowRight from '@/assets/arrow-right.svg';
+import { Check, X, Leaf, Mail, Bike, ShoppingBag, Zap, Utensils, ExternalLink, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import requestIcon from '@/assets/request-no-outline.svg';
-import offerIcon from '@/assets/offer-no-outline.svg';
-import observationIcon from '@/assets/observation.svg';
 import checkmarkIcon from '@/assets/checkmark.svg';
 import NestedPinTag, { ConnectedPinTags } from '@/components/NestedPinTag';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 
 const categoryIcons: Record<string, React.ReactNode> = {
   diet: <Utensils size={14} />,
@@ -26,11 +28,25 @@ const effortColors: Record<string, string> = {
   hard: 'text-[hsl(var(--request))]',
 };
 
+const scopeLabels: Record<PolicyScope, string> = {
+  international: 'International',
+  national: 'National: United States',
+  state: 'State: New York',
+  personal: 'Personal Commitments',
+};
+
 interface DeltaAnimation {
   id: string;
   indicatorId: string;
   delta: number;
   key: number;
+}
+
+interface GhostLine {
+  id: string;
+  path: string;
+  opacity: number;
+  timeoutId?: ReturnType<typeof setTimeout>;
 }
 
 function daysUntil(dateStr: string): number {
@@ -40,54 +56,94 @@ function daysUntil(dateStr: string): number {
 }
 
 /* ─── Emissions Chart ─── */
-function EmissionsChart({ activePolicyId }: { activePolicyId?: string }) {
+function EmissionsChart({
+  scope,
+  activePolicy,
+  ghostLines,
+}: {
+  scope: Exclude<PolicyScope, 'personal'>;
+  activePolicy?: ClimatePolicy;
+  ghostLines: GhostLine[];
+}) {
+  const data = emissionsDataByScope[scope];
   const width = 280;
   const height = 140;
   const pad = { top: 10, right: 10, bottom: 20, left: 0 };
   const w = width - pad.left - pad.right;
   const h = height - pad.top - pad.bottom;
 
-  const xScale = (year: number) => pad.left + ((year - 1990) / (2100 - 1990)) * w;
-  const yScale = (val: number) => pad.top + h - ((val - 25) / (65 - 25)) * h;
+  const years = data.map(d => d.year);
+  const minY = Math.min(...data.map(d => Math.min(d.currentPolicy, d.withGoals))) * 0.85;
+  const maxY = Math.max(...data.map(d => Math.max(d.currentPolicy, d.withGoals))) * 1.1;
 
-  const currentPath = emissionsData.map((d, i) =>
-    `${i === 0 ? 'M' : 'L'}${xScale(d.year)},${yScale(d.currentPolicy)}`
-  ).join(' ');
+  const xScale = (year: number) => pad.left + ((year - years[0]) / (years[years.length - 1] - years[0])) * w;
+  const yScale = (val: number) => pad.top + h - ((val - minY) / (maxY - minY)) * h;
 
-  const goalsPath = emissionsData.map((d, i) =>
-    `${i === 0 ? 'M' : 'L'}${xScale(d.year)},${yScale(d.withGoals)}`
-  ).join(' ');
+  const makePath = (points: { year: number; value: number }[]) =>
+    points.map((p, i) => `${i === 0 ? 'M' : 'L'}${xScale(p.year)},${yScale(p.value)}`).join(' ');
 
-  const yearLabels = [1990, 2027, 2100];
+  const currentPath = makePath(data.map(d => ({ year: d.year, value: d.currentPolicy })));
+  const goalsPath = makePath(data.map(d => ({ year: d.year, value: d.withGoals })));
+
+  // Policy-adjusted line
+  let policyPath: string | null = null;
+  if (activePolicy) {
+    const ghgDelta = activePolicy.impact.find(i => i.indicatorId === 'ghg')?.delta || 0;
+    policyPath = makePath(data.map(d => {
+      const progress = Math.max(0, (d.year - 2025) / (2050 - 2025));
+      return { year: d.year, value: d.currentPolicy + ghgDelta * progress };
+    }));
+  }
+
+  const yearLabels = [years[0], 2025, years[years.length - 1]];
+  const lastData = data[data.length - 1];
 
   return (
     <div className="relative">
       <div className="flex items-center gap-2 mb-2">
         <span className="text-[10px] font-semibold uppercase text-[hsl(var(--observation))]" style={{ fontFamily: 'Public Sans' }}>
-          Gigatons CO₂e/year
+          {scope === 'state' ? 'GtCO₂e/year (NYC)' : scope === 'national' ? 'GtCO₂e/year (US)' : 'Gigatons CO₂e/year'}
         </span>
       </div>
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
-        {/* Grid lines */}
-        {[30, 40, 50, 60].map(v => (
-          <line key={v} x1={pad.left} y1={yScale(v)} x2={width - pad.right} y2={yScale(v)}
-            stroke="hsla(15, 10%, 30%, 0.3)" strokeWidth="0.5" />
+        {/* Grid */}
+        {Array.from({ length: 4 }, (_, i) => {
+          const v = minY + ((maxY - minY) / 5) * (i + 1);
+          return <line key={i} x1={pad.left} y1={yScale(v)} x2={width - pad.right} y2={yScale(v)}
+            stroke="hsla(15, 10%, 30%, 0.3)" strokeWidth="0.5" />;
+        })}
+
+        {/* Ghost lines from previously supported policies */}
+        {ghostLines.map(ghost => (
+          <motion.path key={ghost.id} d={ghost.path} fill="none" stroke="hsl(var(--request))"
+            strokeWidth="1.5" strokeDasharray="3,2"
+            initial={{ opacity: 0.4 }}
+            animate={{ opacity: ghost.opacity }}
+            transition={{ duration: 2 }} />
         ))}
 
         {/* Current policy line */}
         <motion.path d={currentPath} fill="none" stroke="hsl(var(--observation))" strokeWidth="2"
-          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5 }} />
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2 }} />
 
-        {/* With-goals line */}
-        <motion.path d={goalsPath} fill="none" stroke="hsl(var(--request))" strokeWidth="2" strokeDasharray="4,3"
-          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.5, delay: 0.3 }} />
+        {/* With-goals baseline */}
+        <motion.path d={goalsPath} fill="none" stroke="hsl(var(--request))" strokeWidth="1.5" strokeDasharray="4,3" opacity={0.5}
+          initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, delay: 0.2 }} />
+
+        {/* Active policy line */}
+        {policyPath && (
+          <motion.path d={policyPath} fill="none" stroke="hsl(var(--request))" strokeWidth="2.5"
+            initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            key={activePolicy?.id} />
+        )}
 
         {/* End dots */}
-        <circle cx={xScale(2100)} cy={yScale(62.28)} r="3" fill="hsl(var(--observation))" />
-        <circle cx={xScale(2100)} cy={yScale(29.23)} r="3" fill="hsl(var(--request))" />
+        <circle cx={xScale(lastData.year)} cy={yScale(lastData.currentPolicy)} r="3" fill="hsl(var(--observation))" />
+        <circle cx={xScale(lastData.year)} cy={yScale(lastData.withGoals)} r="3" fill="hsl(var(--request))" />
 
         {/* Year labels */}
-        {yearLabels.map(yr => (
+        {yearLabels.filter(yr => yr >= years[0] && yr <= years[years.length - 1]).map(yr => (
           <text key={yr} x={xScale(yr)} y={height - 4} fill="hsl(var(--observation))"
             fontSize="8" fontFamily="Public Sans" fontWeight="600" textAnchor="middle">
             {yr}
@@ -95,11 +151,129 @@ function EmissionsChart({ activePolicyId }: { activePolicyId?: string }) {
         ))}
 
         {/* Annotations */}
-        <text x={xScale(2080)} y={yScale(62) - 6} fill="hsl(var(--observation))"
-          fontSize="8" fontFamily="Public Sans" fontWeight="600">Current Action</text>
-        <text x={xScale(2080)} y={yScale(32) + 14} fill="hsl(var(--request))"
-          fontSize="8" fontFamily="Public Sans" fontWeight="600">With Policy</text>
+        <text x={xScale(lastData.year) - 5} y={yScale(lastData.currentPolicy) - 8} fill="hsl(var(--observation))"
+          fontSize="7" fontFamily="Public Sans" fontWeight="600" textAnchor="end">Current</text>
+        {policyPath && activePolicy && (
+          <text x={xScale(lastData.year) - 5} y={yScale(lastData.currentPolicy + (activePolicy.impact.find(i => i.indicatorId === 'ghg')?.delta || 0)) + 14}
+            fill="hsl(var(--request))" fontSize="7" fontFamily="Public Sans" fontWeight="600" textAnchor="end">
+            {activePolicy.title.length > 18 ? activePolicy.title.slice(0, 18) + '…' : activePolicy.title}
+          </text>
+        )}
       </svg>
+    </div>
+  );
+}
+
+/* ─── Personal Carbon Tracker ─── */
+function PersonalTracker({
+  actions, committedActions, onCommit, deltaAnims,
+}: {
+  actions: PersonalAction[];
+  committedActions: Set<string>;
+  onCommit: (a: PersonalAction) => void;
+  deltaAnims: DeltaAnimation[];
+}) {
+  const totalSaved = actions
+    .filter(a => committedActions.has(a.id))
+    .reduce((sum, a) => sum + a.personalKgCO2e, 0);
+
+  const baseline = 16000; // 16 tCO2e US avg in kg
+  const current = baseline - totalSaved;
+  const pct = Math.round((totalSaved / baseline) * 100);
+
+  return (
+    <div className="space-y-5">
+      {/* Personal footprint summary */}
+      <div className="earth-panel rounded-2xl p-5 space-y-3">
+        <h3 className="text-lg italic font-medium text-foreground" style={{ fontFamily: 'Labrada' }}>
+          Your Carbon Footprint
+        </h3>
+        <div className="flex items-end justify-between">
+          <div>
+            <motion.span className="text-[28px] font-semibold text-[hsl(var(--observation))]"
+              style={{ fontFamily: 'Public Sans' }}
+              key={current}>
+              {(current / 1000).toFixed(1)}
+            </motion.span>
+            <span className="text-xs text-foreground/60 ml-1" style={{ fontFamily: 'Public Sans' }}>tCO₂e/yr</span>
+          </div>
+          {totalSaved > 0 && (
+            <motion.div className="text-right"
+              initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
+              <span className="text-lg font-semibold text-[hsl(var(--offer))]" style={{ fontFamily: 'Public Sans' }}>
+                -{(totalSaved / 1000).toFixed(1)}
+              </span>
+              <span className="text-[10px] text-[hsl(var(--offer))] ml-1">saved</span>
+              <p className="text-[10px] text-foreground/60">{pct}% reduced</p>
+            </motion.div>
+          )}
+        </div>
+        {/* Progress bar */}
+        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'hsla(15, 10%, 20%, 0.8)' }}>
+          <motion.div className="h-full rounded-full"
+            style={{ background: 'linear-gradient(90deg, hsl(var(--offer)), hsl(var(--lime)))' }}
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min(pct, 100)}%` }}
+            transition={{ duration: 0.7 }} />
+        </div>
+        <p className="text-[9px] text-foreground/50" style={{ fontFamily: 'Public Sans' }}>
+          US average: 16 tCO₂e/yr · Global average: 4.7 tCO₂e/yr · Target: 2.5 tCO₂e/yr
+        </p>
+      </div>
+
+      {/* Commitment cards */}
+      {actions.map((action, i) => {
+        const isCommitted = committedActions.has(action.id);
+        return (
+          <motion.div key={action.id}
+            className={`earth-panel rounded-2xl p-4 space-y-2 transition-all border ${
+              isCommitted ? 'border-[hsl(var(--offer))]/40' : 'border-transparent'
+            }`}
+            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 + i * 0.05 }}>
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted/40">
+                {categoryIcons[action.category]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground" style={{ fontFamily: 'Labrada' }}>{action.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5" style={{ fontFamily: 'Public Sans' }}>{action.description}</p>
+                {action.personalKgCO2e > 0 && (
+                  <p className="text-[10px] text-[hsl(var(--offer))] mt-1 font-semibold" style={{ fontFamily: 'Public Sans' }}>
+                    −{action.personalKgCO2e.toLocaleString()} kg CO₂e/yr
+                    {action.equivalent && <span className="font-normal text-foreground/50 ml-1">· {action.equivalent}</span>}
+                  </p>
+                )}
+              </div>
+              <motion.button
+                className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isCommitted ? 'text-[#322924]' : 'text-muted-foreground hover:opacity-80'
+                }`}
+                style={{
+                  fontFamily: 'Public Sans',
+                  background: isCommitted ? 'hsl(var(--offer))' : 'hsla(91, 81%, 53%, 0.15)',
+                  border: isCommitted ? 'none' : '1px solid hsla(91, 81%, 53%, 0.3)',
+                }}
+                onClick={() => onCommit(action)}
+                whileTap={{ scale: 0.93 }}>
+                {isCommitted ? '✓ Committed' : 'Commit'}
+              </motion.button>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground" style={{ fontFamily: 'Public Sans' }}>
+              <span className={effortColors[action.effort]}>{action.effort}</span>
+              <span>·</span>
+              {action.impact.map(imp => {
+                const ind = climateIndicators.find(c => c.id === imp.indicatorId);
+                return (
+                  <span key={imp.indicatorId} className="flex items-center gap-0.5">
+                    {ind?.icon} {imp.delta > 0 ? '+' : ''}{imp.delta}
+                  </span>
+                );
+              })}
+            </div>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
@@ -162,9 +336,10 @@ function PolicyCard({ policy, onVote }: {
         boxShadow: '1px 4px 24px 10px rgba(0, 0, 0, 0.25)',
         border: '1px solid hsl(326, 40%, 40%)',
       }}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.01 }}
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -40 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 28 }}
     >
       {/* Header badge */}
       <div className="flex items-center gap-2">
@@ -215,9 +390,7 @@ function PolicyCard({ policy, onVote }: {
       <div className="flex items-center gap-2">
         <motion.button
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-xs font-bold transition-all ${
-            policy.userVote === 'yes'
-              ? 'text-[#322924]'
-              : 'text-[hsl(var(--lime))] hover:opacity-80'
+            policy.userVote === 'yes' ? 'text-[#322924]' : 'text-[hsl(var(--lime))] hover:opacity-80'
           }`}
           style={{
             fontFamily: 'Public Sans',
@@ -247,7 +420,7 @@ function PolicyCard({ policy, onVote }: {
         </motion.button>
       </div>
 
-      {/* Connected pins as nested tags */}
+      {/* Connected pins */}
       {policy.connectedPins && policy.connectedPins.length > 0 && (
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
           <span className="text-[13px] text-white/80 capitalize shrink-0" style={{ fontFamily: 'Public Sans' }}>
@@ -294,8 +467,9 @@ export default function GlobalClimateView() {
   const [committedActions, setCommittedActions] = useState<Set<string>>(new Set());
   const [deltaAnims, setDeltaAnims] = useState<DeltaAnimation[]>([]);
   const [isSticky, setIsSticky] = useState(false);
-  const [showAllPolicies, setShowAllPolicies] = useState(false);
-  const [activePolicyForChart, setActivePolicyForChart] = useState<string>();
+  const [scope, setScope] = useState<PolicyScope>('international');
+  const [policyIndex, setPolicyIndex] = useState(0);
+  const [ghostLines, setGhostLines] = useState<GhostLine[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
   const animKey = useRef(0);
 
@@ -308,7 +482,15 @@ export default function GlobalClimateView() {
     return () => observer.disconnect();
   }, []);
 
-  const applyDeltas = (deltas: { indicatorId: string; delta: number }[], multiply: number) => {
+  // Reset policy index when scope changes
+  useEffect(() => {
+    setPolicyIndex(0);
+  }, [scope]);
+
+  const scopePolicies = policies.filter(p => p.scope === scope);
+  const currentPolicy = scopePolicies[policyIndex];
+
+  const applyDeltas = useCallback((deltas: { indicatorId: string; delta: number }[], multiply: number) => {
     const newAnims: DeltaAnimation[] = [];
     setIndicators(prev => prev.map(ind => {
       const match = deltas.find(d => d.indicatorId === ind.id);
@@ -320,9 +502,31 @@ export default function GlobalClimateView() {
     }));
     setDeltaAnims(prev => [...prev, ...newAnims]);
     setTimeout(() => setDeltaAnims(prev => prev.filter(a => !newAnims.find(n => n.key === a.key))), 1500);
-  };
+  }, []);
+
+  // Create ghost line path for a supported policy
+  const createGhostPath = useCallback((policy: ClimatePolicy) => {
+    if (scope === 'personal') return '';
+    const chartScope = scope as Exclude<PolicyScope, 'personal'>;
+    const data = emissionsDataByScope[chartScope];
+    const years = data.map(d => d.year);
+    const minY2 = Math.min(...data.map(d => Math.min(d.currentPolicy, d.withGoals))) * 0.85;
+    const maxY2 = Math.max(...data.map(d => Math.max(d.currentPolicy, d.withGoals))) * 1.1;
+    const w = 270;
+    const h2 = 110;
+    const xS = (yr: number) => ((yr - years[0]) / (years[years.length - 1] - years[0])) * w;
+    const yS = (v: number) => 10 + h2 - ((v - minY2) / (maxY2 - minY2)) * h2;
+    const ghgDelta = policy.impact.find(i => i.indicatorId === 'ghg')?.delta || 0;
+    return data.map((d, i) => {
+      const progress = Math.max(0, (d.year - 2025) / (2050 - 2025));
+      return `${i === 0 ? 'M' : 'L'}${xS(d.year)},${yS(d.currentPolicy + ghgDelta * progress)}`;
+    }).join(' ');
+  }, [scope]);
 
   const handlePolicyVote = (policyId: string, vote: 'yes' | 'no') => {
+    const policy = policies.find(p => p.id === policyId);
+    if (!policy) return;
+
     setPolicies(prev => prev.map(p => {
       if (p.id !== policyId) return p;
       const votes = { ...p.votes };
@@ -334,7 +538,23 @@ export default function GlobalClimateView() {
       if (vote === 'no') { votes.no++; }
       return { ...p, votes, userVote: vote };
     }));
-    setActivePolicyForChart(policyId);
+
+    // Add ghost line if supported
+    if (vote === 'yes' && policy.userVote !== 'yes') {
+      const ghostId = `ghost-${policyId}-${Date.now()}`;
+      const path = createGhostPath(policy);
+      if (path) {
+        setGhostLines(prev => [...prev, { id: ghostId, path, opacity: 0.4 }]);
+        // Fade to 10% after moving to next card
+        setTimeout(() => {
+          setGhostLines(prev => prev.map(g => g.id === ghostId ? { ...g, opacity: 0.1 } : g));
+        }, 500);
+        // Remove after 30 seconds
+        setTimeout(() => {
+          setGhostLines(prev => prev.filter(g => g.id !== ghostId));
+        }, 30000);
+      }
+    }
   };
 
   const handleCommit = (action: PersonalAction) => {
@@ -347,18 +567,20 @@ export default function GlobalClimateView() {
     applyDeltas(action.impact, isCommitted ? -1 : 1);
   };
 
-  const usPolicies = policies.filter(p => p.country === 'United States of America');
-  const globalPolicies = policies.filter(p => p.country === 'Global');
+  const navPrev = () => setPolicyIndex(i => Math.max(0, i - 1));
+  const navNext = () => setPolicyIndex(i => Math.min(scopePolicies.length - 1, i + 1));
 
   const currentEmissions = indicators.find(i => i.id === 'ghg')?.value ?? 55;
   const projectedTemp = indicators.find(i => i.id === 'temp')?.value ?? 2.6;
+  const scopeInfo = scopeEmissions[scope];
+  const isPersonal = scope === 'personal';
 
   return (
     <div className="space-y-6 pb-8">
-      {/* Sentinel for sticky */}
+      {/* Sentinel */}
       <div ref={headerRef} />
 
-      {/* Sticky minimized bar */}
+      {/* Sticky bar */}
       <AnimatePresence>
         {isSticky && (
           <motion.div
@@ -376,7 +598,7 @@ export default function GlobalClimateView() {
         )}
       </AnimatePresence>
 
-      {/* ─── Climate Crisis Tag (Nested) ─── */}
+      {/* Climate Crisis tag */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className="px-3 py-1.5 rounded-full text-base italic font-medium text-[#D9D9D9]"
           style={{ fontFamily: 'Labrada', background: '#362D26' }}>
@@ -385,14 +607,11 @@ export default function GlobalClimateView() {
         <NestedPinTag tag={{
           category: 'climate',
           label: 'Climate Crisis',
-          children: [{
-            category: 'observation',
-            label: 'Greenhouse Gas Emissions',
-          }],
+          children: [{ category: 'observation', label: 'Greenhouse Gas Emissions' }],
         }} />
       </div>
 
-      {/* ─── Hero Data Section ─── */}
+      {/* Hero Data Section */}
       <section className="space-y-6">
         <h1 className="text-3xl md:text-4xl italic font-medium leading-[35px] text-foreground"
           style={{ fontFamily: 'Labrada' }}>
@@ -411,7 +630,6 @@ export default function GlobalClimateView() {
             <span className="text-[10px] uppercase text-foreground/80" style={{ fontFamily: 'Public Sans' }}>
               projected: +{projectedTemp.toFixed(1)} °C
             </span>
-            {/* Delta anims on main number */}
             <AnimatePresence>
               {deltaAnims.filter(a => a.indicatorId === 'ghg').map(anim => (
                 <motion.span key={anim.key}
@@ -438,26 +656,36 @@ export default function GlobalClimateView() {
           </div>
         </div>
 
-        {/* Emissions chart */}
-        <EmissionsChart activePolicyId={activePolicyForChart} />
+        {/* Emissions chart - only for non-personal scopes */}
+        {!isPersonal && (
+          <EmissionsChart
+            scope={scope as Exclude<PolicyScope, 'personal'>}
+            activePolicy={currentPolicy}
+            ghostLines={ghostLines}
+          />
+        )}
 
         {/* Source */}
-        <div className="opacity-80 space-y-1">
-          <p className="text-[9.36px] font-semibold text-foreground" style={{ fontFamily: 'Public Sans' }}>
-            Currently showing [<span className="text-[hsl(var(--request))]">COP28 Energy & Methane Goals</span>]
-          </p>
-          <p className="text-[9.36px] font-semibold text-foreground" style={{ fontFamily: 'Public Sans' }}>
-            Source:{' '}
-            <a href="https://climateactiontracker.org/publications/cop30-briefing-energy-methane-goals/"
-              target="_blank" rel="noopener noreferrer"
-              className="underline hover:text-foreground/80">
-              Climate Action Tracker
-            </a>
-          </p>
-        </div>
+        {!isPersonal && (
+          <div className="opacity-80 space-y-1">
+            <p className="text-[9.36px] font-semibold text-foreground" style={{ fontFamily: 'Public Sans' }}>
+              Currently showing [<span className="text-[hsl(var(--request))]">
+                {currentPolicy?.title || 'Select a policy'}
+              </span>]
+            </p>
+            <p className="text-[9.36px] font-semibold text-foreground" style={{ fontFamily: 'Public Sans' }}>
+              Source:{' '}
+              <a href="https://climateactiontracker.org/publications/cop30-briefing-energy-methane-goals/"
+                target="_blank" rel="noopener noreferrer"
+                className="underline hover:text-foreground/80">
+                Climate Action Tracker
+              </a>
+            </p>
+          </div>
+        )}
       </section>
 
-      {/* ─── Full Indicators Grid ─── */}
+      {/* Full Indicators Grid */}
       <section>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {indicators.map((ind, i) => {
@@ -514,105 +742,77 @@ export default function GlobalClimateView() {
         </div>
       </section>
 
-      {/* ─── National Policies: USA ─── */}
+      {/* ─── Scope Dropdown ─── */}
       <section className="space-y-4">
-        <div className="px-3 py-1.5 rounded-full inline-flex items-center gap-1"
-          style={{ background: '#362D26' }}>
-          <span className="text-base italic font-medium text-[#D9D9D9]" style={{ fontFamily: 'Labrada' }}>
-            National Policies:
-          </span>
-          <span className="text-xs italic font-medium text-[#D9D9D9]/80 ml-1" style={{ fontFamily: 'Public Sans' }}>
-            United States of America
-          </span>
+        <div className="flex items-center gap-3">
+          <Select value={scope} onValueChange={(v) => setScope(v as PolicyScope)}>
+            <SelectTrigger
+              className="w-auto inline-flex gap-2 rounded-full border-0 h-auto py-1.5 px-4 text-base"
+              style={{ background: '#362D26', fontFamily: 'Labrada' }}>
+              <SelectValue>
+                <span className="italic font-medium text-[#D9D9D9]">{scopeLabels[scope]}</span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent style={{ background: '#362D26', border: '1px solid #4a3f37' }}>
+              {(Object.entries(scopeLabels) as [PolicyScope, string][]).map(([key, label]) => (
+                <SelectItem key={key} value={key}
+                  className="text-[#D9D9D9] focus:bg-[#4a3f37] focus:text-[#D9D9D9] cursor-pointer"
+                  style={{ fontFamily: 'Labrada' }}>
+                  <span className="italic">{label}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className="space-y-4">
-          {usPolicies.map((p, i) => (
-            <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.1 }}>
-              <PolicyCard policy={p} onVote={handlePolicyVote} />
-            </motion.div>
-          ))}
-        </div>
-      </section>
+        {/* Policy Carousel (non-personal) */}
+        {!isPersonal && scopePolicies.length > 0 && (
+          <div className="relative">
+            {/* Arrow buttons */}
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={navPrev}
+                disabled={policyIndex === 0}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-20"
+                style={{ background: '#362D26' }}
+              >
+                <ChevronLeft size={18} className="text-[#D9D9D9]" />
+              </button>
+              <span className="text-[10px] text-foreground/50" style={{ fontFamily: 'Public Sans' }}>
+                {policyIndex + 1} / {scopePolicies.length}
+              </span>
+              <button
+                onClick={navNext}
+                disabled={policyIndex === scopePolicies.length - 1}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-20"
+                style={{ background: '#362D26' }}
+              >
+                <ChevronRight size={18} className="text-[#D9D9D9]" />
+              </button>
+            </div>
 
-      {/* ─── Global Policies ─── */}
-      <section className="space-y-4">
-        <div className="px-3 py-1.5 rounded-full inline-flex items-center gap-1"
-          style={{ background: '#362D26' }}>
-          <span className="text-base italic font-medium text-[#D9D9D9]" style={{ fontFamily: 'Labrada' }}>
-            Global Policies:
-          </span>
-          <span className="text-xs italic font-medium text-[#D9D9D9]/80 ml-1" style={{ fontFamily: 'Public Sans' }}>
-            COP28 Agreed Goals
-          </span>
-        </div>
+            {/* Single policy card with AnimatePresence */}
+            <AnimatePresence mode="wait">
+              {currentPolicy && (
+                <PolicyCard
+                  key={currentPolicy.id}
+                  policy={currentPolicy}
+                  onVote={handlePolicyVote}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
-        <div className="space-y-4">
-          {globalPolicies.map((p, i) => (
-            <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 + i * 0.1 }}>
-              <PolicyCard policy={p} onVote={handlePolicyVote} />
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── Personal Actions ─── */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2 mb-4">
-          <Leaf size={16} className="text-[hsl(var(--offer))]" />
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground"
-            style={{ fontFamily: 'Labrada' }}>Your Commitments</h2>
-        </div>
-        {personalActions.map((action, i) => {
-          const isCommitted = committedActions.has(action.id);
-          return (
-            <motion.div key={action.id}
-              className={`earth-panel rounded-2xl p-4 space-y-2 transition-all border ${
-                isCommitted ? 'border-[hsl(var(--offer))]/40' : 'border-transparent'
-              }`}
-              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 + i * 0.06 }}>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted/40">
-                  {categoryIcons[action.category]}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground" style={{ fontFamily: 'Labrada' }}>{action.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5" style={{ fontFamily: 'Public Sans' }}>{action.description}</p>
-                </div>
-                <motion.button
-                  className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                    isCommitted
-                      ? 'text-[#322924]'
-                      : 'text-muted-foreground hover:opacity-80'
-                  }`}
-                  style={{
-                    fontFamily: 'Public Sans',
-                    background: isCommitted ? 'hsl(var(--offer))' : 'hsla(91, 81%, 53%, 0.15)',
-                    border: isCommitted ? 'none' : '1px solid hsla(91, 81%, 53%, 0.3)',
-                  }}
-                  onClick={() => handleCommit(action)}
-                  whileTap={{ scale: 0.93 }}>
-                  {isCommitted ? '✓ Committed' : 'Commit'}
-                </motion.button>
-              </div>
-              <div className="flex items-center gap-2 text-[10px] text-muted-foreground" style={{ fontFamily: 'Public Sans' }}>
-                <span className={effortColors[action.effort]}>{action.effort}</span>
-                <span>·</span>
-                {action.impact.map(imp => {
-                  const ind = climateIndicators.find(c => c.id === imp.indicatorId);
-                  return (
-                    <span key={imp.indicatorId} className="flex items-center gap-0.5">
-                      {ind?.icon} {imp.delta > 0 ? '+' : ''}{imp.delta}
-                    </span>
-                  );
-                })}
-              </div>
-            </motion.div>
-          );
-        })}
+        {/* Personal Commitments */}
+        {isPersonal && (
+          <PersonalTracker
+            actions={personalActions}
+            committedActions={committedActions}
+            onCommit={handleCommit}
+            deltaAnims={deltaAnims}
+          />
+        )}
       </section>
     </div>
   );
