@@ -714,63 +714,6 @@ export default function GlobalClimateView() {
         )}
       </section>
 
-      {/* Full Indicators Grid */}
-      <section>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {indicators.map((ind, i) => {
-            const getProgress = () => {
-              if (ind.direction === 'lower-is-better') return Math.max(0, Math.min(1, 1 - (ind.value - ind.target) / ind.target));
-              return Math.max(0, Math.min(1, ind.value / ind.target));
-            };
-            const progress = getProgress();
-            const color = ind.status === 'on-track' ? 'hsl(var(--offer))' : ind.status === 'off-track' ? 'hsl(var(--observation))' : 'hsl(var(--destructive))';
-            const radius = 38;
-            const circ = 2 * Math.PI * radius;
-
-            return (
-              <motion.div key={ind.id}
-                className="earth-panel rounded-2xl p-4 flex flex-col items-center gap-2 relative"
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}>
-                <AnimatePresence>
-                  {deltaAnims.filter(a => a.indicatorId === ind.id).map(anim => (
-                    <motion.div key={anim.key}
-                      className="absolute top-2 right-3 font-bold text-sm z-10"
-                      style={{ fontFamily: 'Public Sans', color: anim.delta < 0 ? 'hsl(var(--offer))' : 'hsl(var(--destructive))' }}
-                      initial={{ opacity: 1, y: 0, scale: 1.2 }}
-                      animate={{ opacity: 0, y: -24, scale: 1 }}
-                      transition={{ duration: 1.5 }}>
-                      {anim.delta > 0 ? '+' : ''}{Math.abs(anim.delta) < 0.01 ? anim.delta.toFixed(4) : anim.delta}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-                <svg width="80" height="80" viewBox="0 0 90 90">
-                  <circle cx="45" cy="45" r={radius} fill="none" stroke="hsl(15, 10%, 18%)" strokeWidth="5" />
-                  <motion.circle cx="45" cy="45" r={radius} fill="none"
-                    stroke={color} strokeWidth="5" strokeLinecap="round"
-                    strokeDasharray={circ}
-                    initial={{ strokeDashoffset: circ }}
-                    animate={{ strokeDashoffset: circ - progress * circ }}
-                    transition={{ duration: 1 }}
-                    transform="rotate(-90 45 45)" />
-                  <text x="45" y="50" textAnchor="middle" fontSize="22">{ind.icon}</text>
-                </svg>
-                <div className="text-center space-y-0.5">
-                  <p className="text-xs font-semibold text-foreground" style={{ fontFamily: 'Labrada' }}>{ind.label}</p>
-                  <motion.span className="text-base font-bold block" style={{ fontFamily: 'Public Sans', color }}
-                    key={ind.value} initial={{ scale: 1.15 }} animate={{ scale: 1 }}>
-                    {typeof ind.value === 'number' && ind.value % 1 !== 0 ? ind.value.toFixed(2) : ind.value} {ind.unit}
-                  </motion.span>
-                  <p className="text-[9px] text-muted-foreground" style={{ fontFamily: 'Public Sans' }}>
-                    Target: {ind.target} {ind.unit}
-                  </p>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
-
       {/* ─── Scope Dropdown ─── */}
       <section className="space-y-4">
         <div className="flex items-center gap-3">
