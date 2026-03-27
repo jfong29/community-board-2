@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import userLocatorImg from '@/assets/user-locator.png';
 import {
   MapContainer, TileLayer, Marker, Polyline, Polygon,
   useMap, useMapEvents, ZoomControl,
