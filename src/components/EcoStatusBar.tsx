@@ -66,8 +66,16 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             </div>
           </div>
 
-          {/* Row 2: Search + Actions */}
+          {/* Row 2: Logo + Search + Actions */}
           <div className="toolbar-row">
+            <button
+              onClick={() => navigate('/')}
+              className="hover:opacity-80 transition-opacity active:scale-95 flex-shrink-0"
+              title="Home"
+            >
+              <img src={logoIcon} alt="Home" className="toolbar-logo" />
+            </button>
+
             <div className="search-wrapper">
               <SearchBar initialQuery={initialSearch} onPinSelect={onPinSelect} />
             </div>
