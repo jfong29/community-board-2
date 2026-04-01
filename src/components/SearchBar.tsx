@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { samplePins, PinCategory, Pin } from '@/data/pins';
 import { landmarks } from '@/data/landmarks';
-import searchIconSvg from '@/assets/search-icon.svg';
+import searchButtonSvg from '@/assets/search-button.svg';
 import offerNoOutline from '@/assets/offer-no-outline.svg';
 import requestNoOutline from '@/assets/request-no-outline.svg';
 import observationNoOutline from '@/assets/signal-no-outline.svg';
