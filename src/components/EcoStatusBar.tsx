@@ -97,10 +97,6 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             </div>
           </div>
 
-          {/* Row 3: Category filters */}
-          <div className="flex items-center justify-center pb-1">
-            <CategoryFilters activeFilters={activeFilters} onToggle={onToggleFilter} />
-          </div>
         </div>
 
         <style>{`
