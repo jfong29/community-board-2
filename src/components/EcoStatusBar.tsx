@@ -235,16 +235,22 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               width: 44px;
             }
 
+            .toolbar-left {
+              gap: 20px;
+            }
+
             .toolbar-row {
-              gap: 28px;
               padding-top: 14px;
               padding-bottom: 14px;
             }
 
-            .search-wrapper {
-              max-width: 572px;
+            .action-icon {
+              height: 44px;
             }
-          }
+
+            .toolbar-actions {
+              gap: 20px;
+            }
 
           /* Large desktop */
           @media (min-width: 1280px) {
