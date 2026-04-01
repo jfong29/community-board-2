@@ -150,9 +150,9 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
   const hasFilters = query.trim().length > 0 || selectedTags.size > 0 || selectedCategories.size > 0;
 
   return (
-    <div className="relative flex-1">
+    <div className="relative w-full min-w-0">
       {/* Input row */}
-      <div className="relative flex items-center">
+      <div className="relative flex w-full items-center">
         <input
           ref={inputRef}
           value={query}
@@ -160,32 +160,32 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 250)}
           placeholder="search"
-          className="w-full h-[38px] sm:h-[52px] lg:h-[68px] pl-4 pr-14 sm:pr-20 rounded-full focus:outline-none transition-all"
+          className="w-full min-w-0 h-[30px] rounded-full pl-3 pr-[50px] focus:outline-none transition-all sm:h-[42px] sm:pl-4 sm:pr-[65px] lg:h-[54px] lg:pl-5 lg:pr-[82px]"
           style={{
             fontFamily: "'Public Sans', sans-serif",
             fontWeight: 400,
-            fontSize: 'clamp(14px, 2.5vw, 25px)',
-            color: '#322924',
-            backgroundColor: '#F4EDE8',
+            fontSize: 'clamp(14px, 2.25vw, 25px)',
+            color: 'hsl(24 17% 19%)',
+            backgroundColor: 'hsl(22 33% 94%)',
             boxShadow: '0px 0.875px 0.875px rgba(0, 0, 0, 0.25), 0px 3.0625px 7.4375px rgba(0, 0, 0, 0.25) inset',
-            outline: '1.31px solid #3F3631',
+            outline: '1.31px solid hsl(24 12% 22%)',
           }}
         />
         {query && (
           <button
             onClick={() => { setQuery(''); inputRef.current?.focus(); }}
-            className="absolute right-[52px] sm:right-[72px] lg:right-[90px] top-1/2 -translate-y-1/2 hover:opacity-70"
-            style={{ color: '#322924' }}
+            className="absolute top-1/2 right-[45px] -translate-y-1/2 hover:opacity-70 sm:right-[60px] lg:right-[75px]"
+            style={{ color: 'hsl(24 17% 19%)' }}
           >
-            <X size={14} />
+            <X className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4" />
           </button>
         )}
         <button
           onClick={() => inputRef.current?.focus()}
-          className="absolute right-0 top-0 bottom-0 flex items-center justify-center transition-transform active:scale-95"
+          className="absolute right-0 top-1/2 flex h-[30px] w-[38px] -translate-y-1/2 items-center justify-center transition-transform active:scale-95 sm:h-[42px] sm:w-[53px] lg:h-[54px] lg:w-[68px]"
           title="Search"
         >
-          <img src={searchButtonSvg} alt="Search" className="h-full w-auto" />
+          <img src={searchButtonSvg} alt="Search" className="h-full w-full" />
         </button>
       </div>
 
