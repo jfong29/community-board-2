@@ -111,7 +111,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           .screen-shell {
             background: linear-gradient(0deg, #322924 0%, #3B302A 46%, #221B17 100%);
             box-shadow: 0px 12px 47px rgba(0, 0, 0, 0.25);
-            padding: 32px 20px 8px;
+            padding: 32px 30px 8px;
             display: flex;
             flex-direction: column;
             gap: 12px;
