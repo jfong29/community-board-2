@@ -52,11 +52,11 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               <span className="status-time">{timeStr}</span>
               <button
                 onClick={() => setShowSeasonal(true)}
-                className="topbar-left hover:opacity-80 transition-opacity"
+                className="topbar-season-btn hover:opacity-80 transition-opacity"
                 title="Seasonal calendar"
               >
-                <span className="status-location">{seasonName}</span>
                 <img src={moonPhaseIcon} alt="Moon phase" className="moon-icon" />
+                <span className="status-location">{seasonName}</span>
               </button>
             </div>
 
@@ -146,7 +146,17 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           .topbar-left {
             display: flex;
             align-items: center;
-            gap: 3.5vw;
+            gap: 10px;
+          }
+
+          .topbar-season-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          .topbar-right {
+            gap: 10px;
           }
 
           .status-time,
@@ -154,29 +164,22 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             font-family: 'Public Sans', sans-serif;
             font-weight: 600;
             color: #E0E0E0;
-            font-size: clamp(13px, 3.2vw, 28px);
+            font-size: 13px;
           }
 
           .moon-icon {
-            width: clamp(10px, 2.5vw, 22px);
+            width: 10px;
             height: auto;
-            margin-left: 4px;
-          }
-
-          .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 2vw;
           }
 
           .status-sun {
-            width: clamp(14px, 3.5vw, 30px);
+            width: 14px;
             height: auto;
             opacity: 0.85;
           }
 
           .status-battery-img {
-            width: clamp(24px, 6vw, 52px);
+            width: 24px;
             height: auto;
             opacity: 0.85;
           }
