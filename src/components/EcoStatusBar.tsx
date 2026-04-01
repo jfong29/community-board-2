@@ -177,11 +177,53 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             padding-bottom: 8px;
           }
 
+          .status-row {
+            padding: 0;
+          }
+
+          .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 3.5vw;
+          }
+
+          .status-time,
+          .status-location {
+            font-family: 'Public Sans', sans-serif;
+            font-weight: 600;
+            color: #E0E0E0;
+            font-size: clamp(13px, 3.2vw, 28px);
+          }
+
+          .moon-icon {
+            width: clamp(10px, 2.5vw, 22px);
+            height: auto;
+            margin-left: 4px;
+          }
+
+          .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 2vw;
+          }
+
+          .status-sun {
+            width: clamp(14px, 3.5vw, 30px);
+            height: auto;
+            opacity: 0.85;
+          }
+
+          .status-battery-img {
+            width: clamp(24px, 6vw, 52px);
+            height: auto;
+            opacity: 0.85;
+          }
+
           .toolbar-left {
             display: flex;
             align-items: center;
             gap: 12px;
-            width: 50%;
+            width: 45%;
             min-width: 0;
           }
 
@@ -197,8 +239,12 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             flex-shrink: 0;
           }
 
+          .toolbar-actions .action-icon-save {
+            margin-left: 2%;
+          }
+
           .action-icon {
-            height: 28px;
+            height: clamp(22px, 5.5vw, 50px);
             width: auto;
             opacity: 0.85;
           }
@@ -208,27 +254,6 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             .screen-shell {
               padding: 52px 30px 12px;
               gap: 16px;
-            }
-
-            .topbar-left {
-              gap: 28px;
-            }
-
-            .status-time,
-            .status-location {
-              font-size: 26px;
-            }
-
-            .moon-icon {
-              width: 20px;
-            }
-
-            .status-sun {
-              width: 28px;
-            }
-
-            .status-battery-img {
-              width: 48px;
             }
 
             .toolbar-logo {
@@ -244,13 +269,10 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               padding-bottom: 14px;
             }
 
-            .action-icon {
-              height: 44px;
-            }
-
             .toolbar-actions {
               gap: 20px;
             }
+          }
 
           /* Large desktop */
           @media (min-width: 1280px) {
@@ -259,37 +281,12 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               gap: 20px;
             }
 
-            .topbar-left {
-              gap: 32px;
-            }
-
-            .status-time,
-            .status-location {
-              font-size: 32px;
-            }
-
-            .moon-icon {
-              width: 26px;
-            }
-
-            .status-sun {
-              width: 34px;
-            }
-
-            .status-battery-img {
-              width: 60px;
-            }
-
             .toolbar-logo {
               width: 56px;
             }
 
             .toolbar-left {
               gap: 28px;
-            }
-
-            .action-icon {
-              height: 56px;
             }
 
             .toolbar-actions {
