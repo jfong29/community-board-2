@@ -102,7 +102,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
                 className="hover:opacity-80 transition-opacity active:scale-95"
                 title="Saved"
               >
-                <img src={savedIcon} alt="Saved" className="action-icon" />
+                <img src={savedIcon} alt="Saved" className="action-icon action-icon-save" />
               </button>
             </div>
           </div>
