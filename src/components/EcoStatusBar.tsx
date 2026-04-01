@@ -284,12 +284,16 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               width: 56px;
             }
 
-            .toolbar-row {
-              gap: 40px;
+            .toolbar-left {
+              gap: 28px;
             }
 
-            .search-wrapper {
-              max-width: 720px;
+            .action-icon {
+              height: 56px;
+            }
+
+            .toolbar-actions {
+              gap: 24px;
             }
           }
         `}</style>
