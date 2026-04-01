@@ -211,7 +211,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           /* Tablet */
           @media (min-width: 768px) {
             .screen-shell {
-              padding: 52px 48px 12px;
+              padding: 52px 30px 12px;
               gap: 16px;
             }
 
@@ -248,22 +248,6 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
 
             .search-wrapper {
               max-width: 572px;
-            }
-
-            .toolbar-actions {
-              gap: 40px;
-            }
-
-            .columns-left {
-              width: 30px;
-            }
-
-            .columns-right {
-              width: 44px;
-            }
-
-            .single-view {
-              width: 24px;
             }
           }
 
