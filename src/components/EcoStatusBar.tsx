@@ -233,6 +233,10 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               width: 48px;
             }
 
+            .toolbar-logo {
+              width: 44px;
+            }
+
             .toolbar-row {
               gap: 28px;
               padding-top: 14px;
