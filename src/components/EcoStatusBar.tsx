@@ -111,7 +111,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           .screen-shell {
             background: linear-gradient(0deg, #322924 0%, #3B302A 46%, #221B17 100%);
             box-shadow: 0px 12px 47px rgba(0, 0, 0, 0.25);
-            padding: 32px 20px 8px;
+            padding: 32px 30px 8px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -183,24 +183,27 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           .toolbar-actions {
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 8.8%;
             flex-shrink: 0;
           }
 
           .columns-left {
-            width: 20px;
+            width: 5.95%;
+            min-width: 16px;
             height: auto;
             opacity: 0.85;
           }
 
           .columns-right {
-            width: 28px;
+            width: 9.18%;
+            min-width: 24px;
             height: auto;
             opacity: 0.85;
           }
 
           .single-view {
-            width: 16px;
+            width: 9.1%;
+            min-width: 24px;
             height: auto;
             opacity: 0.85;
           }
@@ -208,7 +211,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           /* Tablet */
           @media (min-width: 768px) {
             .screen-shell {
-              padding: 52px 48px 12px;
+              padding: 52px 30px 12px;
               gap: 16px;
             }
 
@@ -246,28 +249,12 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             .search-wrapper {
               max-width: 572px;
             }
-
-            .toolbar-actions {
-              gap: 40px;
-            }
-
-            .columns-left {
-              width: 30px;
-            }
-
-            .columns-right {
-              width: 44px;
-            }
-
-            .single-view {
-              width: 24px;
-            }
           }
 
           /* Large desktop */
           @media (min-width: 1280px) {
             .screen-shell {
-              padding: 72px 96px 16px;
+              padding: 72px 30px 16px;
               gap: 20px;
             }
 
@@ -302,22 +289,6 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
 
             .search-wrapper {
               max-width: 720px;
-            }
-
-            .toolbar-actions {
-              gap: 56px;
-            }
-
-            .columns-left {
-              width: 38px;
-            }
-
-            .columns-right {
-              width: 56px;
-            }
-
-            .single-view {
-              width: 32px;
             }
           }
         `}</style>
