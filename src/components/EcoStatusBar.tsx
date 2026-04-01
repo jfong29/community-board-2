@@ -161,11 +161,16 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             opacity: 0.85;
           }
 
+          .toolbar-logo {
+            width: 28px;
+            height: auto;
+            opacity: 0.85;
+          }
+
           .toolbar-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             padding-top: 8px;
             padding-bottom: 8px;
           }
@@ -173,7 +178,6 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           .search-wrapper {
             flex: 1;
             min-width: 0;
-            max-width: 480px;
           }
 
           .toolbar-actions {
