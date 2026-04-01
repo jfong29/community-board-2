@@ -183,24 +183,27 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           .toolbar-actions {
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 8.8%;
             flex-shrink: 0;
           }
 
           .columns-left {
-            width: 20px;
+            width: 5.95%;
+            min-width: 16px;
             height: auto;
             opacity: 0.85;
           }
 
           .columns-right {
-            width: 28px;
+            width: 9.18%;
+            min-width: 24px;
             height: auto;
             opacity: 0.85;
           }
 
           .single-view {
-            width: 16px;
+            width: 9.1%;
+            min-width: 24px;
             height: auto;
             opacity: 0.85;
           }
