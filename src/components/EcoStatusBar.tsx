@@ -68,39 +68,41 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
 
           {/* Row 2: Logo + Search + Actions */}
           <div className="toolbar-row">
-            <button
-              onClick={() => navigate('/')}
-              className="hover:opacity-80 transition-opacity active:scale-95 flex-shrink-0"
-              title="Home"
-            >
-              <img src={logoIcon} alt="Home" className="toolbar-logo" />
-            </button>
+            <div className="toolbar-left">
+              <button
+                onClick={() => navigate('/')}
+                className="hover:opacity-80 transition-opacity active:scale-95 flex-shrink-0"
+                title="Home"
+              >
+                <img src={logoIcon} alt="Home" className="toolbar-logo" />
+              </button>
 
-            <div className="search-wrapper">
-              <SearchBar initialQuery={initialSearch} onPinSelect={onPinSelect} />
+              <div className="search-wrapper">
+                <SearchBar initialQuery={initialSearch} onPinSelect={onPinSelect} />
+              </div>
             </div>
 
             <div className="toolbar-actions">
               <button
-                onClick={() => navigate('/profile')}
+                onClick={() => setShowSeasonal(true)}
                 className="hover:opacity-80 transition-opacity active:scale-95"
-                title="Saved"
+                title="Help"
               >
-                <img src={savedIcon} alt="Saved" className="columns-left" />
+                <img src={helpIcon} alt="Help" className="action-icon" />
               </button>
               <button
                 onClick={() => navigate('/profile')}
                 className="hover:opacity-80 transition-opacity active:scale-95"
                 title="Profile"
               >
-                <img src={profileIcon} alt="Profile" className="columns-right" />
+                <img src={profileIcon} alt="Profile" className="action-icon" />
               </button>
               <button
-                onClick={() => setShowSeasonal(true)}
+                onClick={() => navigate('/profile')}
                 className="hover:opacity-80 transition-opacity active:scale-95"
-                title="Help"
+                title="Saved"
               >
-                <img src={helpIcon} alt="Help" className="single-view" />
+                <img src={savedIcon} alt="Saved" className="action-icon" />
               </button>
             </div>
           </div>
