@@ -52,11 +52,11 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               <span className="status-time">{timeStr}</span>
               <button
                 onClick={() => setShowSeasonal(true)}
-                className="topbar-left hover:opacity-80 transition-opacity"
+                className="topbar-season-btn hover:opacity-80 transition-opacity"
                 title="Seasonal calendar"
               >
-                <span className="status-location">{seasonName}</span>
                 <img src={moonPhaseIcon} alt="Moon phase" className="moon-icon" />
+                <span className="status-location">{seasonName}</span>
               </button>
             </div>
 
