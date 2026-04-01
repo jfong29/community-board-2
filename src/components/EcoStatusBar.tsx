@@ -172,9 +172,17 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           .toolbar-row {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
             padding-top: 8px;
             padding-bottom: 8px;
+          }
+
+          .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 50%;
+            min-width: 0;
           }
 
           .search-wrapper {
@@ -185,28 +193,13 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           .toolbar-actions {
             display: flex;
             align-items: center;
-            gap: 8.8%;
+            gap: 15px;
             flex-shrink: 0;
           }
 
-          .columns-left {
-            width: 5.95%;
-            min-width: 16px;
-            height: auto;
-            opacity: 0.85;
-          }
-
-          .columns-right {
-            width: 9.18%;
-            min-width: 24px;
-            height: auto;
-            opacity: 0.85;
-          }
-
-          .single-view {
-            width: 9.1%;
-            min-width: 24px;
-            height: auto;
+          .action-icon {
+            height: 28px;
+            width: auto;
             opacity: 0.85;
           }
 
