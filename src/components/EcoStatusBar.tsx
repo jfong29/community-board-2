@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SearchBar from './SearchBar';
 import CalendarPanel from './CalendarPanel';
-import CategoryFilters from './CategoryFilters';
 import { Pin, PinCategory } from '@/data/pins';
 import moonPhaseIcon from '@/assets/moon-phase-new.svg';
 import sunIcon from '@/assets/sun-icon.svg';
 import batteryIcon from '@/assets/battery-icon.svg';
+import logoIcon from '@/assets/logo-new.svg';
 import savedIcon from '@/assets/saved-new.svg';
 import profileIcon from '@/assets/profile-new.svg';
 import helpIcon from '@/assets/help-new.svg';
@@ -66,8 +66,16 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             </div>
           </div>
 
-          {/* Row 2: Search + Actions */}
+          {/* Row 2: Logo + Search + Actions */}
           <div className="toolbar-row">
+            <button
+              onClick={() => navigate('/')}
+              className="hover:opacity-80 transition-opacity active:scale-95 flex-shrink-0"
+              title="Home"
+            >
+              <img src={logoIcon} alt="Home" className="toolbar-logo" />
+            </button>
+
             <div className="search-wrapper">
               <SearchBar initialQuery={initialSearch} onPinSelect={onPinSelect} />
             </div>
@@ -153,11 +161,16 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             opacity: 0.85;
           }
 
+          .toolbar-logo {
+            width: 28px;
+            height: auto;
+            opacity: 0.85;
+          }
+
           .toolbar-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             padding-top: 8px;
             padding-bottom: 8px;
           }
@@ -165,7 +178,6 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           .search-wrapper {
             flex: 1;
             min-width: 0;
-            max-width: 480px;
           }
 
           .toolbar-actions {
@@ -221,6 +233,10 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               width: 48px;
             }
 
+            .toolbar-logo {
+              width: 44px;
+            }
+
             .toolbar-row {
               gap: 28px;
               padding-top: 14px;
@@ -274,6 +290,10 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
 
             .status-battery-img {
               width: 60px;
+            }
+
+            .toolbar-logo {
+              width: 56px;
             }
 
             .toolbar-row {
