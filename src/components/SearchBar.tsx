@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { samplePins, PinCategory, Pin } from '@/data/pins';
 import { landmarks } from '@/data/landmarks';
-import searchIconSvg from '@/assets/search-icon.svg';
+import searchButtonSvg from '@/assets/search-button.svg';
 import offerNoOutline from '@/assets/offer-no-outline.svg';
 import requestNoOutline from '@/assets/request-no-outline.svg';
 import observationNoOutline from '@/assets/signal-no-outline.svg';
@@ -182,14 +182,10 @@ export default function SearchBar({ initialQuery = '', onPinSelect }: SearchBarP
         )}
         <button
           onClick={() => inputRef.current?.focus()}
-          className="absolute right-0 top-0 h-[38px] sm:h-[52px] lg:h-[68px] w-[42px] sm:w-[60px] lg:w-[86px] rounded-r-full flex items-center justify-center transition-transform active:scale-95"
-          style={{
-            backgroundColor: '#DAE16B',
-            boxShadow: '1.09px 1.09px 2.19px 0.44px rgba(255,255,255,0.50) inset, 0px -1.09px 1.75px rgba(0,0,0,0.25) inset',
-          }}
+          className="absolute right-0 top-0 bottom-0 flex items-center justify-center transition-transform active:scale-95"
           title="Search"
         >
-          <img src={searchIconSvg} alt="Search" className="w-4 h-4 sm:w-5 sm:h-5" />
+          <img src={searchButtonSvg} alt="Search" className="h-full w-auto" />
         </button>
       </div>
 
