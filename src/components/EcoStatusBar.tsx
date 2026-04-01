@@ -125,44 +125,6 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             align-items: center;
           }
 
-          .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-          }
-
-          .status-time,
-          .status-location {
-            font-family: 'Public Sans', sans-serif;
-            font-weight: 600;
-            color: #E0E0E0;
-            font-size: 18px;
-          }
-
-          .moon-icon {
-            width: 14px;
-            height: auto;
-            margin-left: 4px;
-          }
-
-          .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-
-          .status-sun {
-            width: 20px;
-            height: auto;
-            opacity: 0.85;
-          }
-
-          .status-battery-img {
-            width: 36px;
-            height: auto;
-            opacity: 0.85;
-          }
-
           .toolbar-logo {
             width: 28px;
             height: auto;
