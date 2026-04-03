@@ -31,6 +31,7 @@ export default function Profile() {
   const [language, setLanguage] = useState('');
   const [largeText, setLargeText] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
+  const [showGenerated, setShowGenerated] = useState(() => localStorage.getItem('show_generated_pins') === 'true');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -165,6 +166,26 @@ export default function Profile() {
               <select value={language} onChange={(e) => setLanguage(e.target.value)} className={`${inputClass} appearance-none`}>
                 {languages.map((l) => <option key={l} value={l}>{l}</option>)}
               </select>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <p className="text-[11px] text-muted-foreground font-display">Developer</p>
+              <label className="flex items-center justify-between">
+                <div>
+                  <span className="text-sm text-foreground font-body">Show Generated Pins</span>
+                  <p className="text-[10px] text-muted-foreground font-body mt-0.5">Preview auto-generated community pins on the map</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const next = !showGenerated;
+                    setShowGenerated(next);
+                    localStorage.setItem('show_generated_pins', String(next));
+                  }}
+                  className={`w-10 h-6 rounded-full transition-colors flex-shrink-0 ${showGenerated ? 'bg-primary' : 'bg-muted/50'}`}
+                >
+                  <div className={`w-4 h-4 rounded-full bg-foreground transition-transform mx-1 ${showGenerated ? 'translate-x-4' : ''}`} />
+                </button>
+              </label>
             </div>
 
             <div className="space-y-3 pt-2">
