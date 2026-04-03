@@ -31,6 +31,7 @@ export default function Profile() {
   const [language, setLanguage] = useState('');
   const [largeText, setLargeText] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
+  const [showGenerated, setShowGenerated] = useState(() => localStorage.getItem('show_generated_pins') === 'true');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
