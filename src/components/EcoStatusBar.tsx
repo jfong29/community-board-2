@@ -224,6 +224,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
 
           /* Tablet */
           @media (min-width: 768px) {
+            :root { --map-controls-top: 160px; }
             .screen-shell {
               padding: 17px 30px 12px;
               gap: 16px;
