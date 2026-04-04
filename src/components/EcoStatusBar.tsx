@@ -156,6 +156,8 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           }
 
           .topbar-right {
+            display: flex;
+            align-items: center;
             gap: 10px;
           }
 
