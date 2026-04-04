@@ -212,8 +212,20 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           }
 
           .action-icon {
-            height: clamp(22px, 5.5vw, 50px);
+            height: clamp(22px, 5.5vw, 44px);
             width: auto;
+            opacity: 0.85;
+          }
+
+          .status-sun {
+            width: clamp(14px, 2vw, 18px);
+            height: auto;
+            opacity: 0.85;
+          }
+
+          .status-battery-img {
+            width: clamp(24px, 3vw, 30px);
+            height: auto;
             opacity: 0.85;
           }
 
