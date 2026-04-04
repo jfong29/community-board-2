@@ -214,17 +214,7 @@ function HeatmapLayer({ pins, zoom }: { pins: Pin[]; zoom: number }) {
     draw();
     map.on('move zoom moveend zoomend', draw);
 
-    let frame: number;
-    let opacity = 0.6;
-    let dir = 1;
-    function pulse() {
-      opacity += dir * 0.003;
-      if (opacity > 0.8) dir = -1;
-      if (opacity < 0.5) dir = 1;
-      canvas.style.opacity = String(opacity);
-      frame = requestAnimationFrame(pulse);
-    }
-    pulse();
+    canvas.style.opacity = '0.7';
 
     return () => {
       map.off('move zoom moveend zoomend', draw);
