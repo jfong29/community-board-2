@@ -110,6 +110,9 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
         </div>
 
         <style>{`
+          :root {
+            --map-controls-top: 120px;
+          }
           .screen-shell {
             background: linear-gradient(0deg, #322924 0%, #3B302A 46%, #221B17 100%);
             box-shadow: 0px 12px 47px rgba(0, 0, 0, 0.25);
@@ -156,6 +159,8 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           }
 
           .topbar-right {
+            display: flex;
+            align-items: center;
             gap: 10px;
           }
 
@@ -172,17 +177,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             height: auto;
           }
 
-          .status-sun {
-            width: 14px;
-            height: auto;
-            opacity: 0.85;
-          }
-
-          .status-battery-img {
-            width: 24px;
-            height: auto;
-            opacity: 0.85;
-          }
+          /* sun and battery sizes now in clamp below action-icon */
 
           .toolbar-left {
             display: flex;
@@ -210,13 +205,26 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           }
 
           .action-icon {
-            height: clamp(22px, 5.5vw, 50px);
+            height: clamp(22px, 5.5vw, 44px);
             width: auto;
+            opacity: 0.85;
+          }
+
+          .status-sun {
+            width: clamp(14px, 2vw, 18px);
+            height: auto;
+            opacity: 0.85;
+          }
+
+          .status-battery-img {
+            width: clamp(24px, 3vw, 30px);
+            height: auto;
             opacity: 0.85;
           }
 
           /* Tablet */
           @media (min-width: 768px) {
+            :root { --map-controls-top: 160px; }
             .screen-shell {
               padding: 17px 30px 12px;
               gap: 16px;
@@ -242,13 +250,14 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
 
           /* Large desktop */
           @media (min-width: 1280px) {
+            :root { --map-controls-top: 190px; }
             .screen-shell {
               padding: 24px 30px 16px;
               gap: 20px;
             }
 
             .toolbar-logo {
-              width: 56px;
+              width: 44px;
             }
 
             .toolbar-left {

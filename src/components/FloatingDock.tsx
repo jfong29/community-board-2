@@ -19,9 +19,9 @@ export default function FloatingDock({ onAdd, onChat, activeTab }: FloatingDockP
 
   const items = [
     { id: 'map' as const, icon: mapIcon, alt: 'Map', onClick: () => navigate('/'), size: 'h-6' },
+    { id: 'data' as const, icon: dataIcon, alt: 'Data', onClick: () => navigate('/observations'), size: 'h-7' },
     { id: 'chat' as const, icon: chatsIcon, alt: 'Chats', onClick: onChat || (() => {}), size: 'h-6' },
     { id: 'add' as const, icon: addPostIcon, alt: 'Add Post', onClick: onAdd, size: 'h-8' },
-    { id: 'data' as const, icon: dataIcon, alt: 'Data', onClick: () => navigate('/observations'), size: 'h-7' },
   ];
 
   return (
@@ -51,7 +51,7 @@ export default function FloatingDock({ onAdd, onChat, activeTab }: FloatingDockP
                 style={{
                   filter: isActive
                     ? 'brightness(0) saturate(100%) invert(85%) sepia(40%) saturate(500%) hue-rotate(20deg) brightness(110%)'
-                    : 'none',
+                    : 'brightness(0.6) saturate(0%) invert(70%)',
                 }}
               />
             </button>
