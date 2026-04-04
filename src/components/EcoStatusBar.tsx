@@ -174,17 +174,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             height: auto;
           }
 
-          .status-sun {
-            width: 14px;
-            height: auto;
-            opacity: 0.85;
-          }
-
-          .status-battery-img {
-            width: 24px;
-            height: auto;
-            opacity: 0.85;
-          }
+          /* sun and battery sizes now in clamp below action-icon */
 
           .toolbar-left {
             display: flex;

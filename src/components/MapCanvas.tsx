@@ -243,7 +243,7 @@ export default function MapCanvas() {
       {/* Layer toggle - aligned with zoom controls (right side) */}
       <motion.div
         className="fixed z-40 flex items-center"
-        style={{ top: 'calc(30px * 2 + 64px)', right: '30px' }}
+        style={{ top: 'var(--map-controls-top, 140px)', right: '30px' }}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}

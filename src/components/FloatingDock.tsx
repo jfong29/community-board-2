@@ -51,7 +51,7 @@ export default function FloatingDock({ onAdd, onChat, activeTab }: FloatingDockP
                 style={{
                   filter: isActive
                     ? 'brightness(0) saturate(100%) invert(85%) sepia(40%) saturate(500%) hue-rotate(20deg) brightness(110%)'
-                    : 'none',
+                    : 'brightness(0.6) saturate(0%) invert(70%)',
                 }}
               />
             </button>
