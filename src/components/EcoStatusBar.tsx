@@ -250,13 +250,14 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
 
           /* Large desktop */
           @media (min-width: 1280px) {
+            :root { --map-controls-top: 190px; }
             .screen-shell {
               padding: 24px 30px 16px;
               gap: 20px;
             }
 
             .toolbar-logo {
-              width: 56px;
+              width: 44px;
             }
 
             .toolbar-left {
