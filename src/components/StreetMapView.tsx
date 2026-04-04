@@ -218,7 +218,7 @@ function HeatmapLayer({ pins, zoom }: { pins: Pin[]; zoom: number }) {
 
     return () => {
       map.off('move zoom moveend zoomend', draw);
-      cancelAnimationFrame(frame);
+      // static opacity, no animation frame to cancel
       if (pane && canvas.parentNode === pane) pane.removeChild(canvas);
     };
   }, [map, pins]);
