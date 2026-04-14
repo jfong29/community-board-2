@@ -588,6 +588,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                     </button>
                   )}
                 </div>
+               </div>
               </div>
 
               {/* Right arrow */}
