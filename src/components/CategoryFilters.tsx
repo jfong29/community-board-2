@@ -55,23 +55,27 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
   const [expanded, setExpanded] = useState(false);
   const hasActiveFilters = activeFilters.size > 0;
 
+  // Split label into indigenous name and modern name
+  const labelParts = neighborhoodLabel?.split(': ') ?? [];
+  const indigenousName = labelParts[0] ?? '';
+  const modernName = labelParts[1] ?? '';
+
   return (
     <div
-      className="flex items-center justify-between w-full"
-      style={{ padding: '10px 30px' }}
+      className="flex items-center w-full relative"
+      style={{ padding: '10px 30px', minHeight: 48 }}
     >
-      {/* Y toggle button */}
+      {/* Y toggle button - always on left */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex-shrink-0 flex items-center justify-center transition-all active:scale-95"
+        className="flex-shrink-0 flex items-center justify-center transition-all active:scale-95 relative z-10"
         style={{
           width: 40,
           height: 38,
           borderRadius: 11,
-          background: expanded || hasActiveFilters
-            ? 'linear-gradient(0deg, rgba(50,41,36,0.80) 0%, rgba(59,48,42,0.80) 46%, rgba(34,27,23,0.80) 100%)'
-            : 'linear-gradient(0deg, rgba(50,41,36,0.80) 0%, rgba(59,48,42,0.80) 46%, rgba(34,27,23,0.80) 100%)',
+          background: 'linear-gradient(0deg, rgba(50,41,36,0.80) 0%, rgba(59,48,42,0.80) 46%, rgba(34,27,23,0.80) 100%)',
           border: `0.68px solid ${DARK_WOOD}`,
+          opacity: expanded || hasActiveFilters ? 1 : 0.5,
         }}
         title="Filter categories"
       >
@@ -82,24 +86,41 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
         />
       </button>
 
-      {/* Collapsed: show neighborhood label */}
       <AnimatePresence mode="wait">
         {!expanded ? (
+          /* Location label - centered in the full row, with padding to avoid crashing into filter icon */
           <motion.div
             key="location"
-            className="flex items-center gap-2 ml-3"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
+            style={{
+              paddingLeft: 100, /* 40px button + 30px padding + 30px gap */
+              paddingRight: 30,
+            }}
           >
             {neighborhoodLabel && (
-              <span
-                className="font-display text-sm font-medium"
-                style={{ color: '#E0E0E0' }}
-              >
-                {neighborhoodLabel}
-              </span>
+              <div className="text-center">
+                <span
+                  className="font-display text-sm font-semibold"
+                  style={{ color: '#E0E0E0' }}
+                >
+                  {indigenousName}
+                </span>
+                {modernName && (
+                  <>
+                    <span style={{ color: 'rgba(224,224,224,0.5)' }}>{': '}</span>
+                    <span
+                      className="font-display text-sm font-medium"
+                      style={{ color: 'rgba(224,224,224,0.7)' }}
+                    >
+                      {modernName}
+                    </span>
+                  </>
+                )}
+              </div>
             )}
           </motion.div>
         ) : (
