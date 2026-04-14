@@ -52,7 +52,7 @@ export default function LandmarkSheet({ landmark, onClose, onPinSelect }: Landma
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
         >
           <div className="earth-panel rounded-2xl p-5 space-y-4 max-h-[70vh] overflow-y-auto">
             <div className="flex items-center justify-between">

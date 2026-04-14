@@ -152,24 +152,14 @@ export default function MapCanvas() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
-      {/* Hide all nav UI when a pin is selected */}
-      <AnimatePresence>
-        {!pinIsOpen && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-          >
-            <EcoStatusBar
-              initialSearch={initialSearch}
-              onPinSelect={handlePinSelect}
-              activeFilters={activeFilters}
-              onToggleFilter={handleToggleFilter}
-              onFiltersExpandChange={setFiltersExpanded}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Header - always visible */}
+      <EcoStatusBar
+        initialSearch={initialSearch}
+        onPinSelect={handlePinSelect}
+        activeFilters={activeFilters}
+        onToggleFilter={handleToggleFilter}
+        onFiltersExpandChange={setFiltersExpanded}
+      />
 
       {/* Neighborhood label */}
       <AnimatePresence>
@@ -177,10 +167,10 @@ export default function MapCanvas() {
           <motion.div
             className="fixed z-30 w-full flex justify-center pointer-events-none"
             style={{ top: 'calc(var(--grid-gap) * 2 + 64px)', left: 0, right: 0 }}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
             key={neighborhood.id}
           >
             <button
@@ -197,10 +187,10 @@ export default function MapCanvas() {
                 <motion.div
                   className="absolute top-full mt-2 w-[min(85vw,360px)] earth-panel rounded-xl border border-border/40 shadow-xl overflow-hidden left-1/2 -translate-x-1/2"
                   style={{ padding: 'var(--grid-gap)', maxWidth: 'calc(100vw - 32px)' }}
-                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div>
@@ -231,10 +221,10 @@ export default function MapCanvas() {
           <motion.div
             className="fixed z-40 flex flex-col gap-1.5"
             style={{ bottom: 80, left: 14 }}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.15 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
             <button
               onClick={() => setShowConnections(true)}
@@ -266,19 +256,19 @@ export default function MapCanvas() {
           <motion.div
             className="fixed z-40 flex items-center"
             style={{ top: 'var(--map-controls-top, 140px)', right: '30px' }}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.15 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
             <AnimatePresence>
               {layerMenuOpen && (
                 <motion.div
                   className="flex items-center gap-1.5 mr-1.5"
-                  initial={{ opacity: 0, x: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: 20, scale: 0.9 }}
-                  transition={{ duration: 0.15 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
                 >
                   {layerOptions.map((opt) => (
                     <button
@@ -326,7 +316,7 @@ export default function MapCanvas() {
         hideControls={pinIsOpen}
       />
 
-      {!pinIsOpen && <FloatingDock onAdd={() => setShowAdd(true)} />}
+      <FloatingDock onAdd={() => setShowAdd(true)} />
 
       <DetailSheet pin={selectedPin} onClose={() => { setSelectedPin(null); setHighlightedPinId(null); }} onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }} onTagClick={(subcategory) => { setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(subcategory); }} onNextPin={handleNextPin} onPrevPin={handlePrevPin} allPins={allPins} />
       <LandmarkSheet landmark={selectedLandmark} onClose={() => setSelectedLandmark(null)} onPinSelect={(pin) => { setSelectedLandmark(null); handlePinSelect(pin); }} />

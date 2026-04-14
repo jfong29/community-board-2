@@ -45,7 +45,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
         className="fixed top-0 left-0 right-0 z-[60]"
         initial={{ y: -40 }}
         animate={{ y: 0 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        transition={{ duration: 0.5, ease: 'easeInOut' }}
       >
         <div className="screen-shell">
           {/* Row 1: Status bar */}

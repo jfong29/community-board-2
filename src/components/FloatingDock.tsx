@@ -29,7 +29,7 @@ export default function FloatingDock({ onAdd, onChat, activeTab }: FloatingDockP
       className="fixed bottom-0 left-0 right-0 z-40"
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.3 }}
+      transition={{ duration: 0.5, ease: 'easeInOut' }}
     >
       <div
         className="w-full flex items-center justify-evenly py-4 px-8"

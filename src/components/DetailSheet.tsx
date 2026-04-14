@@ -238,51 +238,49 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
     <AnimatePresence>
       {pin && (
         <motion.div
-          className="fixed inset-0 z-[55] flex flex-col items-center"
-          style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.50) 100%), #221B17' }}
+          className="fixed inset-0 z-[55] flex flex-col items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.45)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
         >
           {/* Close on background tap */}
           <div className="absolute inset-0" onClick={onClose} />
 
-          {/* Pin icon floating at top ~14% */}
-          <motion.div
-            className="relative z-10 flex-shrink-0"
-            style={{ marginTop: '13vh' }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          {/* X close button fixed top-right */}
+          <button
+            onClick={onClose}
+            className="fixed z-[60] flex items-center justify-center hover:opacity-80 transition-opacity"
+            style={{ top: 30, right: 30, width: '22px', height: '22px' }}
           >
-            <div
-              style={{
-                width: 72,
-                height: 62,
-                borderRadius: 6,
-                background: pinGradient.bg,
-                boxShadow: pinGradient.shadow,
-                outline: `2px solid ${pinGradient.outline}`,
-              }}
-            />
-          </motion.div>
+            <img src={closeTab} alt="Close" style={{ width: '22px', height: '22px', filter: 'brightness(10)' }} />
+          </button>
 
-          {/* Scrollable card area */}
+          {/* Card area - fits between header and footer with margins */}
           <motion.div
             className="relative z-10 w-full flex flex-col items-center"
-            style={{ marginTop: '5vh', flex: '1 1 0', minHeight: 0, paddingBottom: '5vh' }}
-            initial={{ y: 60, opacity: 0 }}
+            style={{
+              position: 'absolute',
+              top: 80,
+              bottom: 80,
+              left: 30,
+              right: 30,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 60, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.05 }}
+            exit={{ y: 30, opacity: 0 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
-            <div className="flex items-center gap-2 w-full justify-center" style={{ maxWidth: '360px', padding: '0 16px' }}>
+            <div className="flex items-center gap-2 w-full justify-center h-full" style={{ maxWidth: '360px' }}>
               {/* Left arrow */}
               {onPrevPin && (
                 <button
                   onClick={onPrevPin}
-                  className="flex-shrink-0 transition-all hover:scale-110 active:scale-95"
+                  className="flex-shrink-0 transition-opacity hover:opacity-80"
                   style={{ width: '17px', height: '26px', transform: 'scaleX(-1)' }}
                 >
                   <img src={nextPostArrow} alt="Previous" style={{ width: '17px', height: '26px' }} />
@@ -294,7 +292,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                 className="flex-1 relative overflow-hidden"
                 style={{
                   maxWidth: '360px',
-                  maxHeight: 'calc(70vh)',
+                  maxHeight: '100%',
                   borderRadius: '16px',
                   background: style.gradient,
                   backgroundBlendMode: style.backgroundBlendMode || 'normal',
@@ -348,14 +346,6 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                         Just Now
                       </span>
                     </div>
-
-                    <button
-                      onClick={onClose}
-                      className="flex items-center justify-center hover:opacity-80 transition-opacity flex-shrink-0"
-                      style={{ width: '22px', height: '22px' }}
-                    >
-                      <img src={closeTab} alt="Close" style={{ width: '22px', height: '22px', filter: darkIconFilter }} />
-                    </button>
                   </div>
 
                   {/* Title */}
@@ -641,7 +631,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
               {onNextPin && (
                 <button
                   onClick={onNextPin}
-                  className="flex-shrink-0 transition-all hover:scale-110 active:scale-95"
+                  className="flex-shrink-0 transition-opacity hover:opacity-80"
                   style={{ width: '17px', height: '26px' }}
                 >
                   <img src={nextPostArrow} alt="Next" style={{ width: '17px', height: '26px' }} />
