@@ -27,6 +27,7 @@ interface DetailSheetProps {
   onTagClick?: (subcategory: string) => void;
   onNextPin?: () => void;
   onPrevPin?: () => void;
+  allPins?: Pin[];
 }
 
 const DARK_WOOD = '#221B17';
