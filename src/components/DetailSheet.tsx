@@ -397,6 +397,23 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                         <span style={{ color: DARK_WOOD, fontStyle: 'italic' }}>{blocksAway} blocks away</span>
                       </span>
                     </div>
+
+                    {/* Language / Translate row */}
+                    {hasLanguage && (
+                      <div className="flex items-center gap-2" style={{ opacity: 0.8 }}>
+                        <img src={translateIcon} alt="" style={{ width: '13px', height: '13px', filter: darkIconFilter }} />
+                        <span style={{ color: DARK_WOOD, fontSize: '11px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400, lineHeight: '13px' }}>
+                          Uploaded in {langNames[pin.language!] || pin.language};
+                        </span>
+                        <button
+                          onClick={() => setShowTranslation(!showTranslation)}
+                          className="underline underline-offset-2 hover:opacity-80 transition-opacity"
+                          style={{ color: DARK_WOOD, fontSize: '11px', fontFamily: "'Public Sans', sans-serif", fontWeight: 400, lineHeight: '13px' }}
+                        >
+                          {showTranslation ? 'Show Original' : 'Translate'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
