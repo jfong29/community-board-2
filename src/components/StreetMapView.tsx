@@ -357,6 +357,7 @@ interface StreetMapViewProps {
   onZoomChange?: (zoom: number) => void;
   highlightedPinId?: string | null;
   hidePins?: boolean;
+  hideControls?: boolean;
 }
 
 function MapControls({ atMinZoom, atMaxZoom, onRequestCity, pins, highlightedPinId, onShowRoute }: {
@@ -455,7 +456,7 @@ function FlyToHandler({ target, zoom }: { target: [number, number] | null; zoom?
 }
 
 export default function StreetMapView({
-  pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange, highlightedPinId, hidePins,
+  pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange, highlightedPinId, hidePins, hideControls,
 }: StreetMapViewProps) {
   const navigate = useNavigate();
   const [zoom, setZoomLocal] = useState(13);
@@ -611,14 +612,16 @@ export default function StreetMapView({
           />
         ))}
 
-        <MapControls
-          atMinZoom={atMinZoom}
-          atMaxZoom={atMaxZoom}
-          onRequestCity={() => setShowRequestCity(true)}
-          pins={pins}
-          highlightedPinId={highlightedPinId}
-          onShowRoute={handleShowRoute}
-        />
+        {!hideControls && (
+          <MapControls
+            atMinZoom={atMinZoom}
+            atMaxZoom={atMaxZoom}
+            onRequestCity={() => setShowRequestCity(true)}
+            pins={pins}
+            highlightedPinId={highlightedPinId}
+            onShowRoute={handleShowRoute}
+          />
+        )}
       </MapContainer>
 
       {/* Route info overlay */}

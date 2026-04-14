@@ -208,29 +208,76 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
   // Dark-on-light icon filter to make white SVG icons appear dark
   const darkIconFilter = 'brightness(0) saturate(100%)';
 
+  // Pin gradient style for the floating icon
+  const pinGradientMap: Record<string, { bg: string; shadow: string; outline: string }> = {
+    request: {
+      bg: 'linear-gradient(0deg, rgba(0,0,0,0.10) 0%, rgba(102,102,102,0.10) 100%), linear-gradient(180deg, #FF84CE 0%, #FF61BF 100%)',
+      shadow: '0px 12px 23px rgba(255,255,255,0.25) inset, -6px -12px 23px rgba(0,0,0,0.15) inset, 0px 6px 87px #FF6CC4',
+      outline: 'rgba(200,113,165,0.90)',
+    },
+    offer: {
+      bg: 'linear-gradient(180deg, #C6FF9A 0%, #82D345 63%)',
+      shadow: '0px 12px 23px rgba(255,255,255,0.25) inset, -6px -12px 23px rgba(0,0,0,0.15) inset, 0px 6px 87px rgba(130,211,69,0.6)',
+      outline: 'rgba(73,168,0,0.90)',
+    },
+    observation: {
+      bg: 'linear-gradient(180deg, rgba(255,117,60,0.90) 0%, rgba(255,85,14,0.90) 100%)',
+      shadow: '0px 12px 23px rgba(255,255,255,0.25) inset, -6px -12px 23px rgba(0,0,0,0.15) inset, 0px 6px 87px rgba(255,108,47,0.5)',
+      outline: 'rgba(208,110,69,0.90)',
+    },
+    event: {
+      bg: 'linear-gradient(180deg, #C16EFA 0%, #BF5BFF 52%, #71459B 100%)',
+      shadow: '0px 12px 23px rgba(255,255,255,0.25) inset, -6px -12px 23px rgba(0,0,0,0.15) inset, 0px 6px 87px rgba(176,54,255,0.5)',
+      outline: 'rgba(176,54,255,0.90)',
+    },
+  };
+
+  const pinGradient = pinGradientMap[pin.category] || pinGradientMap.offer;
+
   return (
     <AnimatePresence>
       {pin && (
-        <>
-          {/* Dark overlay */}
-          <motion.div
-            className="fixed inset-0 z-[49]"
-            style={{ background: 'rgba(0,0,0,0.50)' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
+        <motion.div
+          className="fixed inset-0 z-[55] flex flex-col items-center"
+          style={{ background: 'linear-gradient(0deg, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.50) 100%), #221B17' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          {/* Close on background tap */}
+          <div className="absolute inset-0" onClick={onClose} />
 
+          {/* Pin icon floating at top ~14% */}
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50"
-            style={{ padding: '0 16px 90px 16px' }}
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="relative z-10 flex-shrink-0"
+            style={{ marginTop: '13vh' }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           >
-            <div className="flex items-center justify-center gap-2 max-w-[360px] mx-auto">
+            <div
+              style={{
+                width: 72,
+                height: 62,
+                borderRadius: 6,
+                background: pinGradient.bg,
+                boxShadow: pinGradient.shadow,
+                outline: `2px solid ${pinGradient.outline}`,
+              }}
+            />
+          </motion.div>
+
+          {/* Scrollable card area */}
+          <motion.div
+            className="relative z-10 w-full flex flex-col items-center"
+            style={{ marginTop: '5vh', flex: '1 1 0', minHeight: 0, paddingBottom: '5vh' }}
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 60, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.05 }}
+          >
+            <div className="flex items-center gap-2 w-full justify-center" style={{ maxWidth: '360px', padding: '0 16px' }}>
               {/* Left arrow */}
               {onPrevPin && (
                 <button
@@ -247,11 +294,11 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                 className="flex-1 relative overflow-hidden"
                 style={{
                   maxWidth: '360px',
-                  maxHeight: 'calc(100vh - 200px)',
+                  maxHeight: 'calc(70vh)',
                   borderRadius: '16px',
                   background: style.gradient,
                   backgroundBlendMode: style.backgroundBlendMode || 'normal',
-                  boxShadow: `1.6px 6.5px 39px 16px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, ${style.glow}`,
+                  boxShadow: `1.6px 6.5px 39px 16px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset`,
                   outline: `1.6px solid ${style.border}`,
                   outlineOffset: '-1.6px',
                   display: 'flex',
@@ -493,7 +540,6 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                   allPins={allPins || samplePins}
                   onViewDetails={(connPin) => {
                     onClose();
-                    // Small delay to let sheet close before opening new one
                     setTimeout(() => onChat(connPin), 100);
                   }}
                 />
@@ -603,7 +649,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
               )}
             </div>
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );
