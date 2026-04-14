@@ -323,6 +323,7 @@ export default function MapCanvas() {
         onZoomChange={setCurrentZoom}
         highlightedPinId={highlightedPinId}
         hidePins={hidePins}
+        hideControls={pinIsOpen}
       />
 
       {!pinIsOpen && <FloatingDock onAdd={() => setShowAdd(true)} />}
