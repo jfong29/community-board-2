@@ -247,14 +247,18 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                 className="flex-1 relative overflow-hidden"
                 style={{
                   maxWidth: '360px',
+                  maxHeight: 'calc(100vh - 200px)',
                   borderRadius: '16px',
                   background: style.gradient,
                   backgroundBlendMode: style.backgroundBlendMode || 'normal',
                   boxShadow: `1.6px 6.5px 39px 16px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, ${style.glow}`,
                   outline: `1.6px solid ${style.border}`,
                   outlineOffset: '-1.6px',
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}
               >
+               <div style={{ overflowY: 'auto', flex: 1 }}>
                 <div
                   style={{
                     padding: '20px 24px',
