@@ -151,9 +151,10 @@ function getExchangeMethod(pin: Pin): string | null {
   return methods[hash % methods.length];
 }
 
-export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPin, onPrevPin }: DetailSheetProps) {
+export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPin, onPrevPin, allPins }: DetailSheetProps) {
   const [showSourceProfile, setShowSourceProfile] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
 
   const blocksAway = useMemo(() => {
     if (!pin) return 0;
