@@ -126,7 +126,7 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
         ) : (
           <motion.div
             key="filters"
-            className="flex items-center gap-[5px] ml-3 overflow-x-auto scrollbar-none"
+            className="flex items-center gap-[4px] ml-2"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
@@ -138,13 +138,13 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
                 <button
                   key={key}
                   onClick={() => onToggle(key)}
-                  className="flex-shrink-0 flex items-center gap-[3px] transition-all active:scale-95"
+                  className="flex-shrink-0 flex items-center gap-[2px] transition-all active:scale-95"
                   style={{
-                    height: 28,
-                    paddingTop: 4,
-                    paddingBottom: 5,
-                    paddingLeft: 11,
-                    paddingRight: 13,
+                    height: 26,
+                    paddingTop: 3,
+                    paddingBottom: 4,
+                    paddingLeft: 7,
+                    paddingRight: 8,
                     background: gradient,
                     borderRadius: 39,
                     border: border,
@@ -155,11 +155,11 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
                   <img
                     src={icon}
                     alt={label}
-                    className="w-[15px] h-[12px]"
+                    className="w-[11px] h-[9px]"
                     style={{ filter: 'brightness(0) saturate(100%)' }}
                   />
                   <span
-                    className="font-display font-bold text-[13px] leading-none whitespace-nowrap"
+                    className="font-display font-bold text-[10px] leading-none whitespace-nowrap"
                     style={{ color: DARK_WOOD }}
                   >
                     {label}
