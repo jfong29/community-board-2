@@ -11,7 +11,7 @@ import yFilterLime from '@/assets/y-filter-lime.svg';
 interface CategoryFiltersProps {
   activeFilters: Set<PinCategory>;
   onToggle: (cat: PinCategory) => void;
-  neighborhoodLabel?: string;
+  onExpandChange?: (expanded: boolean) => void;
 }
 
 const categories: { key: PinCategory; label: string; icon: string; gradient: string; border: string; shadow: string }[] = [
@@ -51,14 +51,15 @@ const categories: { key: PinCategory; label: string; icon: string; gradient: str
 
 const DARK_WOOD = '#221B17';
 
-export default function CategoryFilters({ activeFilters, onToggle, neighborhoodLabel }: CategoryFiltersProps) {
+export default function CategoryFilters({ activeFilters, onToggle, onExpandChange }: CategoryFiltersProps) {
   const [expanded, setExpanded] = useState(false);
   const hasActiveFilters = activeFilters.size > 0;
 
-  // Split label into indigenous name and modern name
-  const labelParts = neighborhoodLabel?.split(': ') ?? [];
-  const indigenousName = labelParts[0] ?? '';
-  const modernName = labelParts[1] ?? '';
+  const toggleExpanded = () => {
+    const next = !expanded;
+    setExpanded(next);
+    onExpandChange?.(next);
+  };
 
   return (
     <div
@@ -67,7 +68,7 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
     >
       {/* Y toggle button - always on left */}
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={toggleExpanded}
         className="flex-shrink-0 flex items-center justify-center transition-all active:scale-95 relative z-10"
         style={{
           width: 40,
@@ -86,49 +87,7 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
       </button>
 
       <AnimatePresence mode="wait">
-        {!expanded ? (
-          /* Location label with brown background - centered */
-          <motion.div
-            key="location"
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            style={{
-              paddingLeft: 64,
-              paddingRight: 14,
-            }}
-          >
-            {neighborhoodLabel && (
-              <div
-                className="text-center px-4 py-1.5 rounded-full"
-                style={{
-                  background: 'linear-gradient(0deg, rgba(50,41,36,0.85) 0%, rgba(59,48,42,0.85) 46%, rgba(34,27,23,0.85) 100%)',
-                  border: `0.68px solid rgba(34,27,23,0.6)`,
-                }}
-              >
-                <span
-                  className="font-display text-sm font-semibold"
-                  style={{ color: '#E0E0E0' }}
-                >
-                  {indigenousName}
-                </span>
-                {modernName && (
-                  <>
-                    <span style={{ color: 'rgba(224,224,224,0.5)' }}>{': '}</span>
-                    <span
-                      className="font-display text-sm font-medium"
-                      style={{ color: 'rgba(224,224,224,0.7)' }}
-                    >
-                      {modernName}
-                    </span>
-                  </>
-                )}
-              </div>
-            )}
-          </motion.div>
-        ) : (
+        {expanded && (
           <motion.div
             key="filters"
             className="flex items-center gap-[3px] ml-2 flex-1 min-w-0"
