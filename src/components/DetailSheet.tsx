@@ -239,7 +239,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
       {pin && (
         <motion.div
           className="fixed inset-0 z-[55] flex flex-col items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.45)' }}
+          style={{ background: 'rgba(0,0,0,0.28)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -257,33 +257,34 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
             <img src={closeTab} alt="Close" style={{ width: '22px', height: '22px', filter: 'brightness(10)' }} />
           </button>
 
-          {/* Card area - fits between header and footer with margins */}
+          {/* Card area - centered and lifted clear of footer so selected map pin remains visible above */}
           <motion.div
             className="relative z-10 w-full flex flex-col items-center"
             style={{
               position: 'absolute',
-              top: 80,
-              bottom: 80,
+              top: 116,
+              bottom: 104,
               left: 30,
               right: 30,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              justifyContent: 'flex-end',
+              pointerEvents: 'none',
             }}
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 30, opacity: 0 }}
             transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
-            <div className="flex items-center gap-2 w-full justify-center h-full" style={{ maxWidth: '360px' }}>
+            <div className="flex items-center gap-2 w-full justify-center h-full" style={{ maxWidth: '360px', pointerEvents: 'auto' }}>
               {/* Left arrow */}
               {onPrevPin && (
                 <button
                   onClick={onPrevPin}
                   className="flex-shrink-0 transition-opacity hover:opacity-80"
-                  style={{ width: '17px', height: '26px', transform: 'scaleX(-1)' }}
+                  style={{ width: '17px', height: '26px' }}
                 >
-                  <img src={nextPostArrow} alt="Previous" style={{ width: '17px', height: '26px' }} />
+                  <img src={nextPostArrow} alt="Previous" style={{ width: '17px', height: '26px', transform: 'scaleX(-1)' }} />
                 </button>
               )}
 
@@ -292,6 +293,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                 className="flex-1 relative overflow-hidden"
                 style={{
                   maxWidth: '360px',
+                  width: '100%',
                   maxHeight: '100%',
                   borderRadius: '16px',
                   background: style.gradient,
