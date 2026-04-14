@@ -45,7 +45,7 @@ export default function Landing() {
         className="w-full max-w-sm px-4 mt-24"
         initial={{ opacity: 0, y: 40, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ delay: 0.8, type: 'spring', stiffness: 300, damping: 25 }}
+        transition={{ duration: 0.5, ease: 'easeInOut', delay: 0.8 }}
       >
         <button
           onClick={handleNotificationTap}

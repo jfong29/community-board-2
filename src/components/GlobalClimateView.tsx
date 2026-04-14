@@ -368,7 +368,7 @@ function PolicyCard({ policy, onVote }: {
       initial={{ opacity: 0, x: 40 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -40 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+      transition={{ duration: 0.5, ease: 'easeInOut' }}
     >
       {/* Header badge */}
       <div className="flex items-center gap-2">
@@ -617,7 +617,7 @@ export default function GlobalClimateView() {
             initial={{ y: -40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -40, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
             <div className="max-w-2xl mx-auto px-4">
               <StickyIndicatorsBar indicators={indicators} deltaAnims={deltaAnims} />
