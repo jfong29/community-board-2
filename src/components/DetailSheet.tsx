@@ -346,14 +346,6 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                         Just Now
                       </span>
                     </div>
-
-                    <button
-                      onClick={onClose}
-                      className="flex items-center justify-center hover:opacity-80 transition-opacity flex-shrink-0"
-                      style={{ width: '22px', height: '22px' }}
-                    >
-                      <img src={closeTab} alt="Close" style={{ width: '22px', height: '22px', filter: darkIconFilter }} />
-                    </button>
                   </div>
 
                   {/* Title */}
@@ -639,7 +631,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
               {onNextPin && (
                 <button
                   onClick={onNextPin}
-                  className="flex-shrink-0 transition-all hover:scale-110 active:scale-95"
+                  className="flex-shrink-0 transition-opacity hover:opacity-80"
                   style={{ width: '17px', height: '26px' }}
                 >
                   <img src={nextPostArrow} alt="Next" style={{ width: '17px', height: '26px' }} />
