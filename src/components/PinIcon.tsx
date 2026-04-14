@@ -127,8 +127,8 @@ export default function PinIcon({ category, size = 32, onClick, animate = true, 
     <motion.div
       className="cursor-pointer relative"
       onClick={onClick}
-      whileHover={{ scale: 1.3 }}
-      whileTap={{ scale: 0.9 }}
+      
+      
       initial={animate ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeInOut' }}
