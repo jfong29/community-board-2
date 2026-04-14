@@ -30,10 +30,10 @@ interface EcoStatusBarProps {
   onPinSelect: (pin: Pin) => void;
   activeFilters: Set<PinCategory>;
   onToggleFilter: (cat: PinCategory) => void;
-  neighborhoodLabel?: string;
+  onFiltersExpandChange?: (expanded: boolean) => void;
 }
 
-export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFilters, onToggleFilter, neighborhoodLabel }: EcoStatusBarProps) {
+export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFilters, onToggleFilter, onFiltersExpandChange }: EcoStatusBarProps) {
   const navigate = useNavigate();
   const [showSeasonal, setShowSeasonal] = useState(false);
   const seasonName = getSeasonName();
@@ -114,13 +114,13 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
 
       {/* Filter row - separate from header background */}
       <div
-        className="fixed left-0 right-0 z-[59]"
+        className="fixed left-0 right-0 z-[45]"
         style={{ top: 'var(--header-bottom, 90px)' }}
       >
         <CategoryFilters
           activeFilters={activeFilters}
           onToggle={onToggleFilter}
-          neighborhoodLabel={neighborhoodLabel}
+          onExpandChange={onFiltersExpandChange}
         />
       </div>
 

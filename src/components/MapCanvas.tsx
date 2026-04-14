@@ -62,6 +62,7 @@ export default function MapCanvas() {
   const [neighborhood, setNeighborhood] = useState<Neighborhood>(getNeighborhoodAtCoords(40.7359, -73.9911));
   const [showNeighborhoodInfo, setShowNeighborhoodInfo] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(12);
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [layerMenuOpen, setLayerMenuOpen] = useState(false);
   const [showConnections, setShowConnections] = useState(false);
   const [hidePins, setHidePins] = useState(false);
@@ -85,7 +86,7 @@ export default function MapCanvas() {
     });
   }, []);
 
-  const showNeighborhoodLabel = currentZoom >= 15;
+  const showNeighborhoodLabel = currentZoom >= 15 && !filtersExpanded;
 
   const handleMapMove = useCallback((lat: number, lng: number) => {
     setNeighborhood(getNeighborhoodAtCoords(lat, lng));
@@ -154,7 +155,7 @@ export default function MapCanvas() {
         onPinSelect={handlePinSelect}
         activeFilters={activeFilters}
         onToggleFilter={handleToggleFilter}
-        neighborhoodLabel={`${neighborhood.indigenousName}: ${neighborhood.modernName}`}
+        onFiltersExpandChange={setFiltersExpanded}
       />
 
       {/* Neighborhood label */}
