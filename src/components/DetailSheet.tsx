@@ -319,7 +319,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                       marginTop: '4px',
                     }}
                   >
-                    {pin.title}
+                    {displayTitle}
                   </h2>
 
                   {/* Description */}
