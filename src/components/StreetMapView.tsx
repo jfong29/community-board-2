@@ -445,13 +445,21 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity, pins, highlightedPin
   );
 }
 
-function FlyToHandler({ target, zoom }: { target: [number, number] | null; zoom?: number }) {
+function FlyToHandler({ target, zoom, yOffsetRatio = 0 }: { target: [number, number] | null; zoom?: number; yOffsetRatio?: number }) {
   const map = useMap();
   useEffect(() => {
     if (target) {
-      map.flyTo(target, zoom ?? MAX_ZOOM, { duration: 1.2 });
+      const zoomLevel = zoom ?? MAX_ZOOM;
+      if (yOffsetRatio > 0) {
+        const targetLatLng = L.latLng(target[0], target[1]);
+        const focusOffset = L.point(0, -Math.round(map.getSize().y * yOffsetRatio));
+        const center = map.unproject(map.project(targetLatLng, zoomLevel).subtract(focusOffset), zoomLevel);
+        map.flyTo(center, zoomLevel, { duration: 1.2 });
+      } else {
+        map.flyTo(target, zoomLevel, { duration: 1.2 });
+      }
     }
-  }, [target, map, zoom]);
+  }, [target, map, zoom, yOffsetRatio]);
   return null;
 }
 
@@ -552,7 +560,7 @@ export default function StreetMapView({
         )}
 
         <SmoothZoomHandler />
-        <FlyToHandler target={flyTarget} zoom={flyZoom} />
+        <FlyToHandler target={flyTarget} zoom={flyZoom} yOffsetRatio={highlightedPinId ? 0.2 : 0} />
 
         {/* Dark OSM tiles – free, no API key needed */}
         <TileLayer
