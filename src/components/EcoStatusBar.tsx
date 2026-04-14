@@ -124,167 +124,171 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
         />
       </div>
 
-        <style>{`
+      <style>{`
+        :root {
+          --header-bottom: 90px;
+          --map-controls-top: 150px;
+        }
+        .screen-shell {
+          background: linear-gradient(0deg, #322924 0%, #3B302A 46%, #221B17 100%);
+          box-shadow: 0px 12px 47px rgba(0, 0, 0, 0.25);
+          padding: 11px 30px 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .status-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .toolbar-logo {
+          width: 28px;
+          height: auto;
+          opacity: 0.85;
+        }
+
+        .toolbar-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-top: 8px;
+          padding-bottom: 8px;
+        }
+
+        .status-row {
+          padding: 0;
+        }
+
+        .topbar-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .topbar-season-btn {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .topbar-right {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .status-time,
+        .status-location {
+          font-family: 'Public Sans', sans-serif;
+          font-weight: 600;
+          color: #E0E0E0;
+          font-size: 13px;
+        }
+
+        .moon-icon {
+          width: 10px;
+          height: auto;
+        }
+
+        .toolbar-left {
+          display: flex;
+          align-items: center;
+          flex: 1 1 auto;
+          gap: 12px;
+          min-width: 0;
+        }
+
+        .search-wrapper {
+          width: 45vw;
+          flex: 0 0 45vw;
+          min-width: 0;
+        }
+
+        .toolbar-actions {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          flex-shrink: 0;
+        }
+
+        .toolbar-actions .action-icon-save {
+          margin-left: 2%;
+        }
+
+        .action-icon {
+          height: clamp(22px, 5.5vw, 44px);
+          width: auto;
+          opacity: 0.85;
+        }
+
+        .status-sun {
+          width: clamp(14px, 2vw, 18px);
+          height: auto;
+          opacity: 0.85;
+        }
+
+        .status-battery-img {
+          width: clamp(24px, 3vw, 30px);
+          height: auto;
+          opacity: 0.85;
+        }
+
+        /* Tablet */
+        @media (min-width: 768px) {
           :root {
-            --map-controls-top: 170px;
+            --header-bottom: 120px;
+            --map-controls-top: 190px;
           }
           .screen-shell {
-            background: linear-gradient(0deg, #322924 0%, #3B302A 46%, #221B17 100%);
-            box-shadow: 0px 12px 47px rgba(0, 0, 0, 0.25);
-            padding: 11px 30px 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-          }
-
-          .status-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 17px 30px 12px;
+            gap: 16px;
           }
 
           .toolbar-logo {
-            width: 28px;
-            height: auto;
-            opacity: 0.85;
+            width: 44px;
+          }
+
+          .toolbar-left {
+            gap: 20px;
           }
 
           .toolbar-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 8px;
-            padding-bottom: 8px;
-          }
-
-          .status-row {
-            padding: 0;
-          }
-
-          .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-          }
-
-          .topbar-season-btn {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-          }
-
-          .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-          }
-
-          .status-time,
-          .status-location {
-            font-family: 'Public Sans', sans-serif;
-            font-weight: 600;
-            color: #E0E0E0;
-            font-size: 13px;
-          }
-
-          .moon-icon {
-            width: 10px;
-            height: auto;
-          }
-
-          /* sun and battery sizes now in clamp below action-icon */
-
-          .toolbar-left {
-            display: flex;
-            align-items: center;
-            flex: 1 1 auto;
-            gap: 12px;
-            min-width: 0;
-          }
-
-          .search-wrapper {
-            width: 45vw;
-            flex: 0 0 45vw;
-            min-width: 0;
+            padding-top: 14px;
+            padding-bottom: 14px;
           }
 
           .toolbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-shrink: 0;
+            gap: 20px;
+          }
+        }
+
+        /* Large desktop */
+        @media (min-width: 1280px) {
+          :root {
+            --header-bottom: 140px;
+            --map-controls-top: 220px;
+          }
+          .screen-shell {
+            padding: 24px 30px 16px;
+            gap: 20px;
           }
 
-          .toolbar-actions .action-icon-save {
-            margin-left: 2%;
+          .toolbar-logo {
+            width: 44px;
           }
 
-          .action-icon {
-            height: clamp(22px, 5.5vw, 44px);
-            width: auto;
-            opacity: 0.85;
+          .toolbar-left {
+            gap: 28px;
           }
 
-          .status-sun {
-            width: clamp(14px, 2vw, 18px);
-            height: auto;
-            opacity: 0.85;
+          .toolbar-actions {
+            gap: 24px;
           }
-
-          .status-battery-img {
-            width: clamp(24px, 3vw, 30px);
-            height: auto;
-            opacity: 0.85;
-          }
-
-          /* Tablet */
-          @media (min-width: 768px) {
-            :root { --map-controls-top: 210px; }
-            .screen-shell {
-              padding: 17px 30px 12px;
-              gap: 16px;
-            }
-
-            .toolbar-logo {
-              width: 44px;
-            }
-
-            .toolbar-left {
-              gap: 20px;
-            }
-
-            .toolbar-row {
-              padding-top: 14px;
-              padding-bottom: 14px;
-            }
-
-            .toolbar-actions {
-              gap: 20px;
-            }
-          }
-
-          /* Large desktop */
-          @media (min-width: 1280px) {
-            :root { --map-controls-top: 240px; }
-            .screen-shell {
-              padding: 24px 30px 16px;
-              gap: 20px;
-            }
-
-            .toolbar-logo {
-              width: 44px;
-            }
-
-            .toolbar-left {
-              gap: 28px;
-            }
-
-            .toolbar-actions {
-              gap: 24px;
-            }
-          }
-        `}</style>
-      </motion.div>
+        }
+      `}</style>
 
       <CalendarPanel open={showSeasonal} onClose={() => setShowSeasonal(false)} onPinSelect={onPinSelect} />
     </>
