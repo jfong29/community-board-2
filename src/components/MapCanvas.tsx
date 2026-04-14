@@ -152,24 +152,14 @@ export default function MapCanvas() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
-      {/* Hide all nav UI when a pin is selected */}
-      <AnimatePresence>
-        {!pinIsOpen && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-          >
-            <EcoStatusBar
-              initialSearch={initialSearch}
-              onPinSelect={handlePinSelect}
-              activeFilters={activeFilters}
-              onToggleFilter={handleToggleFilter}
-              onFiltersExpandChange={setFiltersExpanded}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Header - always visible */}
+      <EcoStatusBar
+        initialSearch={initialSearch}
+        onPinSelect={handlePinSelect}
+        activeFilters={activeFilters}
+        onToggleFilter={handleToggleFilter}
+        onFiltersExpandChange={setFiltersExpanded}
+      />
 
       {/* Neighborhood label */}
       <AnimatePresence>
@@ -326,7 +316,7 @@ export default function MapCanvas() {
         hideControls={pinIsOpen}
       />
 
-      {!pinIsOpen && <FloatingDock onAdd={() => setShowAdd(true)} />}
+      <FloatingDock onAdd={() => setShowAdd(true)} />
 
       <DetailSheet pin={selectedPin} onClose={() => { setSelectedPin(null); setHighlightedPinId(null); }} onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }} onTagClick={(subcategory) => { setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(subcategory); }} onNextPin={handleNextPin} onPrevPin={handlePrevPin} allPins={allPins} />
       <LandmarkSheet landmark={selectedLandmark} onClose={() => setSelectedLandmark(null)} onPinSelect={(pin) => { setSelectedLandmark(null); handlePinSelect(pin); }} />
