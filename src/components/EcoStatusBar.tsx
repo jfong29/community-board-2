@@ -110,18 +110,19 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           </div>
 
         </div>
+      </motion.div>
 
-        {/* Row 3: Category Filters */}
-        <div style={{
-          background: 'linear-gradient(0deg, #2A211D 0%, #322924 100%)',
-          borderTop: '1px solid rgba(255,255,255,0.05)',
-        }}>
-          <CategoryFilters
-            activeFilters={activeFilters}
-            onToggle={onToggleFilter}
-            neighborhoodLabel={neighborhoodLabel}
-          />
-        </div>
+      {/* Filter row - separate from header background */}
+      <div
+        className="fixed left-0 right-0 z-[59]"
+        style={{ top: 'var(--header-bottom, 90px)' }}
+      >
+        <CategoryFilters
+          activeFilters={activeFilters}
+          onToggle={onToggleFilter}
+          neighborhoodLabel={neighborhoodLabel}
+        />
+      </div>
 
         <style>{`
           :root {
