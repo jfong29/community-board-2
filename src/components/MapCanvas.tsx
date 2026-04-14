@@ -303,7 +303,7 @@ export default function MapCanvas() {
 
       <FloatingDock onAdd={() => setShowAdd(true)} />
 
-      <DetailSheet pin={selectedPin} onClose={() => { setSelectedPin(null); setHighlightedPinId(null); }} onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }} onTagClick={(subcategory) => { setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(subcategory); }} onNextPin={handleNextPin} onPrevPin={handlePrevPin} />
+      <DetailSheet pin={selectedPin} onClose={() => { setSelectedPin(null); setHighlightedPinId(null); }} onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }} onTagClick={(subcategory) => { setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(subcategory); }} onNextPin={handleNextPin} onPrevPin={handlePrevPin} allPins={allPins} />
       <LandmarkSheet landmark={selectedLandmark} onClose={() => setSelectedLandmark(null)} onPinSelect={(pin) => { setSelectedLandmark(null); handlePinSelect(pin); }} />
       <SubcategorySheet subcategory={activeSubcategory} onClose={() => setActiveSubcategory(null)} onPinSelect={(pin) => { setActiveSubcategory(null); handlePinSelect(pin); }} />
       <AddPinModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddPin} />
