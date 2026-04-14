@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Pin } from '@/data/pins';
+import { Pin, samplePins } from '@/data/pins';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
+import ConnectionsSection from './ConnectionsSection';
+import translateIcon from '@/assets/translate-icon.svg';
 import offerNoOutline from '@/assets/offer-no-outline.svg';
 import requestNoOutline from '@/assets/request-no-outline.svg';
 import urgentRequestPopup from '@/assets/urgent-request-popup.svg';
