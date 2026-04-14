@@ -154,6 +154,7 @@ export default function MapCanvas() {
         onPinSelect={handlePinSelect}
         activeFilters={activeFilters}
         onToggleFilter={handleToggleFilter}
+        neighborhoodLabel={`${neighborhood.indigenousName}: ${neighborhood.modernName}`}
       />
 
       {/* Neighborhood label */}
