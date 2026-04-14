@@ -63,7 +63,7 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
   return (
     <div
       className="flex items-center w-full relative"
-      style={{ padding: '10px 30px', minHeight: 48 }}
+      style={{ padding: '10px 21px', minHeight: 48 }}
     >
       {/* Y toggle button - always on left */}
       <button
