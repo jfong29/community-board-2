@@ -211,10 +211,10 @@ export default function MapCanvas() {
         )}
       </AnimatePresence>
 
-      {/* Left controls - Connections + Eye toggle */}
+      {/* Left controls - Connections + Eye toggle - positioned above footer */}
       <motion.div
         className="fixed z-40 flex flex-col gap-1.5"
-        style={{ top: 'var(--map-controls-top, 140px)', left: '30px' }}
+        style={{ bottom: 80, left: 14 }}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}

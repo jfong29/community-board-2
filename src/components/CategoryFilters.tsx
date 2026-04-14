@@ -63,7 +63,7 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
   return (
     <div
       className="flex items-center w-full relative"
-      style={{ padding: '10px 21px', minHeight: 48 }}
+      style={{ padding: '10px 14px', minHeight: 48 }}
     >
       {/* Y toggle button - always on left */}
       <button
@@ -75,7 +75,6 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
           borderRadius: 11,
           background: 'linear-gradient(0deg, rgba(50,41,36,0.80) 0%, rgba(59,48,42,0.80) 46%, rgba(34,27,23,0.80) 100%)',
           border: `0.68px solid ${DARK_WOOD}`,
-          opacity: expanded || hasActiveFilters ? 1 : 0.5,
         }}
         title="Filter categories"
       >
@@ -88,7 +87,7 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
 
       <AnimatePresence mode="wait">
         {!expanded ? (
-          /* Location label - centered in the full row, with padding to avoid crashing into filter icon */
+          /* Location label with brown background - centered */
           <motion.div
             key="location"
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
@@ -97,12 +96,18 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             style={{
-              paddingLeft: 70,
-              paddingRight: 21,
+              paddingLeft: 64,
+              paddingRight: 14,
             }}
           >
             {neighborhoodLabel && (
-              <div className="text-center">
+              <div
+                className="text-center px-4 py-1.5 rounded-full"
+                style={{
+                  background: 'linear-gradient(0deg, rgba(50,41,36,0.85) 0%, rgba(59,48,42,0.85) 46%, rgba(34,27,23,0.85) 100%)',
+                  border: `0.68px solid rgba(34,27,23,0.6)`,
+                }}
+              >
                 <span
                   className="font-display text-sm font-semibold"
                   style={{ color: '#E0E0E0' }}
@@ -126,7 +131,7 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
         ) : (
           <motion.div
             key="filters"
-            className="flex items-center gap-[4px] ml-2"
+            className="flex items-center gap-[3px] ml-2 flex-1 min-w-0"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
@@ -138,28 +143,31 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
                 <button
                   key={key}
                   onClick={() => onToggle(key)}
-                  className="flex-shrink-0 flex items-center gap-[2px] transition-all active:scale-95"
+                  className="flex items-center gap-[2px] transition-all active:scale-95"
                   style={{
                     height: 26,
                     paddingTop: 3,
                     paddingBottom: 4,
-                    paddingLeft: 7,
-                    paddingRight: 8,
+                    paddingLeft: 6,
+                    paddingRight: 7,
                     background: gradient,
                     borderRadius: 39,
                     border: border,
                     boxShadow: shadow,
                     opacity: isActive ? 1 : 0.4,
+                    flex: '1 1 0',
+                    minWidth: 0,
+                    justifyContent: 'center',
                   }}
                 >
                   <img
                     src={icon}
                     alt={label}
-                    className="w-[11px] h-[9px]"
+                    className="w-[10px] h-[8px] flex-shrink-0"
                     style={{ filter: 'brightness(0) saturate(100%)' }}
                   />
                   <span
-                    className="font-display font-bold text-[10px] leading-none whitespace-nowrap"
+                    className="font-display font-bold text-[9px] leading-none whitespace-nowrap"
                     style={{ color: DARK_WOOD }}
                   >
                     {label}
