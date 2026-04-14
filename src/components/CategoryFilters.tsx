@@ -97,8 +97,8 @@ export default function CategoryFilters({ activeFilters, onToggle, neighborhoodL
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             style={{
-              paddingLeft: 100, /* 40px button + 30px padding + 30px gap */
-              paddingRight: 30,
+              paddingLeft: 70,
+              paddingRight: 21,
             }}
           >
             {neighborhoodLabel && (
