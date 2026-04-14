@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SearchBar from './SearchBar';
 import CalendarPanel from './CalendarPanel';
+import CategoryFilters from './CategoryFilters';
 import { Pin, PinCategory } from '@/data/pins';
 import moonPhaseIcon from '@/assets/moon-phase-new.svg';
 import sunIcon from '@/assets/sun-icon.svg';
@@ -29,9 +30,10 @@ interface EcoStatusBarProps {
   onPinSelect: (pin: Pin) => void;
   activeFilters: Set<PinCategory>;
   onToggleFilter: (cat: PinCategory) => void;
+  neighborhoodLabel?: string;
 }
 
-export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFilters, onToggleFilter }: EcoStatusBarProps) {
+export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFilters, onToggleFilter, neighborhoodLabel }: EcoStatusBarProps) {
   const navigate = useNavigate();
   const [showSeasonal, setShowSeasonal] = useState(false);
   const seasonName = getSeasonName();
@@ -107,6 +109,18 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
             </div>
           </div>
 
+        </div>
+
+        {/* Row 3: Category Filters */}
+        <div style={{
+          background: 'linear-gradient(0deg, #2A211D 0%, #322924 100%)',
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          <CategoryFilters
+            activeFilters={activeFilters}
+            onToggle={onToggleFilter}
+            neighborhoodLabel={neighborhoodLabel}
+          />
         </div>
 
         <style>{`
