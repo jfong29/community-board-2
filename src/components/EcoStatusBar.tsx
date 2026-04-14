@@ -125,7 +125,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
 
         <style>{`
           :root {
-            --map-controls-top: 120px;
+            --map-controls-top: 170px;
           }
           .screen-shell {
             background: linear-gradient(0deg, #322924 0%, #3B302A 46%, #221B17 100%);
