@@ -117,7 +117,7 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
             initial={{ y: '-40%', opacity: 0, scale: 0.9 }}
             animate={{ y: '-50%', opacity: 1, scale: 1 }}
             exit={{ y: '-40%', opacity: 0, scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
             <div className="earth-panel rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">

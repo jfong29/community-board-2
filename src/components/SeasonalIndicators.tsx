@@ -31,7 +31,7 @@ export default function SeasonalIndicators({ open, onClose }: SeasonalIndicators
           initial={{ opacity: 0, y: -20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+          transition={{ duration: 0.5, ease: 'easeInOut' }}>
           
             <div className="earth-panel rounded-2xl p-4 space-y-3">
               <div className="flex items-center justify-between">

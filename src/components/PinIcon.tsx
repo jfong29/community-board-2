@@ -131,7 +131,7 @@ export default function PinIcon({ category, size = 32, onClick, animate = true, 
       whileTap={{ scale: 0.9 }}
       initial={animate ? { scale: 0, opacity: 0 } : false}
       animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+      transition={{ duration: 0.5, ease: 'easeInOut' }}
       style={{ filter: `drop-shadow(${glowMap[category]})` }}
     >
       {animate && (

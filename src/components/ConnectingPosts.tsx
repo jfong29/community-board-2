@@ -377,7 +377,7 @@ export default function ConnectingPosts({ open, onClose, pins }: ConnectingPosts
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.8, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
                   >
                     <h2 style={{
                       fontFamily: 'Labrada, serif',

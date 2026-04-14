@@ -80,7 +80,7 @@ export default function ChatPanel({ pin, onClose, onBackToPin }: ChatPanelProps)
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
         >
           <div className="earth-panel flex-1 flex flex-col bg-background">
             {/* Header with pin title */}
