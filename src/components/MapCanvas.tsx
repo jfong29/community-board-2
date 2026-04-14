@@ -148,19 +148,32 @@ export default function MapCanvas() {
     }
   }, [getSortedNearbyPins, selectedPin, handlePinSelect]);
 
+  const pinIsOpen = !!selectedPin;
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
-      <EcoStatusBar
-        initialSearch={initialSearch}
-        onPinSelect={handlePinSelect}
-        activeFilters={activeFilters}
-        onToggleFilter={handleToggleFilter}
-        onFiltersExpandChange={setFiltersExpanded}
-      />
+      {/* Hide all nav UI when a pin is selected */}
+      <AnimatePresence>
+        {!pinIsOpen && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <EcoStatusBar
+              initialSearch={initialSearch}
+              onPinSelect={handlePinSelect}
+              activeFilters={activeFilters}
+              onToggleFilter={handleToggleFilter}
+              onFiltersExpandChange={setFiltersExpanded}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Neighborhood label */}
       <AnimatePresence>
-        {showNeighborhoodLabel && (
+        {showNeighborhoodLabel && !pinIsOpen && (
           <motion.div
             className="fixed z-30 w-full flex justify-center pointer-events-none"
             style={{ top: 'calc(var(--grid-gap) * 2 + 64px)', left: 0, right: 0 }}
@@ -213,82 +226,92 @@ export default function MapCanvas() {
       </AnimatePresence>
 
       {/* Left controls - Connections + Eye toggle - positioned above footer */}
-      <motion.div
-        className="fixed z-40 flex flex-col gap-1.5"
-        style={{ bottom: 80, left: 14 }}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <button
-          onClick={() => setShowConnections(true)}
-          className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
-          title="Connecting posts"
-          style={{ background: 'hsla(15,16%,17%,0.92)', border: '1px solid hsla(15,12%,30%,0.5)' }}
-        >
-          <img src={connectionsIcon} alt="Connections" className="w-5 h-5" />
-        </button>
-        <button
-          onClick={() => setHidePins(!hidePins)}
-          className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
-          title={hidePins ? 'Show pins' : 'Hide pins'}
-          style={{
-            background: 'hsla(15,16%,17%,0.92)',
-            border: '1px solid hsla(15,12%,30%,0.5)',
-            opacity: hidePins ? 0.5 : 1,
-          }}
-        >
-          <img src={eyeIcon} alt="Toggle pins" className="w-5 h-auto" />
-        </button>
-      </motion.div>
+      <AnimatePresence>
+        {!pinIsOpen && (
+          <motion.div
+            className="fixed z-40 flex flex-col gap-1.5"
+            style={{ bottom: 80, left: 14 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.15 }}
+          >
+            <button
+              onClick={() => setShowConnections(true)}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
+              title="Connecting posts"
+              style={{ background: 'hsla(15,16%,17%,0.92)', border: '1px solid hsla(15,12%,30%,0.5)' }}
+            >
+              <img src={connectionsIcon} alt="Connections" className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setHidePins(!hidePins)}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
+              title={hidePins ? 'Show pins' : 'Hide pins'}
+              style={{
+                background: 'hsla(15,16%,17%,0.92)',
+                border: '1px solid hsla(15,12%,30%,0.5)',
+                opacity: hidePins ? 0.5 : 1,
+              }}
+            >
+              <img src={eyeIcon} alt="Toggle pins" className="w-5 h-auto" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Layer toggle - aligned with zoom controls (right side) */}
-      <motion.div
-        className="fixed z-40 flex items-center"
-        style={{ top: 'var(--map-controls-top, 140px)', right: '30px' }}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <AnimatePresence>
-          {layerMenuOpen && (
-            <motion.div
-              className="flex items-center gap-1.5 mr-1.5"
-              initial={{ opacity: 0, x: 20, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 20, scale: 0.9 }}
-              transition={{ duration: 0.15 }}
-            >
-              {layerOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => { setMapLayer(opt.value); setLayerMenuOpen(false); }}
-                  className={`w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-all active:scale-95 ${
-                    mapLayer === opt.value ? 'ring-1 ring-lime/50' : 'hover:bg-muted/20'
-                  }`}
-                  title={opt.label}
+      <AnimatePresence>
+        {!pinIsOpen && (
+          <motion.div
+            className="fixed z-40 flex items-center"
+            style={{ top: 'var(--map-controls-top, 140px)', right: '30px' }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.15 }}
+          >
+            <AnimatePresence>
+              {layerMenuOpen && (
+                <motion.div
+                  className="flex items-center gap-1.5 mr-1.5"
+                  initial={{ opacity: 0, x: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: 20, scale: 0.9 }}
+                  transition={{ duration: 0.15 }}
                 >
-                  <img
-                    src={opt.icon}
-                    alt={opt.label}
-                    className="w-5 h-5 object-contain"
-                    style={mapLayer === opt.value ? { filter: 'brightness(1.3)' } : { opacity: 0.6 }}
-                  />
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  {layerOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => { setMapLayer(opt.value); setLayerMenuOpen(false); }}
+                      className={`w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-all active:scale-95 ${
+                        mapLayer === opt.value ? 'ring-1 ring-lime/50' : 'hover:bg-muted/20'
+                      }`}
+                      title={opt.label}
+                    >
+                      <img
+                        src={opt.icon}
+                        alt={opt.label}
+                        className="w-5 h-5 object-contain"
+                        style={mapLayer === opt.value ? { filter: 'brightness(1.3)' } : { opacity: 0.6 }}
+                      />
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-        <button
-          onClick={() => setLayerMenuOpen(!layerMenuOpen)}
-          className="w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
-          title="Map layers"
-          style={{ background: 'hsla(15,16%,17%,0.92)', border: '1px solid hsla(15,12%,30%,0.5)' }}
-        >
-          <img src={layersIcon} alt="Layers" className="w-5 h-4" />
-        </button>
-      </motion.div>
+            <button
+              onClick={() => setLayerMenuOpen(!layerMenuOpen)}
+              className="w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
+              title="Map layers"
+              style={{ background: 'hsla(15,16%,17%,0.92)', border: '1px solid hsla(15,12%,30%,0.5)' }}
+            >
+              <img src={layersIcon} alt="Layers" className="w-5 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <StreetMapView
         pins={filteredPins}
@@ -302,7 +325,7 @@ export default function MapCanvas() {
         hidePins={hidePins}
       />
 
-      <FloatingDock onAdd={() => setShowAdd(true)} />
+      {!pinIsOpen && <FloatingDock onAdd={() => setShowAdd(true)} />}
 
       <DetailSheet pin={selectedPin} onClose={() => { setSelectedPin(null); setHighlightedPinId(null); }} onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }} onTagClick={(subcategory) => { setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(subcategory); }} onNextPin={handleNextPin} onPrevPin={handlePrevPin} allPins={allPins} />
       <LandmarkSheet landmark={selectedLandmark} onClose={() => setSelectedLandmark(null)} onPinSelect={(pin) => { setSelectedLandmark(null); handlePinSelect(pin); }} />
