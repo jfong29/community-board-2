@@ -483,6 +483,17 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                   </div>
                 )}
 
+                {/* Connections Section */}
+                <ConnectionsSection
+                  pin={pin}
+                  allPins={allPins || samplePins}
+                  onViewDetails={(connPin) => {
+                    onClose();
+                    // Small delay to let sheet close before opening new one
+                    setTimeout(() => onChat(connPin), 100);
+                  }}
+                />
+
                 {/* Bottom action bar */}
                 <div
                   className="flex items-center justify-between relative"
