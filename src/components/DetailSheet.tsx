@@ -311,7 +311,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                <div style={{ overflowY: 'auto', flex: 1 }}>
                 <div
                   style={{
-                    padding: '20px 24px',
+                    padding: '28px 24px 20px 24px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '8px',
