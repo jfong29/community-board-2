@@ -290,8 +290,6 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                 </button>
               )}
 
-              <div className="pointer-events-none absolute left-1/2 z-20 -translate-x-1/2" style={{ top: '-14px' }}><PinIcon category={pin.category} size={30} animate={false} /></div>
-
               {/* Main card */}
               <div
                 className="relative overflow-hidden"
