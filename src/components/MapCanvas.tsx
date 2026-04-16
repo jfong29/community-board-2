@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Pin, PinCategory, samplePins, latLngToXY } from '@/data/pins';
 import { landmarks, Landmark } from '@/data/landmarks';
@@ -53,6 +53,7 @@ export default function MapCanvas() {
 
   const [activeFilters, setActiveFilters] = useState<Set<PinCategory>>(new Set());
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
+  const [pendingPin, setPendingPin] = useState<Pin | null>(null);
   const [highlightedPinId, setHighlightedPinId] = useState<string | null>(null);
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
@@ -103,12 +104,31 @@ export default function MapCanvas() {
     addPost.mutate({ ...data, x, y, profileId: profile?.id });
   };
 
+  useEffect(() => {
+    if (!pendingPin) return;
+
+    const timeout = window.setTimeout(() => {
+      setSelectedPin(pendingPin);
+      setPendingPin(null);
+    }, 650);
+
+    return () => window.clearTimeout(timeout);
+  }, [pendingPin]);
+
   // When selecting a pin (from calendar, search, or direct click), highlight + pan
-  const handlePinSelect = useCallback((pin: Pin) => {
-    setSelectedPin(pin);
+  const handlePinSelect = useCallback((pin: Pin, options?: { deferSheet?: boolean }) => {
     setHighlightedPinId(pin.id);
     setSelectedLandmark(null);
     setActiveSubcategory(null);
+
+    if (options?.deferSheet) {
+      setSelectedPin(null);
+      setPendingPin(pin);
+      return;
+    }
+
+    setPendingPin(null);
+    setSelectedPin(pin);
   }, []);
 
   // Navigate to next/prev nearest pin
@@ -148,14 +168,14 @@ export default function MapCanvas() {
     }
   }, [getSortedNearbyPins, selectedPin, handlePinSelect]);
 
-  const pinIsOpen = !!selectedPin;
+  const pinIsOpen = !!selectedPin || !!pendingPin;
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
       {/* Header - always visible */}
       <EcoStatusBar
         initialSearch={initialSearch}
-        onPinSelect={handlePinSelect}
+        onPinSelect={(pin) => handlePinSelect(pin)}
         activeFilters={activeFilters}
         onToggleFilter={handleToggleFilter}
         onFiltersExpandChange={setFiltersExpanded}
@@ -306,8 +326,8 @@ export default function MapCanvas() {
       <StreetMapView
         pins={filteredPins}
         landmarks={landmarks}
-        onPinClick={handlePinSelect}
-        onLandmarkClick={(lm) => { setSelectedLandmark(lm); setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(null); }}
+        onPinClick={(pin) => handlePinSelect(pin, { deferSheet: true })}
+        onLandmarkClick={(lm) => { setPendingPin(null); setSelectedLandmark(lm); setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(null); }}
         layer={mapLayer}
         onMapMove={handleMapMove}
         onZoomChange={setCurrentZoom}
@@ -318,7 +338,7 @@ export default function MapCanvas() {
 
       <FloatingDock onAdd={() => setShowAdd(true)} />
 
-      <DetailSheet pin={selectedPin} onClose={() => { setSelectedPin(null); setHighlightedPinId(null); }} onChat={(pin) => { setSelectedPin(null); setChatPin(pin); }} onTagClick={(subcategory) => { setSelectedPin(null); setHighlightedPinId(null); setActiveSubcategory(subcategory); }} onNextPin={handleNextPin} onPrevPin={handlePrevPin} allPins={allPins} />
+      <DetailSheet pin={selectedPin} onClose={() => { setSelectedPin(null); setPendingPin(null); setHighlightedPinId(null); }} onChat={(pin) => { setSelectedPin(null); setPendingPin(null); setChatPin(pin); }} onTagClick={(subcategory) => { setSelectedPin(null); setPendingPin(null); setHighlightedPinId(null); setActiveSubcategory(subcategory); }} onNextPin={handleNextPin} onPrevPin={handlePrevPin} allPins={allPins} />
       <LandmarkSheet landmark={selectedLandmark} onClose={() => setSelectedLandmark(null)} onPinSelect={(pin) => { setSelectedLandmark(null); handlePinSelect(pin); }} />
       <SubcategorySheet subcategory={activeSubcategory} onClose={() => setActiveSubcategory(null)} onPinSelect={(pin) => { setActiveSubcategory(null); handlePinSelect(pin); }} />
       <AddPinModal open={showAdd} onClose={() => setShowAdd(false)} onSubmit={handleAddPin} />

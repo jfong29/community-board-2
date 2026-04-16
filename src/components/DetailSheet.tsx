@@ -19,6 +19,7 @@ import chatBubble from '@/assets/chat-bubble.svg';
 import arrowRight from '@/assets/arrow-right.svg';
 import closeTab from '@/assets/close-tab.svg';
 import nextPostArrow from '@/assets/next-post-arrow.svg';
+import PinIcon from './PinIcon';
 
 interface DetailSheetProps {
   pin: Pin | null;
@@ -262,13 +263,14 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
             className="relative z-10 w-full flex flex-col items-center"
             style={{
               position: 'absolute',
-              top: 220,
+              top: 250,
               bottom: 110,
-              left: 30,
-              right: 30,
+              left: 0,
+              right: 0,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              padding: '0 30px',
               pointerEvents: 'none',
             }}
             initial={{ y: 20, opacity: 0 }}
@@ -276,23 +278,24 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
             exit={{ y: 20, opacity: 0 }}
             transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
-            <div className="flex items-center gap-2 w-full justify-center" style={{ maxWidth: '360px', maxHeight: '100%', pointerEvents: 'auto' }}>
+            <div className="relative" style={{ width: 'min(360px, calc(100vw - 60px))', maxHeight: '100%', pointerEvents: 'auto' }}>
               {/* Left arrow */}
               {onPrevPin && (
                 <button
                   onClick={onPrevPin}
-                  className="flex-shrink-0 transition-opacity hover:opacity-80"
-                  style={{ width: '17px', height: '26px' }}
+                  className="transition-opacity hover:opacity-80"
+                  style={{ position: 'absolute', left: '-24px', top: '50%', transform: 'translateY(-50%)', width: '17px', height: '26px', zIndex: 15 }}
                 >
                   <img src={nextPostArrow} alt="Previous" style={{ width: '17px', height: '26px', transform: 'scaleX(-1)' }} />
                 </button>
               )}
 
+              <div className="pointer-events-none absolute left-1/2 z-20 -translate-x-1/2" style={{ top: '-14px' }}><PinIcon category={pin.category} size={30} animate={false} /></div>
+
               {/* Main card */}
               <div
-                className="flex-1 relative overflow-hidden"
+                className="relative overflow-hidden"
                 style={{
-                  maxWidth: '360px',
                   width: '100%',
                   maxHeight: '100%',
                   borderRadius: '16px',
@@ -308,7 +311,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                <div style={{ overflowY: 'auto', flex: 1 }}>
                 <div
                   style={{
-                    padding: '20px 24px',
+                    padding: '28px 24px 20px 24px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '8px',
@@ -633,8 +636,8 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
               {onNextPin && (
                 <button
                   onClick={onNextPin}
-                  className="flex-shrink-0 transition-opacity hover:opacity-80"
-                  style={{ width: '17px', height: '26px' }}
+                  className="transition-opacity hover:opacity-80"
+                  style={{ position: 'absolute', right: '-24px', top: '50%', transform: 'translateY(-50%)', width: '17px', height: '26px', zIndex: 15 }}
                 >
                   <img src={nextPostArrow} alt="Next" style={{ width: '17px', height: '26px' }} />
                 </button>

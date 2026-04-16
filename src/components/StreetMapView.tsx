@@ -83,9 +83,9 @@ function urgentRequestSvg(size: number): string {
 
 function createPinIcon(category: string, dim = false, urgent = false, highlighted = false) {
   const baseSize = category === 'offer' || category === 'request' ? 44 : category === 'event' ? 42 : Math.round(32 * 0.9);
-  const size = highlighted ? Math.round(baseSize * 1.6) : baseSize;
+  const size = highlighted ? Math.round(baseSize * 1.35) : baseSize;
   const glow = categoryGlow[category] || 'rgba(0,0,0,0.3)';
-  const glowStr = dim ? 'none' : `drop-shadow(0 0 ${highlighted ? '20' : '12'}px ${glow})`;
+  const glowStr = dim ? 'none' : `drop-shadow(0 0 ${highlighted ? '18' : '12'}px ${glow}) drop-shadow(0 0 ${highlighted ? '30' : '0'}px ${highlighted ? glow : 'transparent'})`;
   const pulseClass = (urgent && category === 'request') ? 'pin-urgent-pulse' : '';
 
   // Use urgent request SVG for urgent requests
@@ -95,7 +95,7 @@ function createPinIcon(category: string, dim = false, urgent = false, highlighte
 
   // Highlighted pins get a subtle gradient glow behind them instead of a ring
   const highlightGlow = highlighted
-    ? `<div style="position:absolute;inset:-12px;border-radius:50%;background:radial-gradient(circle, ${categoryColor[category] || '#888'}44 0%, transparent 70%);pointer-events:none;"></div>`
+    ? `<div style="position:absolute;inset:-14px;border-radius:999px;background:radial-gradient(circle, ${categoryColor[category] || '#888'}88 0%, ${categoryColor[category] || '#888'}33 42%, transparent 76%);filter:blur(2px);pointer-events:none;"></div>`
     : '';
 
   return L.divIcon({
@@ -129,7 +129,7 @@ function createYouIcon() {
 /*
  * ── Zoom tiers (4 zoom levels: 13–16) ──
  * Zoom 16 (most zoomed in): Tier 1 — all pins, no landmarks
- * Zoom 15: Tier 1b — landmarks + urgent pulsing pins
+ * Zoom 15: Tier 1b — landmarks + the same pins as max zoom
  * Zoom 14: landmarks + gradients, no pins
  * Zoom 13 (most zoomed out): just gradients, no landmarks
  */
@@ -511,9 +511,6 @@ export default function StreetMapView({
 
   const visiblePins = useMemo(() => {
     if (tier === 'gradient-only' || tier === 'landmarks-gradient') return [];
-    if (tier === 'landmarks-urgent') {
-      return pins.filter((p) => p.category === 'request' && pinUrgency(p) >= 2);
-    }
     return pins;
   }, [pins, tier]);
 
@@ -560,7 +557,7 @@ export default function StreetMapView({
         )}
 
         <SmoothZoomHandler />
-        <FlyToHandler target={flyTarget} zoom={flyZoom} yOffsetRatio={highlightedPinId ? 0.2 : 0} />
+        <FlyToHandler target={flyTarget} zoom={flyZoom} yOffsetRatio={highlightedPinId ? 0.26 : 0} />
 
         {/* Dark OSM tiles – free, no API key needed */}
         <TileLayer
@@ -598,7 +595,7 @@ export default function StreetMapView({
         {!hidePins && <Marker position={YOU_LOCATION} icon={createYouIcon()} />}
 
         {!hidePins && visiblePins.map((pin) => {
-          const isDim = tier === 'all-pins' && pinUrgency(pin) <= 1;
+          const isDim = (tier === 'all-pins' || tier === 'landmarks-urgent') && pinUrgency(pin) <= 1;
           const isUrgent = pin.category === 'request' && pinUrgency(pin) >= 2;
           const isHighlighted = pin.id === highlightedPinId;
           return (
