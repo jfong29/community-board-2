@@ -257,26 +257,26 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
             <img src={closeTab} alt="Close" style={{ width: '22px', height: '22px', filter: 'brightness(10)' }} />
           </button>
 
-          {/* Card area - centered and lifted clear of footer so selected map pin remains visible above */}
+          {/* Card area - centered between header & footer with extra top padding so the selected map pin remains visible above the card */}
           <motion.div
             className="relative z-10 w-full flex flex-col items-center"
             style={{
               position: 'absolute',
-              top: 116,
-              bottom: 104,
+              top: 220,
+              bottom: 110,
               left: 30,
               right: 30,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'flex-end',
+              justifyContent: 'center',
               pointerEvents: 'none',
             }}
-            initial={{ y: 30, opacity: 0 }}
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 30, opacity: 0 }}
+            exit={{ y: 20, opacity: 0 }}
             transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
-            <div className="flex items-center gap-2 w-full justify-center h-full" style={{ maxWidth: '360px', pointerEvents: 'auto' }}>
+            <div className="flex items-center gap-2 w-full justify-center" style={{ maxWidth: '360px', maxHeight: '100%', pointerEvents: 'auto' }}>
               {/* Left arrow */}
               {onPrevPin && (
                 <button
@@ -298,7 +298,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                   borderRadius: '16px',
                   background: style.gradient,
                   backgroundBlendMode: style.backgroundBlendMode || 'normal',
-                  boxShadow: `1.6px 6.5px 39px 16px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset`,
+                  boxShadow: `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset`,
                   outline: `1.6px solid ${style.border}`,
                   outlineOffset: '-1.6px',
                   display: 'flex',
