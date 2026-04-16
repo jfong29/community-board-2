@@ -10,6 +10,8 @@ import xMarkIcon from '@/assets/x-mark.svg';
 import nextPostArrow from '@/assets/next-post-arrow.svg';
 import closeTab from '@/assets/close-tab.svg';
 
+const DARK_WOOD = '#221B17';
+
 const categoryColorMap: Record<string, string> = {
   offer: '#79E824',
   request: '#FF48B5',
@@ -29,6 +31,27 @@ const categoryLabel: Record<string, string> = {
   request: 'Request',
   observation: 'Observation',
   event: 'Gathering',
+};
+
+// Match DetailSheet popup gradients
+const categoryStyles: Record<string, { gradient: string; backgroundBlendMode?: string; border: string }> = {
+  request: {
+    gradient: 'linear-gradient(0deg, rgba(0,0,0,0.10) 0%, rgba(102,102,102,0.10) 100%), linear-gradient(180deg, #FF84CE 0%, #FF61BF 100%)',
+    backgroundBlendMode: 'darken, normal',
+    border: '#EC5BB2',
+  },
+  offer: {
+    gradient: 'linear-gradient(180deg, #C6FF9A 0%, #82D345 63%)',
+    border: '#49A800',
+  },
+  observation: {
+    gradient: 'linear-gradient(180deg, rgba(255,117,60,0.90) 0%, rgba(255,85,14,0.90) 100%)',
+    border: 'rgba(208,110,69,0.90)',
+  },
+  event: {
+    gradient: 'linear-gradient(180deg, #C16EFA 0%, #BF5BFF 52%, #71459B 100%)',
+    border: 'rgba(0,0,0,0.20)',
+  },
 };
 
 interface PostPairing {
@@ -130,39 +153,49 @@ function MyceliumLines({ color1, color2 }: { color1: string; color2: string }) {
   );
 }
 
-function PostCard({ pin, glow, side }: { pin: Pin; glow: boolean; side: 'left' | 'right' }) {
+function PostCard({ pin, glow }: { pin: Pin; glow: boolean; side: 'left' | 'right' }) {
   const color = categoryColorMap[pin.category] || '#888';
   const icon = categoryIconMap[pin.category] || offerNoOutline;
   const label = categoryLabel[pin.category] || pin.category;
   const isUrgent = pin.category === 'request' && (pin.urgency === 'critical' || pin.urgency === 'high');
+  const cardStyle = categoryStyles[pin.category] || categoryStyles.offer;
+  const darkIconFilter = 'brightness(0) saturate(100%)';
 
   return (
     <motion.div
       className="relative overflow-hidden"
       style={{
-        background: 'hsla(15, 16%, 14%, 0.95)',
-        borderRadius: '10px',
-        padding: '20px',
-        border: glow ? `1.5px solid ${color}` : '1px solid hsla(15,12%,30%,0.4)',
-        boxShadow: glow ? `0 0 30px ${color}40, 0 0 60px ${color}20` : 'none',
+        background: cardStyle.gradient,
+        backgroundBlendMode: cardStyle.backgroundBlendMode || 'normal',
+        borderRadius: '16px',
+        padding: '20px 20px 18px 20px',
+        outline: `1.6px solid ${glow ? color : cardStyle.border}`,
+        outlineOffset: '-1.6px',
+        boxShadow: glow
+          ? `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, 0 0 30px ${color}55`
+          : `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset`,
         flex: 1,
         minWidth: 0,
       }}
       animate={glow ? {
-        boxShadow: [`0 0 30px ${color}40`, `0 0 50px ${color}60`, `0 0 30px ${color}40`],
+        boxShadow: [
+          `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, 0 0 30px ${color}55`,
+          `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, 0 0 50px ${color}80`,
+          `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, 0 0 30px ${color}55`,
+        ],
       } : {}}
-      transition={glow ? { duration: 2, repeat: Infinity } : {}}
+      transition={glow ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
     >
       {/* Category header */}
-      <div className="flex items-center gap-2 mb-3">
-        <img src={icon} alt="" style={{ width: '14px', height: '14px' }} />
+      <div className="flex items-center gap-[8px] mb-2">
+        <img src={icon} alt="" style={{ width: '15px', height: '13px', filter: darkIconFilter }} />
         <span style={{
+          color: DARK_WOOD,
+          fontSize: '13px',
           fontFamily: "'Public Sans', sans-serif",
-          fontSize: '11px',
-          fontWeight: 600,
+          fontWeight: 700,
           textTransform: 'uppercase',
-          color,
-          letterSpacing: '0.5px',
+          lineHeight: '16px',
         }}>
           {isUrgent ? 'Urgent ' : ''}{label}
         </span>
@@ -170,54 +203,42 @@ function PostCard({ pin, glow, side }: { pin: Pin; glow: boolean; side: 'left' |
 
       {/* Title */}
       <h3 style={{
-        fontFamily: 'Labrada, serif',
-        fontWeight: 600,
-        fontSize: '20px',
-        lineHeight: '1.2',
-        color: '#F4EDE8',
-        marginBottom: '8px',
+        color: DARK_WOOD,
+        fontSize: '18px',
+        fontFamily: "'Public Sans', sans-serif",
+        fontWeight: 700,
+        textTransform: 'capitalize',
+        lineHeight: '22px',
+        marginBottom: '6px',
       }}>
         {pin.title}
       </h3>
 
       {/* Description */}
       <p style={{
+        color: DARK_WOOD,
+        fontSize: '12px',
         fontFamily: "'Public Sans', sans-serif",
-        fontSize: '13px',
         fontWeight: 400,
-        color: '#F4EDE8',
-        opacity: 0.8,
-        lineHeight: '1.5',
-        marginBottom: '12px',
+        lineHeight: '16px',
+        marginBottom: '10px',
+        opacity: 0.9,
       }}>
-        {pin.description}
+        {pin.description.split('\n')[0]}
       </p>
 
-      {/* Meta */}
-      <div className="flex items-center gap-2 flex-wrap">
+      {/* Posted by */}
+      <div className="flex items-center gap-2" style={{ opacity: 0.8 }}>
         <span style={{
-          fontFamily: "'Public Sans', sans-serif",
+          color: DARK_WOOD,
           fontSize: '11px',
-          color: '#DAE16B',
+          fontFamily: "'Public Sans', sans-serif",
+          fontWeight: 500,
           textDecoration: 'underline',
+          textUnderlineOffset: '2px',
         }}>
           {pin.postedBy}
         </span>
-        {pin.subcategory && (
-          <span style={{
-            fontFamily: "'Public Sans', sans-serif",
-            fontSize: '10px',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            color,
-            background: `${color}18`,
-            border: `1px solid ${color}40`,
-            borderRadius: '20px',
-            padding: '2px 8px',
-          }}>
-            {pin.subcategory}
-          </span>
-        )}
       </div>
     </motion.div>
   );
@@ -277,7 +298,7 @@ export default function ConnectingPosts({ open, onClose, pins }: ConnectingPosts
           transition={{ duration: 0.3 }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-[30px] pt-6 pb-4">
+          <div className="flex items-center justify-between px-[30px] pt-6 pb-1">
             <h2 style={{
               fontFamily: 'Labrada, serif',
               fontWeight: 600,
@@ -292,6 +313,19 @@ export default function ConnectingPosts({ open, onClose, pins }: ConnectingPosts
             >
               <img src={closeTab} alt="Close" style={{ width: '22px', height: '22px' }} />
             </button>
+          </div>
+
+          {/* Prompt under title */}
+          <div className="px-[30px] pb-3">
+            <span style={{
+              fontFamily: "'Public Sans', sans-serif",
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#F4EDE8',
+              opacity: 0.7,
+            }}>
+              Do these connect?
+            </span>
           </div>
 
           {/* Reason label */}
@@ -332,24 +366,12 @@ export default function ConnectingPosts({ open, onClose, pins }: ConnectingPosts
                   <PostCard pin={pairing.post1} glow={matched} side="left" />
 
                   {/* Connection zone */}
-                  <div className="relative h-[60px] w-full flex items-center justify-center">
-                    {matched ? (
+                  <div className="relative h-[40px] w-full flex items-center justify-center">
+                    {matched && (
                       <MyceliumLines
                         color1={categoryColorMap[pairing.post1.category] || '#888'}
                         color2={categoryColorMap[pairing.post2.category] || '#888'}
                       />
-                    ) : (
-                      <div className="flex items-center justify-center">
-                        <span style={{
-                          fontFamily: "'Public Sans', sans-serif",
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          color: '#F4EDE8',
-                          opacity: 0.5,
-                        }}>
-                          Is this a match?
-                        </span>
-                      </div>
                     )}
                   </div>
 
