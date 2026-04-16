@@ -269,7 +269,6 @@ export default function ConnectionsSection({ pin, allPins, onViewDetails }: Conn
                       padding: '12px 20px 16px',
                       background: g.card,
                       backgroundBlendMode: g.cardBlend || 'normal',
-                      boxShadow: '1px 4px 24px 10px rgba(0,0,0,0.25)',
                       borderTopRightRadius: '12px',
                       borderBottomRightRadius: '12px',
                       borderBottomLeftRadius: '12px',
