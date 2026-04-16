@@ -298,7 +298,7 @@ export default function ConnectingPosts({ open, onClose, pins }: ConnectingPosts
           transition={{ duration: 0.3 }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-[30px] pt-6 pb-4">
+          <div className="flex items-center justify-between px-[30px] pt-6 pb-1">
             <h2 style={{
               fontFamily: 'Labrada, serif',
               fontWeight: 600,
@@ -313,6 +313,19 @@ export default function ConnectingPosts({ open, onClose, pins }: ConnectingPosts
             >
               <img src={closeTab} alt="Close" style={{ width: '22px', height: '22px' }} />
             </button>
+          </div>
+
+          {/* Prompt under title */}
+          <div className="px-[30px] pb-3">
+            <span style={{
+              fontFamily: "'Public Sans', sans-serif",
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#F4EDE8',
+              opacity: 0.7,
+            }}>
+              Do these connect?
+            </span>
           </div>
 
           {/* Reason label */}
