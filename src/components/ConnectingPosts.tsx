@@ -10,6 +10,8 @@ import xMarkIcon from '@/assets/x-mark.svg';
 import nextPostArrow from '@/assets/next-post-arrow.svg';
 import closeTab from '@/assets/close-tab.svg';
 
+const DARK_WOOD = '#221B17';
+
 const categoryColorMap: Record<string, string> = {
   offer: '#79E824',
   request: '#FF48B5',
@@ -29,6 +31,27 @@ const categoryLabel: Record<string, string> = {
   request: 'Request',
   observation: 'Observation',
   event: 'Gathering',
+};
+
+// Match DetailSheet popup gradients
+const categoryStyles: Record<string, { gradient: string; backgroundBlendMode?: string; border: string }> = {
+  request: {
+    gradient: 'linear-gradient(0deg, rgba(0,0,0,0.10) 0%, rgba(102,102,102,0.10) 100%), linear-gradient(180deg, #FF84CE 0%, #FF61BF 100%)',
+    backgroundBlendMode: 'darken, normal',
+    border: '#EC5BB2',
+  },
+  offer: {
+    gradient: 'linear-gradient(180deg, #C6FF9A 0%, #82D345 63%)',
+    border: '#49A800',
+  },
+  observation: {
+    gradient: 'linear-gradient(180deg, rgba(255,117,60,0.90) 0%, rgba(255,85,14,0.90) 100%)',
+    border: 'rgba(208,110,69,0.90)',
+  },
+  event: {
+    gradient: 'linear-gradient(180deg, #C16EFA 0%, #BF5BFF 52%, #71459B 100%)',
+    border: 'rgba(0,0,0,0.20)',
+  },
 };
 
 interface PostPairing {
