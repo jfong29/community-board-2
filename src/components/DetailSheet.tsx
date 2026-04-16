@@ -298,7 +298,7 @@ export default function DetailSheet({ pin, onClose, onChat, onTagClick, onNextPi
                   borderRadius: '16px',
                   background: style.gradient,
                   backgroundBlendMode: style.backgroundBlendMode || 'normal',
-                  boxShadow: `1.6px 6.5px 39px 16px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset`,
+                  boxShadow: `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset`,
                   outline: `1.6px solid ${style.border}`,
                   outlineOffset: '-1.6px',
                   display: 'flex',
