@@ -557,7 +557,7 @@ export default function StreetMapView({
         )}
 
         <SmoothZoomHandler />
-        <FlyToHandler target={flyTarget} zoom={flyZoom} yOffsetRatio={highlightedPinId ? 0.26 : 0} />
+        <FlyToHandler target={flyTarget} zoom={flyZoom} yOffsetPx={highlightedPinId ? -20 : 0} />
 
         {/* Dark OSM tiles – free, no API key needed */}
         <TileLayer
