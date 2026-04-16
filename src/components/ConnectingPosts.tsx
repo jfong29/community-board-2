@@ -366,24 +366,12 @@ export default function ConnectingPosts({ open, onClose, pins }: ConnectingPosts
                   <PostCard pin={pairing.post1} glow={matched} side="left" />
 
                   {/* Connection zone */}
-                  <div className="relative h-[60px] w-full flex items-center justify-center">
-                    {matched ? (
+                  <div className="relative h-[40px] w-full flex items-center justify-center">
+                    {matched && (
                       <MyceliumLines
                         color1={categoryColorMap[pairing.post1.category] || '#888'}
                         color2={categoryColorMap[pairing.post2.category] || '#888'}
                       />
-                    ) : (
-                      <div className="flex items-center justify-center">
-                        <span style={{
-                          fontFamily: "'Public Sans', sans-serif",
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          color: '#F4EDE8',
-                          opacity: 0.5,
-                        }}>
-                          Is this a match?
-                        </span>
-                      </div>
                     )}
                   </div>
 
