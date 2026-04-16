@@ -153,7 +153,96 @@ function MyceliumLines({ color1, color2 }: { color1: string; color2: string }) {
   );
 }
 
-function PostCard({ pin, glow, side }: { pin: Pin; glow: boolean; side: 'left' | 'right' }) {
+function PostCard({ pin, glow }: { pin: Pin; glow: boolean; side: 'left' | 'right' }) {
+  const color = categoryColorMap[pin.category] || '#888';
+  const icon = categoryIconMap[pin.category] || offerNoOutline;
+  const label = categoryLabel[pin.category] || pin.category;
+  const isUrgent = pin.category === 'request' && (pin.urgency === 'critical' || pin.urgency === 'high');
+  const cardStyle = categoryStyles[pin.category] || categoryStyles.offer;
+  const darkIconFilter = 'brightness(0) saturate(100%)';
+
+  return (
+    <motion.div
+      className="relative overflow-hidden"
+      style={{
+        background: cardStyle.gradient,
+        backgroundBlendMode: cardStyle.backgroundBlendMode || 'normal',
+        borderRadius: '16px',
+        padding: '20px 20px 18px 20px',
+        outline: `1.6px solid ${glow ? color : cardStyle.border}`,
+        outlineOffset: '-1.6px',
+        boxShadow: glow
+          ? `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, 0 0 30px ${color}55`
+          : `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset`,
+        flex: 1,
+        minWidth: 0,
+      }}
+      animate={glow ? {
+        boxShadow: [
+          `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, 0 0 30px ${color}55`,
+          `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, 0 0 50px ${color}80`,
+          `0px 4px 20px rgba(0,0,0,0.25), 0px 1.6px 10px rgba(232,237,163,0.6) inset, 0 0 30px ${color}55`,
+        ],
+      } : {}}
+      transition={glow ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
+    >
+      {/* Category header */}
+      <div className="flex items-center gap-[8px] mb-2">
+        <img src={icon} alt="" style={{ width: '15px', height: '13px', filter: darkIconFilter }} />
+        <span style={{
+          color: DARK_WOOD,
+          fontSize: '13px',
+          fontFamily: "'Public Sans', sans-serif",
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          lineHeight: '16px',
+        }}>
+          {isUrgent ? 'Urgent ' : ''}{label}
+        </span>
+      </div>
+
+      {/* Title */}
+      <h3 style={{
+        color: DARK_WOOD,
+        fontSize: '18px',
+        fontFamily: "'Public Sans', sans-serif",
+        fontWeight: 700,
+        textTransform: 'capitalize',
+        lineHeight: '22px',
+        marginBottom: '6px',
+      }}>
+        {pin.title}
+      </h3>
+
+      {/* Description */}
+      <p style={{
+        color: DARK_WOOD,
+        fontSize: '12px',
+        fontFamily: "'Public Sans', sans-serif",
+        fontWeight: 400,
+        lineHeight: '16px',
+        marginBottom: '10px',
+        opacity: 0.9,
+      }}>
+        {pin.description.split('\n')[0]}
+      </p>
+
+      {/* Posted by */}
+      <div className="flex items-center gap-2" style={{ opacity: 0.8 }}>
+        <span style={{
+          color: DARK_WOOD,
+          fontSize: '11px',
+          fontFamily: "'Public Sans', sans-serif",
+          fontWeight: 500,
+          textDecoration: 'underline',
+          textUnderlineOffset: '2px',
+        }}>
+          {pin.postedBy}
+        </span>
+      </div>
+    </motion.div>
+  );
+}
   const color = categoryColorMap[pin.category] || '#888';
   const icon = categoryIconMap[pin.category] || offerNoOutline;
   const label = categoryLabel[pin.category] || pin.category;
