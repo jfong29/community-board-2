@@ -89,28 +89,67 @@ function urgentRequestSvg(size: number): string {
   </svg>`;
 }
 
-function createPinIcon(category: string, dim = false, urgent = false, highlighted = false) {
-  const baseSize = category === 'offer' || category === 'request' ? 44 : category === 'event' ? 42 : Math.round(32 * 0.9);
-  const size = highlighted ? Math.round(baseSize * 1.35) : baseSize;
-  const glow = categoryGlow[category] || 'rgba(0,0,0,0.3)';
-  const glowStr = dim ? 'none' : `drop-shadow(0 0 ${highlighted ? '18' : '12'}px ${glow}) drop-shadow(0 0 ${highlighted ? '30' : '0'}px ${highlighted ? glow : 'transparent'})`;
+function createPinIcon(category: string, title: string, dim = false, urgent = false, highlighted = false) {
+  // Base scale; highlighted larger. Spec ratios: shape 80x67, label radius 36.57, gap 18.28, label font 20.79
+  const baseScale = highlighted ? 0.95 : 0.7;
+  const shapeW = Math.round(80 * baseScale);
+  const shapeH = Math.round(67 * baseScale);
+  const gap = Math.round(18.28 * baseScale);
+  const labelPadY = Math.round(11.43 * baseScale);
+  const labelPadX = Math.round(16 * baseScale);
+  const labelRadius = Math.round(36.57 * baseScale);
+  const labelFont = Math.max(10, Math.round(20.79 * baseScale * 0.6));
+  const shapeRadius = Math.round(36.57 * baseScale); // soft rounded shape
+
+  const grad = categoryGradient[category] || categoryGradient.offer;
+  const opacity = dim ? 0.55 : 1;
+  const glowColor = categoryGlow[category] || 'rgba(0,0,0,0.3)';
+  const glowFilter = dim
+    ? 'none'
+    : `drop-shadow(0 0 ${highlighted ? 16 : 10}px ${glowColor})${highlighted ? ` drop-shadow(0 0 28px ${glowColor})` : ''}`;
   const pulseClass = (urgent && category === 'request') ? 'pin-urgent-pulse' : '';
 
-  // Use urgent request SVG for urgent requests
-  const svgContent = (urgent && category === 'request')
-    ? urgentRequestSvg(size)
-    : pinSvg(category, size, dim);
+  // Truncate title to keep label compact
+  const safeTitle = (title || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const displayTitle = safeTitle.length > 22 ? safeTitle.slice(0, 20) + '…' : safeTitle;
 
-  // Highlighted pins get a subtle gradient glow behind them instead of a ring
-  const highlightGlow = highlighted
-    ? `<div style="position:absolute;inset:-14px;border-radius:999px;background:radial-gradient(circle, ${categoryColor[category] || '#888'}88 0%, ${categoryColor[category] || '#888'}33 42%, transparent 76%);filter:blur(2px);pointer-events:none;"></div>`
-    : '';
+  const labelBg = `linear-gradient(0deg, rgba(0,0,0,0.10) 0%, rgba(102,102,102,0.10) 100%), linear-gradient(180deg, ${grad.top} 0%, ${grad.bottom} 100%)`;
+  const shapeBg = labelBg;
+
+  const totalW = Math.max(shapeW, Math.round((displayTitle.length * labelFont * 0.55) + labelPadX * 2));
+  const totalH = shapeH + gap + Math.round(labelFont * 1.4 + labelPadY * 2);
+
+  const html = `
+    <div class="${pulseClass}" style="width:${totalW}px;height:${totalH}px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:${gap}px;cursor:pointer;opacity:${opacity};filter:${glowFilter};">
+      <div style="
+        padding:${labelPadY}px ${labelPadX}px;
+        background:${labelBg};
+        background-blend-mode:darken,normal;
+        box-shadow:0 -2.28px 1.83px rgba(0,0,0,0.25) inset;
+        border-radius:${labelRadius}px;
+        display:inline-flex;align-items:center;justify-content:center;
+        color:#221B17;
+        font-family:'Public Sans',sans-serif;font-weight:700;font-size:${labelFont}px;
+        text-transform:capitalize;line-height:1;white-space:nowrap;
+        letter-spacing:0.1px;
+      ">${displayTitle}</div>
+      <div style="
+        width:${shapeW}px;height:${shapeH}px;position:relative;
+        background:${shapeBg};
+        background-blend-mode:darken,normal;
+        box-shadow:0 2px 4px rgba(255,255,255,0.25) inset, -1px -2px 4px rgba(0,0,0,0.15) inset;
+        outline:0.5px solid ${grad.outline};
+        border-radius:${shapeRadius}px;
+      "></div>
+    </div>
+  `;
 
   return L.divIcon({
-    html: `<div class="${pulseClass}" style="filter:${glowStr};cursor:pointer;position:relative;">${highlightGlow}${svgContent}</div>`,
+    html,
     className: '',
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+    iconSize: [totalW, totalH],
+    // Anchor at the center of the rounded shape (bottom portion) so the geographic point matches the shape
+    iconAnchor: [totalW / 2, totalH - shapeH / 2],
   });
 }
 
