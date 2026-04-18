@@ -89,38 +89,61 @@ function urgentRequestSvg(size: number): string {
   </svg>`;
 }
 
-function createPinIcon(category: string, title: string, dim = false, urgent = false, highlighted = false) {
-  // Base scale; highlighted larger. Spec ratios: shape 80x67, label radius 36.57, gap 18.28, label font 20.79
-  const baseScale = highlighted ? 0.95 : 0.7;
-  const shapeW = Math.round(80 * baseScale);
-  const shapeH = Math.round(67 * baseScale);
-  const gap = Math.round(18.28 * baseScale);
-  const labelPadY = Math.round(11.43 * baseScale);
-  const labelPadX = Math.round(16 * baseScale);
-  const labelRadius = Math.round(36.57 * baseScale);
-  const labelFont = Math.max(10, Math.round(20.79 * baseScale * 0.6));
-  const shapeRadius = Math.round(36.57 * baseScale); // soft rounded shape
+/* Per-category shape SVGs (recolored gradients matching new pin design) */
+const categoryShapeSvg: Record<string, (w: number, h: number) => string> = {
+  request: (w, h) => `<svg width="${w}" height="${h}" viewBox="0 0 81 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g filter="url(#rq_ii)"><path d="M35.4822 64.8454L37.1775 66.8557C39.6434 66.7526 39.3805 66.5464 42.2574 66.2371L76.5089 6.71294L77.6378 0.505332L56.6447 0.5L39.1504 0.731128H25.155L2.99576 0.5L0.663086 2.01214L35.4822 64.8454Z" fill="url(#rq_g)"/></g>
+    <path d="M2.99805 0.25L25.1572 0.481445H39.1475L56.6416 0.25H56.6445L77.6377 0.254883L77.9375 0.255859L77.8838 0.549805L76.7549 6.75781L76.7471 6.7998L76.7256 6.83789L42.4736 66.3613L42.4102 66.4717L42.2842 66.4854C40.8546 66.639 40.2083 66.7669 39.6055 66.8701C38.9926 66.975 38.4308 67.0535 37.1875 67.1055L37.0654 67.1104L36.9863 67.0166L35.291 65.0068L35.2754 64.9883L35.2637 64.9668L0.444336 2.13379L0.331055 1.92969L0.527344 1.80273L2.85938 0.290039L2.92285 0.249023L2.99805 0.25Z" stroke="#E786C0" stroke-opacity="0.9" stroke-width="0.5"/>
+    <defs><filter id="rq_ii" x="-1" y="-2" width="79.24" height="71.37" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="bg"/><feBlend in="SourceGraphic" in2="bg" result="shape"/><feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="ha"/><feOffset dy="2"/><feGaussianBlur stdDeviation="2"/><feComposite in2="ha" operator="arithmetic" k2="-1" k3="1"/><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.25 0"/><feBlend in2="shape" result="e1"/></filter><linearGradient id="rq_g" x1="39.15" y1="0.5" x2="39.15" y2="66.86" gradientUnits="userSpaceOnUse"><stop stop-color="#FF84CE"/><stop offset="1" stop-color="#FF61BF"/></linearGradient></defs></svg>`,
+  offer: (w, h) => `<svg width="${w}" height="${h}" viewBox="0 0 80 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g filter="url(#of_ii)"><path d="M35.2236 2.55204L36.8597 0.511719C39.2394 0.616348 41.8175 0.825615 44.5938 1.13951L74.8171 61.5521L78.8262 68.5117H37.9566C32.5128 68.2908 27.069 68.1067 21.6252 67.9594L0.826172 67.8312L35.2236 2.55204Z" fill="url(#of_g)"/></g>
+    <path d="M79.2588 68.7617L79.043 68.3867L75.0342 61.4277L44.8174 1.02734L44.7568 0.90625L44.6221 0.890625C41.8411 0.57621 39.2573 0.366644 36.8711 0.261719L36.7441 0.256836L36.665 0.355469L35.0283 2.39551L35.0137 2.41406L35.0029 2.43555L0.605469 67.7148L0.413086 68.0791L0.824219 68.0811L21.6182 68.209L25.7002 68.3262C29.7822 68.4504 33.8643 68.596 37.9463 68.7617H79.2588Z" stroke="#88C956" stroke-opacity="0.9" stroke-width="0.5"/>
+    <defs><filter id="of_ii" x="0" y="-1" width="79.69" height="74.01" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="bg"/><feBlend in="SourceGraphic" in2="bg" result="shape"/></filter><linearGradient id="of_g" x1="39.83" y1="68.51" x2="39.83" y2="0.51" gradientUnits="userSpaceOnUse"><stop stop-color="#C6FF9A"/><stop offset="0.63" stop-color="#82D345"/></linearGradient></defs></svg>`,
+  observation: (w, h) => `<svg width="${w}" height="${h}" viewBox="0 0 59 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g filter="url(#ob_ii)"><path d="M0.0872897 51.9951C0.0872897 53.2957 0.261869 54.5962 0.611027 55.8968C2.24043 55.8403 3.89893 55.7554 5.58653 55.6424C7.33232 55.5858 9.1072 55.501 10.9112 55.3879C12.7152 55.3313 14.5483 55.2748 16.4104 55.2183H22.0842H28.9801C31.366 55.2748 33.6937 55.3313 35.9633 55.3879C38.291 55.501 56.7618 55.6141 58.9149 55.7272L59.0022 54.879L57.1691 15.5222L56.9072 0.678567L56.7327 0C54.3468 0.113093 35.6723 0.226187 33.17 0.339283C30.6677 0.39583 28.1072 0.452376 25.4885 0.508922C22.8699 0.565469 20.1639 0.622017 17.3706 0.678567H8.99082H0.523737C0.349158 1.30058 0.203676 1.9226 0.0872897 2.54462C0.0290966 3.16664 0 3.78866 0 4.41067L0.0872897 51.9951Z" fill="url(#ob_g)"/></g>
+    <defs><filter id="ob_ii" x="-3.1" y="-6.21" width="62.11" height="68.32" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="bg"/><feBlend in="SourceGraphic" in2="bg" result="shape"/></filter><linearGradient id="ob_g" x1="29.5" y1="0" x2="29.5" y2="55.9" gradientUnits="userSpaceOnUse"><stop stop-color="#FF753C"/><stop offset="1" stop-color="#FF550E"/></linearGradient></defs></svg>`,
+  event: (w, h) => `<svg width="${w}" height="${h}" viewBox="0 0 77 82" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g filter="url(#ev_ii)"><path d="M21.338 77.5599C25.7016 79.8899 30.4579 81.0549 35.607 81.0549C40.2324 80.5372 44.7269 79.329 49.0905 77.4305C53.4541 75.4456 57.4686 72.8998 61.134 69.7931C64.7994 66.6864 67.8976 63.2777 70.4285 59.5669C71.9121 56.978 73.1776 54.3028 74.2248 51.5412C75.2721 48.6934 76.0575 45.8456 76.5811 42.9978C77.1048 40.15 77.1791 34.682 76.5811 31.4728C75.9832 28.2636 74.2248 22.8481 70.4285 17.4327C66.6321 12.0172 58.3982 6.11925 53.6392 3.72676C48.9773 1.24225 43.8298 0 38.1968 0C33.2435 0.460093 28.3389 1.74835 23.4828 3.86478C18.6267 5.8892 12.8792 9.75705 10.0799 12.8195C7.28058 15.8819 4.31996 21.1646 3.2727 23.8398C2.22544 26.515 1.39635 29.2765 0.785448 32.1243C0.261816 34.8858 0 37.7337 0 40.6678C0 45.5867 0.87272 50.4625 2.61816 55.2952C4.3636 60.0415 6.85085 64.3564 10.0799 68.2398C13.309 72.1232 17.0617 75.2299 21.338 77.5599Z" fill="url(#ev_g)"/></g>
+    <defs><filter id="ev_ii" x="-4.05" y="-8.11" width="81.05" height="97.27" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="bg"/><feBlend in="SourceGraphic" in2="bg" result="shape"/></filter><linearGradient id="ev_g" x1="38.5" y1="0" x2="38.5" y2="81.05" gradientUnits="userSpaceOnUse"><stop stop-color="#71459B"/><stop offset="0.48" stop-color="#BF5BFF"/><stop offset="1" stop-color="#C16EFA"/></linearGradient></defs></svg>`,
+};
+
+/* Native shape aspect ratios (w/h) from uploaded SVGs */
+const shapeAspect: Record<string, { w: number; h: number }> = {
+  request: { w: 81, h: 68 },
+  offer: { w: 80, h: 70 },
+  observation: { w: 59, h: 56 },
+  event: { w: 77, h: 82 },
+};
+
+function createPinIcon(category: string, title: string, _dim = false, _urgent = false, highlighted = false) {
+  const baseScale = highlighted ? 1.1 : 0.85;
+  const aspect = shapeAspect[category] || shapeAspect.offer;
+  const shapeW = Math.round(aspect.w * baseScale);
+  const shapeH = Math.round(aspect.h * baseScale);
+  const gap = Math.round(14 * baseScale);
+  const labelPadY = Math.round(10 * baseScale);
+  const labelPadX = Math.round(14 * baseScale);
+  const labelRadius = Math.round(32 * baseScale);
+  const labelFont = Math.max(10, Math.round(13 * baseScale));
 
   const grad = categoryGradient[category] || categoryGradient.offer;
-  const opacity = dim ? 0.55 : 1;
   const glowColor = categoryGlow[category] || 'rgba(0,0,0,0.3)';
-  const glowFilter = dim
-    ? 'none'
-    : `drop-shadow(0 0 ${highlighted ? 16 : 10}px ${glowColor})${highlighted ? ` drop-shadow(0 0 28px ${glowColor})` : ''}`;
-  const pulseClass = (urgent && category === 'request') ? 'pin-urgent-pulse' : '';
+  const glowFilter = highlighted
+    ? `drop-shadow(0 0 16px ${glowColor}) drop-shadow(0 0 28px ${glowColor})`
+    : `drop-shadow(0 0 8px ${glowColor})`;
 
-  // Truncate title to keep label compact
   const safeTitle = (title || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const displayTitle = safeTitle.length > 22 ? safeTitle.slice(0, 20) + '…' : safeTitle;
 
   const labelBg = `linear-gradient(0deg, rgba(0,0,0,0.10) 0%, rgba(102,102,102,0.10) 100%), linear-gradient(180deg, ${grad.top} 0%, ${grad.bottom} 100%)`;
-  const shapeBg = labelBg;
 
-  const totalW = Math.max(shapeW, Math.round((displayTitle.length * labelFont * 0.55) + labelPadX * 2));
+  const shapeSvg = (categoryShapeSvg[category] || categoryShapeSvg.offer)(shapeW, shapeH);
+
+  const totalW = Math.max(shapeW, Math.round((displayTitle.length * labelFont * 0.6) + labelPadX * 2));
   const totalH = shapeH + gap + Math.round(labelFont * 1.4 + labelPadY * 2);
 
   const html = `
-    <div class="${pulseClass}" style="width:${totalW}px;height:${totalH}px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:${gap}px;cursor:pointer;opacity:${opacity};filter:${glowFilter};">
+    <div style="width:${totalW}px;height:${totalH}px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:${gap}px;cursor:pointer;filter:${glowFilter};">
       <div style="
         padding:${labelPadY}px ${labelPadX}px;
         background:${labelBg};
@@ -133,14 +156,7 @@ function createPinIcon(category: string, title: string, dim = false, urgent = fa
         text-transform:capitalize;line-height:1;white-space:nowrap;
         letter-spacing:0.1px;
       ">${displayTitle}</div>
-      <div style="
-        width:${shapeW}px;height:${shapeH}px;position:relative;
-        background:${shapeBg};
-        background-blend-mode:darken,normal;
-        box-shadow:0 2px 4px rgba(255,255,255,0.25) inset, -1px -2px 4px rgba(0,0,0,0.15) inset;
-        outline:0.5px solid ${grad.outline};
-        border-radius:${shapeRadius}px;
-      "></div>
+      <div style="width:${shapeW}px;height:${shapeH}px;display:flex;align-items:center;justify-content:center;">${shapeSvg}</div>
     </div>
   `;
 
@@ -148,7 +164,6 @@ function createPinIcon(category: string, title: string, dim = false, urgent = fa
     html,
     className: '',
     iconSize: [totalW, totalH],
-    // Anchor at the center of the rounded shape (bottom portion) so the geographic point matches the shape
     iconAnchor: [totalW / 2, totalH - shapeH / 2],
   });
 }
