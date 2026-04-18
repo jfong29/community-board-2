@@ -356,6 +356,19 @@ function MapEvents({
     };
   }, [map]);
 
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('mapView');
+      if (saved) {
+        const v = JSON.parse(saved);
+        if (v && typeof v.lat === 'number' && typeof v.lng === 'number' && typeof v.zoom === 'number') {
+          map.setView([v.lat, v.lng], v.zoom, { animate: false });
+        }
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useMapEvents({
     moveend(e) {
       const c = e.target.getCenter();
@@ -364,12 +377,15 @@ function MapEvents({
       onZoom(z);
       onAtMinZoom(z <= MIN_ZOOM);
       onAtMaxZoom(z >= MAX_ZOOM);
+      try { sessionStorage.setItem('mapView', JSON.stringify({ lat: c.lat, lng: c.lng, zoom: z })); } catch {}
     },
     zoomend(e) {
+      const c = e.target.getCenter();
       const z = e.target.getZoom();
       onZoom(z);
       onAtMinZoom(z <= MIN_ZOOM);
       onAtMaxZoom(z >= MAX_ZOOM);
+      try { sessionStorage.setItem('mapView', JSON.stringify({ lat: c.lat, lng: c.lng, zoom: z })); } catch {}
     },
   });
   return null;
