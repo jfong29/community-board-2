@@ -356,7 +356,6 @@ function MapEvents({
     };
   }, [map]);
 
-  const map = useMap();
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem('mapView');
