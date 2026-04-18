@@ -76,7 +76,8 @@ export default function ChatPanel({ pin, onClose, onBackToPin }: ChatPanelProps)
     <AnimatePresence>
       {pin && (
         <motion.div
-          className="fixed inset-0 z-50 flex flex-col"
+          className="fixed left-0 right-0 top-0 z-50 flex flex-col"
+          style={{ bottom: 76 }}
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
