@@ -44,6 +44,14 @@ const categoryGlow: Record<string, string> = {
   observation: 'rgba(255,108,47,0.5)', event: 'rgba(176,54,255,0.5)',
 };
 
+/* Gradient stops matching DetailSheet popup style */
+const categoryGradient: Record<string, { top: string; bottom: string; outline: string }> = {
+  offer:       { top: '#C6FF9A', bottom: '#A8F261', outline: 'rgba(168, 242, 97, 0.9)' },
+  request:     { top: '#FF84CE', bottom: '#FF61BF', outline: 'rgba(231, 134, 192, 0.9)' },
+  observation: { top: '#FFB088', bottom: '#FF8B52', outline: 'rgba(255, 139, 82, 0.9)' },
+  event:       { top: '#D69BFF', bottom: '#B86FFF', outline: 'rgba(184, 111, 255, 0.9)' },
+};
+
 /* ── Pin SVG builder ── */
 function pinSvg(category: string, size: number, dim = false): string {
   const color = categoryColor[category] || '#888';
