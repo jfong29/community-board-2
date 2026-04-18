@@ -649,7 +649,7 @@ export default function StreetMapView({
             <Marker
               key={pin.id}
               position={pinLatLng(pin)}
-              icon={createPinIcon(pin.category, isDim, isUrgent, isHighlighted)}
+              icon={createPinIcon(pin.category, pin.title, isDim, isUrgent, isHighlighted)}
               eventHandlers={{ click: () => onPinClick(pin) }}
             />
           );
