@@ -560,17 +560,17 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity, pins, highlightedPin
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <button onClick={handleZoomIn} style={zoomInStyle} title={atMaxZoom ? 'Maximum zoom reached' : 'Zoom in'}>
-          <img src={zoomInIcon} alt="Zoom in" className="w-5 h-5" style={atMaxZoom ? { opacity: 0.3 } : {}} />
+          <img src={zoomInIcon} alt="Zoom in" className="w-4 h-4" style={atMaxZoom ? { opacity: 0.3 } : {}} />
         </button>
         <button onClick={handleZoomOut} style={zoomOutStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
-          <img src={zoomOutIcon} alt="Zoom out" className="w-5 h-5" style={atMinZoom ? { opacity: 0.3 } : {}} />
+          <img src={zoomOutIcon} alt="Zoom out" className="w-4 h-auto" style={atMinZoom ? { opacity: 0.3 } : {}} />
         </button>
       </div>
       <button onClick={handleLocate} style={recenterStyle} title={highlightedPinId ? 'Show route to pin' : 'Go to your location'}>
         {loading ? (
-          <div className="w-5 h-5 border-2 border-lime/60 border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-lime/60 border-t-transparent rounded-full animate-spin" />
         ) : (
-          <img src={recenterIcon} alt="Locate" className="w-5 h-5" />
+          <img src={recenterIcon} alt="Locate" className="w-6 h-6" />
         )}
       </button>
     </div>
