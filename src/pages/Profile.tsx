@@ -5,6 +5,8 @@ import { ArrowLeft, User, ScrollText, Settings, Check, ChevronRight } from 'luci
 import { useProfile } from '@/hooks/use-profile';
 import { usePosts } from '@/hooks/use-posts';
 import PinIcon from '@/components/PinIcon';
+import EcoStatusBar from '@/components/EcoStatusBar';
+import FloatingDock from '@/components/FloatingDock';
 
 type Tab = 'settings' | 'log';
 

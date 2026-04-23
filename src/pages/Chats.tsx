@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { X, Search } from 'lucide-react';
 import FloatingDock from '@/components/FloatingDock';
+import EcoStatusBar from '@/components/EcoStatusBar';
 import { samplePins, PinCategory } from '@/data/pins';
 import PinIcon from '@/components/PinIcon';
 import searchButtonSvg from '@/assets/search-button.svg';
@@ -133,7 +134,8 @@ export default function Chats() {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" style={{ paddingBottom: 90 }}>
+    <div className="min-h-screen bg-background flex flex-col" style={{ paddingTop: 'var(--header-bottom, 90px)', paddingBottom: 90 }}>
+      <EcoStatusBar showFilters={false} />
       {/* Header */}
       <div className="px-[30px] pt-6 pb-4">
         <h1 className="font-display font-semibold text-foreground" style={{ fontSize: 28, fontFamily: 'Labrada, serif' }}>
