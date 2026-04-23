@@ -115,7 +115,13 @@ const shapeAspect: Record<string, { w: number; h: number }> = {
   event: { w: 77, h: 82 },
 };
 
+/* Memoized pin icon cache — avoids rebuilding heavy SVG/HTML strings on every render */
+const pinIconCache = new Map<string, L.DivIcon>();
 function createPinIcon(category: string, title: string, _dim = false, _urgent = false, highlighted = false) {
+  const cacheKey = `${category}|${title}|${highlighted ? 1 : 0}`;
+  const cached = pinIconCache.get(cacheKey);
+  if (cached) return cached;
+
   const baseScale = highlighted ? 1.1 : 0.85;
   const aspect = shapeAspect[category] || shapeAspect.offer;
   const shapeW = Math.round(aspect.w * baseScale);
@@ -160,12 +166,20 @@ function createPinIcon(category: string, title: string, _dim = false, _urgent = 
     </div>
   `;
 
-  return L.divIcon({
+  const icon = L.divIcon({
     html,
     className: '',
     iconSize: [totalW, totalH],
     iconAnchor: [totalW / 2, totalH - shapeH / 2],
   });
+
+  // Cap cache size to avoid unbounded growth
+  if (pinIconCache.size > 500) {
+    const firstKey = pinIconCache.keys().next().value;
+    if (firstKey) pinIconCache.delete(firstKey);
+  }
+  pinIconCache.set(cacheKey, icon);
+  return icon;
 }
 
 function createLandmarkIcon(emoji: string, count: number) {
