@@ -633,8 +633,15 @@ export default function StreetMapView({
 
   const visiblePins = useMemo(() => {
     if (tier === 'gradient-only' || tier === 'landmarks-gradient') return [];
-    return pins;
-  }, [pins, tier]);
+    if (!bounds) return pins;
+    // Pad bounds slightly so pins near edges don't pop in/out
+    const padded = bounds.pad(0.25);
+    return pins.filter((pin) => {
+      const lat = pin.lat ?? xyToLatLng(pin.x, pin.y).lat;
+      const lng = pin.lng ?? xyToLatLng(pin.x, pin.y).lng;
+      return padded.contains(L.latLng(lat, lng));
+    });
+  }, [pins, tier, bounds]);
 
   const showLandmarks = tier === 'landmarks-gradient' || tier === 'landmarks-urgent';
   const showHeatmap = tier === 'gradient-only' || tier === 'landmarks-gradient';
