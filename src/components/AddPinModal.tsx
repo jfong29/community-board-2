@@ -113,11 +113,15 @@ export default function AddPinModal({ open, onClose, onSubmit }: AddPinModalProp
             onClick={onClose}
           />
           <motion.div
-            className="fixed inset-x-4 top-1/2 z-50 md:max-w-md md:mx-auto max-h-[85vh] overflow-y-auto"
-            initial={{ y: '-40%', opacity: 0, scale: 0.9 }}
-            animate={{ y: '-50%', opacity: 1, scale: 1 }}
-            exit={{ y: '-40%', opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            className="fixed inset-x-4 z-50 md:max-w-md md:mx-auto overflow-y-auto"
+            style={{
+              top: 'calc(var(--header-bottom, 90px) + 12px)',
+              bottom: 'calc(var(--dock-height, 88px) + 12px)',
+            }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
           >
             <div className="earth-panel rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
