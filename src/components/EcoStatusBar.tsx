@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import SearchBar from './SearchBar';
 import CalendarPanel from './CalendarPanel';
 import CategoryFilters from './CategoryFilters';
@@ -27,26 +26,34 @@ function getTimeStr(): string {
 
 interface EcoStatusBarProps {
   initialSearch?: string;
-  onPinSelect: (pin: Pin) => void;
-  activeFilters: Set<PinCategory>;
-  onToggleFilter: (cat: PinCategory) => void;
+  onPinSelect?: (pin: Pin) => void;
+  activeFilters?: Set<PinCategory>;
+  onToggleFilter?: (cat: PinCategory) => void;
   onFiltersExpandChange?: (expanded: boolean) => void;
+  showFilters?: boolean;
 }
 
-export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFilters, onToggleFilter, onFiltersExpandChange }: EcoStatusBarProps) {
+export default function EcoStatusBar({
+  initialSearch = '',
+  onPinSelect,
+  activeFilters,
+  onToggleFilter,
+  onFiltersExpandChange,
+  showFilters = true,
+}: EcoStatusBarProps) {
   const navigate = useNavigate();
   const [showSeasonal, setShowSeasonal] = useState(false);
   const seasonName = getSeasonName();
   const timeStr = getTimeStr();
 
+  const handlePinSelect = (pin: Pin) => {
+    if (onPinSelect) onPinSelect(pin);
+    else navigate(`/?search=${encodeURIComponent(pin.title)}`);
+  };
+
   return (
     <>
-      <motion.div
-        className="fixed top-0 left-0 right-0 z-[60]"
-        initial={{ y: -40 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeInOut' }}
-      >
+      <div className="fixed top-0 left-0 right-0 z-[60]">
         <div className="screen-shell">
           {/* Row 1: Status bar */}
           <div className="status-row">
@@ -80,7 +87,7 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
               </button>
 
               <div className="search-wrapper">
-                <SearchBar initialQuery={initialSearch} onPinSelect={onPinSelect} />
+                <SearchBar initialQuery={initialSearch} onPinSelect={handlePinSelect} />
               </div>
             </div>
 
@@ -110,19 +117,21 @@ export default function EcoStatusBar({ initialSearch = '', onPinSelect, activeFi
           </div>
 
         </div>
-      </motion.div>
+      </div>
 
       {/* Filter row - separate from header background */}
-      <div
-        className="fixed left-0 right-0 z-[45]"
-        style={{ top: 'var(--header-bottom, 90px)' }}
-      >
-        <CategoryFilters
-          activeFilters={activeFilters}
-          onToggle={onToggleFilter}
-          onExpandChange={onFiltersExpandChange}
-        />
-      </div>
+      {showFilters && activeFilters && onToggleFilter && (
+        <div
+          className="fixed left-0 right-0 z-[45]"
+          style={{ top: 'var(--header-bottom, 90px)' }}
+        >
+          <CategoryFilters
+            activeFilters={activeFilters}
+            onToggle={onToggleFilter}
+            onExpandChange={onFiltersExpandChange}
+          />
+        </div>
+      )}
 
       <style>{`
         :root {

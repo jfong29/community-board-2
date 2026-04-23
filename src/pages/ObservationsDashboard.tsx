@@ -7,6 +7,7 @@ import GlobalClimateView from '@/components/GlobalClimateView';
 import DataTopicsView from '@/components/DataTopicsView';
 import ClimateStatsOverview from '@/components/ClimateStatsOverview';
 import FloatingDock from '@/components/FloatingDock';
+import EcoStatusBar from '@/components/EcoStatusBar';
 
 type GlobalSubView = 'topics' | 'climate-overview' | 'climate-detail';
 
@@ -188,7 +189,8 @@ export default function ObservationsDashboard() {
     'Climate Policies';
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24" style={{ paddingTop: 'var(--header-bottom, 90px)' }}>
+      <EcoStatusBar showFilters={false} />
       {/* Header */}
       <div className="sticky top-0 z-10 earth-panel border-b border-border/30">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">

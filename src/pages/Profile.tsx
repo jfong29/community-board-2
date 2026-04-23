@@ -5,6 +5,8 @@ import { ArrowLeft, User, ScrollText, Settings, Check, ChevronRight } from 'luci
 import { useProfile } from '@/hooks/use-profile';
 import { usePosts } from '@/hooks/use-posts';
 import PinIcon from '@/components/PinIcon';
+import EcoStatusBar from '@/components/EcoStatusBar';
+import FloatingDock from '@/components/FloatingDock';
 
 type Tab = 'settings' | 'log';
 
@@ -72,8 +74,10 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center" style={{ paddingTop: 'var(--header-bottom, 90px)' }}>
+        <EcoStatusBar showFilters={false} />
         <p className="text-muted-foreground font-display text-sm">Loading profile…</p>
+        <FloatingDock onAdd={() => navigate('/')} />
       </div>
     );
   }
@@ -92,7 +96,8 @@ export default function Profile() {
   };
 
   return (
-    <div className="fixed inset-0 bg-background overflow-y-auto">
+    <div className="min-h-screen bg-background pb-24" style={{ paddingTop: 'var(--header-bottom, 90px)' }}>
+      <EcoStatusBar showFilters={false} />
       {/* Header */}
       <div className="earth-panel border-b border-border/30 px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate('/')} className="p-1 text-foreground hover:bg-muted/30 rounded-full">
@@ -273,6 +278,8 @@ export default function Profile() {
         )}
 
       </div>
+
+      <FloatingDock onAdd={() => navigate('/')} />
     </div>
   );
 }
