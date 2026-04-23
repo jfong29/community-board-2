@@ -74,8 +74,10 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center" style={{ paddingTop: 'var(--header-bottom, 90px)' }}>
+        <EcoStatusBar showFilters={false} />
         <p className="text-muted-foreground font-display text-sm">Loading profile…</p>
+        <FloatingDock onAdd={() => navigate('/')} />
       </div>
     );
   }
