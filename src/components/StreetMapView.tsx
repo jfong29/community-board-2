@@ -288,13 +288,21 @@ function HeatmapLayer({ pins, zoom }: { pins: Pin[]; zoom: number }) {
     }
 
     draw();
-    map.on('move zoom moveend zoomend', draw);
+    let raf = 0;
+    const scheduleDraw = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        draw();
+      });
+    };
+    map.on('moveend zoomend', scheduleDraw);
 
     canvas.style.opacity = '0.7';
 
     return () => {
-      map.off('move zoom moveend zoomend', draw);
-      // static opacity, no animation frame to cancel
+      map.off('moveend zoomend', scheduleDraw);
+      if (raf) cancelAnimationFrame(raf);
       if (pane && canvas.parentNode === pane) pane.removeChild(canvas);
     };
   }, [map, pins]);
