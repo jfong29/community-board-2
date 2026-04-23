@@ -115,7 +115,13 @@ const shapeAspect: Record<string, { w: number; h: number }> = {
   event: { w: 77, h: 82 },
 };
 
+/* Memoized pin icon cache — avoids rebuilding heavy SVG/HTML strings on every render */
+const pinIconCache = new Map<string, L.DivIcon>();
 function createPinIcon(category: string, title: string, _dim = false, _urgent = false, highlighted = false) {
+  const cacheKey = `${category}|${title}|${highlighted ? 1 : 0}`;
+  const cached = pinIconCache.get(cacheKey);
+  if (cached) return cached;
+
   const baseScale = highlighted ? 1.1 : 0.85;
   const aspect = shapeAspect[category] || shapeAspect.offer;
   const shapeW = Math.round(aspect.w * baseScale);
@@ -160,12 +166,20 @@ function createPinIcon(category: string, title: string, _dim = false, _urgent = 
     </div>
   `;
 
-  return L.divIcon({
+  const icon = L.divIcon({
     html,
     className: '',
     iconSize: [totalW, totalH],
     iconAnchor: [totalW / 2, totalH - shapeH / 2],
   });
+
+  // Cap cache size to avoid unbounded growth
+  if (pinIconCache.size > 500) {
+    const firstKey = pinIconCache.keys().next().value;
+    if (firstKey) pinIconCache.delete(firstKey);
+  }
+  pinIconCache.set(cacheKey, icon);
+  return icon;
 }
 
 function createLandmarkIcon(emoji: string, count: number) {
@@ -274,13 +288,21 @@ function HeatmapLayer({ pins, zoom }: { pins: Pin[]; zoom: number }) {
     }
 
     draw();
-    map.on('move zoom moveend zoomend', draw);
+    let raf = 0;
+    const scheduleDraw = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        draw();
+      });
+    };
+    map.on('moveend zoomend', scheduleDraw);
 
     canvas.style.opacity = '0.7';
 
     return () => {
-      map.off('move zoom moveend zoomend', draw);
-      // static opacity, no animation frame to cancel
+      map.off('moveend zoomend', scheduleDraw);
+      if (raf) cancelAnimationFrame(raf);
       if (pane && canvas.parentNode === pane) pane.removeChild(canvas);
     };
   }, [map, pins]);
@@ -541,6 +563,27 @@ function FlyToHandler({ target, zoom, yOffsetPx = 0 }: { target: [number, number
   return null;
 }
 
+function BoundsTracker({ onBounds }: { onBounds: (b: L.LatLngBounds) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    onBounds(map.getBounds());
+    let raf = 0;
+    const update = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        onBounds(map.getBounds());
+      });
+    };
+    map.on('moveend zoomend', update);
+    return () => {
+      map.off('moveend zoomend', update);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [map, onBounds]);
+  return null;
+}
+
 export default function StreetMapView({
   pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange, highlightedPinId, hidePins, hideControls,
 }: StreetMapViewProps) {
@@ -557,6 +600,7 @@ export default function StreetMapView({
   const [flyZoom, setFlyZoom] = useState<number | undefined>(undefined);
   const [activeRoute, setActiveRoute] = useState<RouteInfo | null>(null);
   const [routeSaved, setRouteSaved] = useState(false);
+  const [bounds, setBounds] = useState<L.LatLngBounds | null>(null);
   const tier = getZoomTier(zoom);
 
   const pinLatLng = useCallback((pin: Pin): [number, number] => {
@@ -589,8 +633,15 @@ export default function StreetMapView({
 
   const visiblePins = useMemo(() => {
     if (tier === 'gradient-only' || tier === 'landmarks-gradient') return [];
-    return pins;
-  }, [pins, tier]);
+    if (!bounds) return pins;
+    // Pad bounds slightly so pins near edges don't pop in/out
+    const padded = bounds.pad(0.25);
+    return pins.filter((pin) => {
+      const lat = pin.lat ?? xyToLatLng(pin.x, pin.y).lat;
+      const lng = pin.lng ?? xyToLatLng(pin.x, pin.y).lng;
+      return padded.contains(L.latLng(lat, lng));
+    });
+  }, [pins, tier, bounds]);
 
   const showLandmarks = tier === 'landmarks-gradient' || tier === 'landmarks-urgent';
   const showHeatmap = tier === 'gradient-only' || tier === 'landmarks-gradient';
@@ -635,6 +686,7 @@ export default function StreetMapView({
         )}
 
         <SmoothZoomHandler />
+        <BoundsTracker onBounds={setBounds} />
         <FlyToHandler target={flyTarget} zoom={flyZoom} yOffsetPx={highlightedPinId ? -70 : 0} />
 
         {/* Dark OSM tiles – free, no API key needed */}
