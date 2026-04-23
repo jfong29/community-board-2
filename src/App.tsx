@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import Landing from "./pages/Landing.tsx";
 import ObservationsDashboard from "./pages/ObservationsDashboard.tsx";
 import Profile from "./pages/Profile.tsx";
+import Chats from "./pages/Chats.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/landing" element={<Landing />} />
           <Route path="/observations" element={<ObservationsDashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/chats" element={<Chats />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

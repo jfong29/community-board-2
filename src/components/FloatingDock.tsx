@@ -15,12 +15,16 @@ export default function FloatingDock({ onAdd, onChat, activeTab }: FloatingDockP
   const navigate = useNavigate();
   const location = useLocation();
 
-  const resolvedActive = activeTab || (location.pathname === '/observations' ? 'data' : 'map');
+  const resolvedActive = activeTab || (
+    location.pathname === '/observations' ? 'data' :
+    location.pathname === '/chats' ? 'chat' :
+    'map'
+  );
 
   const items = [
     { id: 'map' as const, icon: mapIcon, alt: 'Map', onClick: () => navigate('/'), size: 'h-6' },
     { id: 'data' as const, icon: dataIcon, alt: 'Data', onClick: () => navigate('/observations'), size: 'h-7' },
-    { id: 'chat' as const, icon: chatsIcon, alt: 'Chats', onClick: onChat || (() => {}), size: 'h-6' },
+    { id: 'chat' as const, icon: chatsIcon, alt: 'Chats', onClick: onChat || (() => navigate('/chats')), size: 'h-6' },
     { id: 'add' as const, icon: addPostIcon, alt: 'Add Post', onClick: onAdd, size: 'h-8' },
   ];
 
