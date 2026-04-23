@@ -269,7 +269,7 @@ export default function Profile() {
                 </button>
               ))
             )}
-          </motion.div>
+          </div>
         )}
 
       </div>
