@@ -270,12 +270,12 @@ export default function MapCanvas() {
         )}
       </AnimatePresence>
 
-      {/* Layer toggle - aligned with zoom controls (right side) */}
+      {/* Layer toggle - top of right-side stacked controls (below filters) */}
       <AnimatePresence>
         {!pinIsOpen && (
           <motion.div
             className="fixed z-40 flex items-center"
-            style={{ top: 'var(--map-controls-top, 140px)', right: '30px' }}
+            style={{ top: 'calc(var(--header-bottom, 90px) + 60px)', right: '30px' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -294,9 +294,7 @@ export default function MapCanvas() {
                     <button
                       key={opt.value}
                       onClick={() => { setMapLayer(opt.value); setLayerMenuOpen(false); }}
-                      className={`w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-all active:scale-95 ${
-                        mapLayer === opt.value ? 'ring-1 ring-lime/50' : 'hover:bg-muted/20'
-                      }`}
+                      className={`map-ctrl-btn ${mapLayer === opt.value ? 'ring-1 ring-lime/50' : ''}`}
                       title={opt.label}
                     >
                       <img
@@ -313,15 +311,32 @@ export default function MapCanvas() {
 
             <button
               onClick={() => setLayerMenuOpen(!layerMenuOpen)}
-              className="w-9 h-9 rounded-lg earth-panel flex items-center justify-center transition-colors active:scale-95 hover:bg-muted/20"
+              className="map-ctrl-btn"
               title="Map layers"
-              style={{ background: 'hsla(15,16%,17%,0.92)', border: '1px solid hsla(15,12%,30%,0.5)' }}
             >
-              <img src={layersIcon} alt="Layers" className="w-5 h-4" />
+              <img src={layersIcon} alt="Layers" className="w-5 h-5" />
             </button>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style>{`
+        .map-ctrl-btn {
+          width: 52px;
+          height: 48px;
+          border-radius: 14px;
+          background: linear-gradient(0deg, rgba(50,41,36,0.80) 0%, rgba(59,48,42,0.80) 46%, rgba(34,27,23,0.80) 100%);
+          box-shadow: inset 0 1.75px 4.9px 0.35px rgba(255,255,255,0.15);
+          outline: 0.68px solid #221B17;
+          outline-offset: -0.68px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: opacity 0.2s ease;
+        }
+        .map-ctrl-btn:active { transform: scale(0.95); }
+        .map-ctrl-btn:hover { opacity: 0.9; }
+      `}</style>
 
       <StreetMapView
         pins={filteredPins}
