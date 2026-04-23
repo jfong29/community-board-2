@@ -87,7 +87,7 @@ export default function EcoStatusBar({
               </button>
 
               <div className="search-wrapper">
-                <SearchBar initialQuery={initialSearch} onPinSelect={onPinSelect} />
+                <SearchBar initialQuery={initialSearch} onPinSelect={handlePinSelect} />
               </div>
             </div>
 
@@ -117,19 +117,21 @@ export default function EcoStatusBar({
           </div>
 
         </div>
-      </motion.div>
+      </div>
 
       {/* Filter row - separate from header background */}
-      <div
-        className="fixed left-0 right-0 z-[45]"
-        style={{ top: 'var(--header-bottom, 90px)' }}
-      >
-        <CategoryFilters
-          activeFilters={activeFilters}
-          onToggle={onToggleFilter}
-          onExpandChange={onFiltersExpandChange}
-        />
-      </div>
+      {showFilters && activeFilters && onToggleFilter && (
+        <div
+          className="fixed left-0 right-0 z-[45]"
+          style={{ top: 'var(--header-bottom, 90px)' }}
+        >
+          <CategoryFilters
+            activeFilters={activeFilters}
+            onToggle={onToggleFilter}
+            onExpandChange={onFiltersExpandChange}
+          />
+        </div>
+      )}
 
       <style>{`
         :root {
