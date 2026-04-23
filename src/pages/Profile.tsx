@@ -276,6 +276,8 @@ export default function Profile() {
         )}
 
       </div>
+
+      <FloatingDock onAdd={() => navigate('/')} />
     </div>
   );
 }
