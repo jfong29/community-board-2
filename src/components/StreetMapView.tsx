@@ -509,32 +509,64 @@ function MapControls({ atMinZoom, atMaxZoom, onRequestCity, pins, highlightedPin
     map.flyTo(YOU_LOCATION, 16, { duration: 0.8 });
   };
 
-  const btnBase: React.CSSProperties = {
-    background: 'hsla(15,16%,17%,0.92)',
-    border: '1px solid hsla(15,12%,30%,0.5)',
+  const pillStyle: React.CSSProperties = {
+    width: 52,
+    height: 48,
+    background: 'linear-gradient(0deg, rgba(50,41,36,0.80) 0%, rgba(59,48,42,0.80) 46%, rgba(34,27,23,0.80) 100%)',
+    boxShadow: 'inset 0 1.75px 4.9px 0.35px rgba(255,255,255,0.15)',
+    outline: '0.68px solid #221B17',
+    outlineOffset: '-0.68px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'opacity 0.2s ease',
   };
-  const dimOutStyle: React.CSSProperties = atMinZoom
-    ? { ...btnBase, opacity: 0.4, cursor: 'default' }
-    : btnBase;
-  const dimInStyle: React.CSSProperties = atMaxZoom
-    ? { ...btnBase, opacity: 0.4, cursor: 'default' }
-    : btnBase;
+  const zoomInStyle: React.CSSProperties = {
+    ...pillStyle,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    opacity: atMaxZoom ? 0.4 : 1,
+    cursor: atMaxZoom ? 'default' : 'pointer',
+  };
+  const zoomOutStyle: React.CSSProperties = {
+    ...pillStyle,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 14,
+    borderBottomRightRadius: 14,
+    opacity: atMinZoom ? 0.4 : 1,
+    cursor: atMinZoom ? 'default' : 'pointer',
+  };
+  const recenterStyle: React.CSSProperties = {
+    ...pillStyle,
+    borderRadius: 14,
+  };
 
   return (
-    <div className="leaflet-control" style={{ position: 'absolute', right: 30, top: 'calc(30px * 2 + 64px + 48px)', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <button onClick={handleZoomIn}
-        className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={dimInStyle} title={atMaxZoom ? 'Maximum zoom reached' : 'Zoom in'}>
-        <img src={zoomInIcon} alt="Zoom in" className="w-4 h-4" style={atMaxZoom ? { opacity: 0.3 } : {}} />
-      </button>
-      <button onClick={handleZoomOut}
-        className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={dimOutStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
-        <img src={zoomOutIcon} alt="Zoom out" className="w-4 h-auto" style={atMinZoom ? { opacity: 0.3 } : {}} />
-      </button>
-      <button onClick={handleLocate}
-        className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors active:scale-95"
-        style={btnBase} title={highlightedPinId ? 'Show route to pin' : 'Go to your location'}>
+    <div
+      className="leaflet-control"
+      style={{
+        position: 'absolute',
+        right: 30,
+        top: 'calc(var(--header-bottom, 90px) + 60px + 48px + 12px)',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: 30,
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <button onClick={handleZoomIn} style={zoomInStyle} title={atMaxZoom ? 'Maximum zoom reached' : 'Zoom in'}>
+          <img src={zoomInIcon} alt="Zoom in" className="w-4 h-4" style={atMaxZoom ? { opacity: 0.3 } : {}} />
+        </button>
+        <button onClick={handleZoomOut} style={zoomOutStyle} title={atMinZoom ? 'Area limit reached' : 'Zoom out'}>
+          <img src={zoomOutIcon} alt="Zoom out" className="w-4 h-auto" style={atMinZoom ? { opacity: 0.3 } : {}} />
+        </button>
+      </div>
+      <button onClick={handleLocate} style={recenterStyle} title={highlightedPinId ? 'Show route to pin' : 'Go to your location'}>
         {loading ? (
           <div className="w-4 h-4 border-2 border-lime/60 border-t-transparent rounded-full animate-spin" />
         ) : (
