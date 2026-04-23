@@ -217,11 +217,11 @@ export default function Profile() {
             >
               {saved ? <><Check size={16} /> Saved</> : updateProfile.isPending ? 'Saving…' : 'Save Changes'}
             </button>
-          </motion.div>
+          </div>
         )}
 
         {tab === 'log' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+          <div className="space-y-3">
             {/* Summary counts */}
             <div className="grid grid-cols-4 gap-2 mb-2">
               {(['offer', 'request', 'observation', 'event'] as const).map((cat) => {
