@@ -102,34 +102,25 @@ export default function CategoryFilters({ activeFilters, onToggle, onExpandChang
                 <button
                   key={key}
                   onClick={() => onToggle(key)}
-                  className="flex items-center gap-[2px] transition-all active:scale-95"
+                  className="h-[28px] px-3 rounded-full border font-sans font-bold text-[11px] flex items-center justify-center whitespace-nowrap transition-all active:scale-95"
                   style={{
-                    height: 26,
-                    paddingTop: 3,
-                    paddingBottom: 4,
-                    paddingLeft: 6,
-                    paddingRight: 7,
                     background: gradient,
-                    borderRadius: 39,
                     border: border,
                     boxShadow: shadow,
+                    color: DARK_WOOD,
                     opacity: isActive ? 1 : 0.4,
                     flex: '1 1 0',
                     minWidth: 0,
-                    justifyContent: 'center',
                   }}
                 >
-                  <img
-                    src={icon}
-                    alt={label}
-                    className="w-[10px] h-[8px] flex-shrink-0"
-                    style={{ filter: 'brightness(0) saturate(100%)' }}
-                  />
-                  <span
-                    className="font-display font-bold text-[9px] leading-none whitespace-nowrap"
-                    style={{ color: DARK_WOOD }}
-                  >
-                    {label}
+                  <span className="flex items-center gap-[4px]">
+                    <img
+                      src={icon}
+                      alt={label}
+                      className="w-[12px] h-[10px] flex-shrink-0"
+                      style={{ filter: 'brightness(0) saturate(100%)' }}
+                    />
+                    <span>{label}</span>
                   </span>
                 </button>
               );
