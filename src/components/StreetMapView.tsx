@@ -563,6 +563,27 @@ function FlyToHandler({ target, zoom, yOffsetPx = 0 }: { target: [number, number
   return null;
 }
 
+function BoundsTracker({ onBounds }: { onBounds: (b: L.LatLngBounds) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    onBounds(map.getBounds());
+    let raf = 0;
+    const update = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        onBounds(map.getBounds());
+      });
+    };
+    map.on('moveend zoomend', update);
+    return () => {
+      map.off('moveend zoomend', update);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [map, onBounds]);
+  return null;
+}
+
 export default function StreetMapView({
   pins, landmarks, onPinClick, onLandmarkClick, layer, onMapMove, onZoomChange, highlightedPinId, hidePins, hideControls,
 }: StreetMapViewProps) {
@@ -579,6 +600,7 @@ export default function StreetMapView({
   const [flyZoom, setFlyZoom] = useState<number | undefined>(undefined);
   const [activeRoute, setActiveRoute] = useState<RouteInfo | null>(null);
   const [routeSaved, setRouteSaved] = useState(false);
+  const [bounds, setBounds] = useState<L.LatLngBounds | null>(null);
   const tier = getZoomTier(zoom);
 
   const pinLatLng = useCallback((pin: Pin): [number, number] => {
