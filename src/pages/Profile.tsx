@@ -124,7 +124,7 @@ export default function Profile() {
 
       <div className="p-4 max-w-md mx-auto space-y-4">
         {tab === 'settings' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+          <div className="space-y-4">
             <div>
               <label className="text-[11px] text-muted-foreground font-display block mb-1">Name</label>
               <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
@@ -217,11 +217,11 @@ export default function Profile() {
             >
               {saved ? <><Check size={16} /> Saved</> : updateProfile.isPending ? 'Saving…' : 'Save Changes'}
             </button>
-          </motion.div>
+          </div>
         )}
 
         {tab === 'log' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+          <div className="space-y-3">
             {/* Summary counts */}
             <div className="grid grid-cols-4 gap-2 mb-2">
               {(['offer', 'request', 'observation', 'event'] as const).map((cat) => {
@@ -269,7 +269,7 @@ export default function Profile() {
                 </button>
               ))
             )}
-          </motion.div>
+          </div>
         )}
 
       </div>

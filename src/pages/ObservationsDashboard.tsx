@@ -238,60 +238,45 @@ export default function ObservationsDashboard() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6">
-        <AnimatePresence mode="wait">
-          {view === 'local' ? (
-            <motion.div
-              key="local"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-8"
-            >
-              <section>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {observationData.map((obs, i) => (
-                    <motion.div key={obs.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                      <StatusRing data={obs} />
-                    </motion.div>
-                  ))}
-                </div>
-              </section>
-
-              <section className="space-y-3">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-lg">⟶</span>
-                  <h2 className="font-display text-sm font-semibold text-foreground uppercase tracking-widest">Responses</h2>
-                </div>
-                {actions.map((action, i) => (
-                  <motion.div key={action.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.1 }}>
-                    <ActionCard action={action} onVote={handleVote} />
-                  </motion.div>
+        {view === 'local' ? (
+          <div key="local" className="space-y-8">
+            <section>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {observationData.map((obs) => (
+                  <div key={obs.id}>
+                    <StatusRing data={obs} />
+                  </div>
                 ))}
-              </section>
-            </motion.div>
-          ) : (
-            <motion.div
-              key={`global-${globalSubView}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.2 }}
-            >
-              {globalSubView === 'topics' && (
-                <DataTopicsView onSelectTopic={(id) => {
-                  if (id === 'climate') setGlobalSubView('climate-overview');
-                }} />
-              )}
-              {globalSubView === 'climate-overview' && (
-                <ClimateStatsOverview onDrillIn={() => setGlobalSubView('climate-detail')} />
-              )}
-              {globalSubView === 'climate-detail' && (
-                <GlobalClimateView />
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-lg">⟶</span>
+                <h2 className="font-display text-sm font-semibold text-foreground uppercase tracking-widest">Responses</h2>
+              </div>
+              {actions.map((action) => (
+                <div key={action.id}>
+                  <ActionCard action={action} onVote={handleVote} />
+                </div>
+              ))}
+            </section>
+          </div>
+        ) : (
+          <div key={`global-${globalSubView}`}>
+            {globalSubView === 'topics' && (
+              <DataTopicsView onSelectTopic={(id) => {
+                if (id === 'climate') setGlobalSubView('climate-overview');
+              }} />
+            )}
+            {globalSubView === 'climate-overview' && (
+              <ClimateStatsOverview onDrillIn={() => setGlobalSubView('climate-detail')} />
+            )}
+            {globalSubView === 'climate-detail' && (
+              <GlobalClimateView />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Footer dock */}
