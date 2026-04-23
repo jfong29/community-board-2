@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import chatsIcon from '@/assets/chats.svg';
 import addPostIcon from '@/assets/add-post.svg';
@@ -29,12 +28,7 @@ export default function FloatingDock({ onAdd, onChat, activeTab }: FloatingDockP
   ];
 
   return (
-    <motion.div
-      className="fixed bottom-0 left-0 right-0 z-40"
-      initial={{ y: 80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: 'easeInOut' }}
-    >
+    <div className="fixed bottom-0 left-0 right-0 z-40">
       <div
         className="w-full flex items-center justify-evenly py-4 px-8"
         style={{ background: 'linear-gradient(180deg, #221B17 0%, #332822 100%)' }}
@@ -45,13 +39,13 @@ export default function FloatingDock({ onAdd, onChat, activeTab }: FloatingDockP
             <button
               key={item.alt}
               onClick={item.onClick}
-              className="flex items-center justify-center p-2 transition-all active:scale-90"
+              className="flex items-center justify-center p-2 transition-colors active:scale-90"
               title={item.alt}
             >
               <img
                 src={item.icon}
                 alt={item.alt}
-                className={`${item.size} w-auto transition-all`}
+                className={`${item.size} w-auto transition-[filter] duration-150`}
                 style={{
                   filter: isActive
                     ? 'brightness(0) saturate(100%) invert(85%) sepia(40%) saturate(500%) hue-rotate(20deg) brightness(110%)'
@@ -62,6 +56,6 @@ export default function FloatingDock({ onAdd, onChat, activeTab }: FloatingDockP
           );
         })}
       </div>
-    </motion.div>
+    </div>
   );
 }
