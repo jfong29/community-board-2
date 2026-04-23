@@ -94,7 +94,8 @@ export default function Profile() {
   };
 
   return (
-    <div className="fixed inset-0 bg-background overflow-y-auto">
+    <div className="min-h-screen bg-background pb-24" style={{ paddingTop: 'var(--header-bottom, 90px)' }}>
+      <EcoStatusBar showFilters={false} />
       {/* Header */}
       <div className="earth-panel border-b border-border/30 px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate('/')} className="p-1 text-foreground hover:bg-muted/30 rounded-full">
