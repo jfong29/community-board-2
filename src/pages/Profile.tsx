@@ -124,7 +124,7 @@ export default function Profile() {
 
       <div className="p-4 max-w-md mx-auto space-y-4">
         {tab === 'settings' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+          <div className="space-y-4">
             <div>
               <label className="text-[11px] text-muted-foreground font-display block mb-1">Name</label>
               <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
