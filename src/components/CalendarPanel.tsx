@@ -428,7 +428,6 @@ export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPa
                                 }
                               }}
                             >
-                              <img src={CATEGORY_ICON[pin.category]} alt="" className="w-4 h-4 flex-shrink-0 opacity-80" />
                               <div className="flex-1 min-w-0">
                                 <p className="font-display text-xs font-semibold truncate">{pin.title}</p>
                                 <p className="text-[10px] opacity-70 truncate">
