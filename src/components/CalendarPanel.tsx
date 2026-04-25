@@ -4,9 +4,9 @@ import { X, ChevronLeft, ChevronRight, Bookmark, ExternalLink } from 'lucide-rea
 import { Pin, PinCategory, samplePins } from '@/data/pins';
 import calendarIcon from '@/assets/calendar.svg';
 import savedIcon from '@/assets/saved.svg';
-import offerIcon from '@/assets/offer.svg';
-import requestIcon from '@/assets/request.svg';
-import observationIcon from '@/assets/observation.svg';
+import offerIcon from '@/assets/offer-no-outline.svg';
+import requestIcon from '@/assets/request-no-outline.svg';
+import observationIcon from '@/assets/signal-no-outline.svg';
 import gatheringIcon from '@/assets/gathering.svg';
 
 interface CalendarPanelProps {
