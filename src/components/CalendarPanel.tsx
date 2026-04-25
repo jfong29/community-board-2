@@ -105,13 +105,6 @@ const CATEGORY_DOT: Record<PinCategory, string> = {
   event: 'bg-event',
 };
 
-const CATEGORY_ICON: Record<PinCategory, string> = {
-  offer: offerIcon,
-  request: requestIcon,
-  observation: observationIcon,
-  event: gatheringIcon,
-};
-
 const urgencyScore: Record<string, number> = { critical: 3, high: 2, medium: 1, low: 0 };
 
 export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPanelProps) {
