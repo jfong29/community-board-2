@@ -105,13 +105,6 @@ const CATEGORY_DOT: Record<PinCategory, string> = {
   event: 'bg-event',
 };
 
-const CATEGORY_ICON: Record<PinCategory, string> = {
-  offer: offerIcon,
-  request: requestIcon,
-  observation: observationIcon,
-  event: gatheringIcon,
-};
-
 const urgencyScore: Record<string, number> = { critical: 3, high: 2, medium: 1, low: 0 };
 
 export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPanelProps) {
@@ -428,7 +421,6 @@ export default function CalendarPanel({ open, onClose, onPinSelect }: CalendarPa
                                 }
                               }}
                             >
-                              <img src={CATEGORY_ICON[pin.category]} alt="" className="w-4 h-4 flex-shrink-0 opacity-80" />
                               <div className="flex-1 min-w-0">
                                 <p className="font-display text-xs font-semibold truncate">{pin.title}</p>
                                 <p className="text-[10px] opacity-70 truncate">
