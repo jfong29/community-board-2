@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import CalendarPanel from './CalendarPanel';
 import CategoryFilters from './CategoryFilters';
+import HelpPanel from './HelpPanel';
 import { Pin, PinCategory } from '@/data/pins';
 import moonPhaseIcon from '@/assets/moon-phase-new.svg';
 import sunIcon from '@/assets/sun-icon.svg';
@@ -43,6 +44,7 @@ export default function EcoStatusBar({
 }: EcoStatusBarProps) {
   const navigate = useNavigate();
   const [showSeasonal, setShowSeasonal] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const seasonName = getSeasonName();
   const timeStr = getTimeStr();
 
@@ -93,7 +95,7 @@ export default function EcoStatusBar({
 
             <div className="toolbar-actions">
               <button
-                onClick={() => setShowSeasonal(true)}
+                onClick={() => setShowHelp(true)}
                 className="hover:opacity-80 transition-opacity active:scale-95"
                 title="Help"
               >
@@ -300,6 +302,7 @@ export default function EcoStatusBar({
       `}</style>
 
       <CalendarPanel open={showSeasonal} onClose={() => setShowSeasonal(false)} onPinSelect={onPinSelect} />
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} />
     </>
   );
 }
