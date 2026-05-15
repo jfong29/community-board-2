@@ -32,14 +32,19 @@ export default function HelpPanel({ open, onClose }: HelpPanelProps) {
           />
 
           <motion.div
-            className="fixed z-[61] w-[min(92vw,400px)]"
-            style={{ top: '48px', right: 'var(--grid-gap)' }}
+            className="fixed z-[61] flex flex-col"
+            style={{
+              top: 'var(--header-bottom, 90px)',
+              bottom: 'calc(var(--dock-height, 96px) + var(--grid-gap))',
+              left: 'var(--grid-gap)',
+              right: 'var(--grid-gap)',
+            }}
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
-            <div className="earth-panel rounded-2xl p-5 max-h-[80vh] overflow-y-auto">
+            <div className="earth-panel rounded-2xl p-5 flex-1 overflow-y-auto flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-display text-base font-bold text-foreground">
                   About (Y)our Agency
@@ -52,11 +57,12 @@ export default function HelpPanel({ open, onClose }: HelpPanelProps) {
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 overflow-y-auto">
                 {PROJECT_DESCRIPTION.split('\n\n').map((paragraph, i) => (
                   <p
                     key={i}
-                    className="text-[12px] text-foreground/85 leading-relaxed font-body"
+                    className="font-body text-[12px] text-foreground/85 leading-relaxed"
+                    style={{ fontFamily: '"Public Sans", sans-serif', fontWeight: 600 }}
                   >
                     {paragraph}
                   </p>
