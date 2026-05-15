@@ -8,7 +8,7 @@ import offerNoOutline from '@/assets/offer-no-outline.svg';
 import requestNoOutline from '@/assets/request-no-outline.svg';
 import urgentRequestPopup from '@/assets/urgent-request-popup.svg';
 import observationNoOutline from '@/assets/signal-no-outline.svg';
-import gatheringNoOutline from '@/assets/gathering.svg';
+import gatheringNoOutline from '@/assets/gathering-no-outline.svg';
 import nameIcon from '@/assets/name-icon.svg';
 import clockIcon from '@/assets/clock.svg';
 import locationIcon from '@/assets/location.svg';

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import offerNoOutline from '@/assets/offer-no-outline.svg';
 import requestNoOutline from '@/assets/request-no-outline.svg';
 import observationNoOutline from '@/assets/signal-no-outline.svg';
-import gatheringNoOutline from '@/assets/gathering.svg';
+import gatheringNoOutline from '@/assets/gathering-no-outline.svg';
 import checkmarkIcon from '@/assets/checkmark.svg';
 import xMarkIcon from '@/assets/x-mark.svg';
 
