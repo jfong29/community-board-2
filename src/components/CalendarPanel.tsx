@@ -7,7 +7,7 @@ import savedIcon from '@/assets/saved.svg';
 import offerIcon from '@/assets/offer-no-outline.svg';
 import requestIcon from '@/assets/request-no-outline.svg';
 import observationIcon from '@/assets/signal-no-outline.svg';
-import gatheringIcon from '@/assets/gathering.svg';
+import gatheringIcon from '@/assets/gathering-no-outline.svg';
 
 interface CalendarPanelProps {
   open: boolean;

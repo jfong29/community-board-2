@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import offerNoOutline from '@/assets/offer-no-outline.svg';
 import requestNoOutline from '@/assets/request-no-outline.svg';
 import observationNoOutline from '@/assets/signal-no-outline.svg';
-import gatheringIcon from '@/assets/gathering.svg';
+import gatheringIcon from '@/assets/gathering-no-outline.svg';
 import yFilter from '@/assets/y-filter.svg';
 import yFilterLime from '@/assets/y-filter-lime.svg';
 

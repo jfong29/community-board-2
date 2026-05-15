@@ -7,7 +7,7 @@ import searchButtonSvg from '@/assets/search-button.svg';
 import offerNoOutline from '@/assets/offer-no-outline.svg';
 import requestNoOutline from '@/assets/request-no-outline.svg';
 import observationNoOutline from '@/assets/signal-no-outline.svg';
-import gatheringNoOutline from '@/assets/gathering.svg';
+import gatheringNoOutline from '@/assets/gathering-no-outline.svg';
 
 /* ── colour map ── */
 const categoryColors: Record<PinCategory, string> = {
