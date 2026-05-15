@@ -90,7 +90,8 @@ export default function CategoryFilters({ activeFilters, onToggle, onExpandChang
         {expanded && (
           <motion.div
             key="filters"
-            className="flex items-center gap-[3px] ml-2 flex-1 min-w-0"
+            className="flex items-center gap-[4px] ml-2 flex-1 min-w-0 overflow-x-auto"
+            style={{ scrollbarWidth: 'none' }}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
@@ -102,23 +103,26 @@ export default function CategoryFilters({ activeFilters, onToggle, onExpandChang
                 <button
                   key={key}
                   onClick={() => onToggle(key)}
-                  className="h-[28px] px-3 rounded-full border font-sans font-bold text-[11px] flex items-center justify-center whitespace-nowrap transition-all active:scale-95"
+                  className="h-[28px] px-3 rounded-full border font-sans font-bold text-[11px] flex items-center justify-center whitespace-nowrap transition-all active:scale-95 flex-shrink-0"
                   style={{
                     background: gradient,
                     border: border,
                     boxShadow: shadow,
                     color: DARK_WOOD,
                     opacity: isActive ? 1 : 0.4,
-                    flex: '1 1 0',
-                    minWidth: 0,
                   }}
                 >
-                  <span className="flex items-center gap-[4px]">
-                    <img
-                      src={icon}
-                      alt={label}
-                      className="w-[12px] h-[10px] flex-shrink-0"
-                      style={{ filter: 'brightness(0) saturate(100%)' }}
+                  <span className="flex items-center gap-[5px]">
+                    <span
+                      aria-hidden
+                      className="flex-shrink-0 inline-block"
+                      style={{
+                        width: 12,
+                        height: 12,
+                        backgroundColor: DARK_WOOD,
+                        WebkitMask: `url(${icon}) center / contain no-repeat`,
+                        mask: `url(${icon}) center / contain no-repeat`,
+                      }}
                     />
                     <span>{label}</span>
                   </span>
